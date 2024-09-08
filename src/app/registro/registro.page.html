@@ -1,0 +1,57 @@
+<ion-content fullscreen class="login-content">
+  <!-- Contenedor de la imagen de fondo -->
+  <div class="background-container">
+    <img src="assets/images/fondo1.jpeg" alt="Fondo" class="background-image">
+  </div>
+
+  <!-- Contenido principal con el formulario de registro -->
+  <div class="content-overlay">
+    <img src="assets/images/logo_pawsy.png" alt="Logo Pawsy" class="logo">
+
+    <!-- Utilizando un mat-card de Angular Material para el formulario -->
+    <mat-card class="login-card">
+      <mat-card-header>
+        <mat-card-title class="center-title">Crear Cuenta</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Formulario de registro con validaciones jQuery -->
+        <form id="registerForm" (ngSubmit)="register()">
+          <!-- Campo de nombre completo -->
+          <mat-form-field appearance="fill" class="input-item">
+            <mat-label>Nombre completo</mat-label>
+            <input matInput type="text" id="fullName" required>
+          </mat-form-field>
+
+          <!-- Campo de correo electrónico -->
+          <mat-form-field appearance="fill" class="input-item">
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput type="email" id="email" required>
+          </mat-form-field>
+
+          <!-- Campo de contraseña -->
+          <mat-form-field appearance="fill" class="input-item">
+            <mat-label>Contraseña</mat-label>
+            <input matInput type="password" id="password" required>
+          </mat-form-field>
+
+          <!-- Campo de confirmación de contraseña -->
+          <mat-form-field appearance="fill" class="input-item">
+            <mat-label>Confirmar Contraseña</mat-label>
+            <input matInput type="password" id="confirmPassword" required>
+          </mat-form-field>
+
+          <!-- Botón de registro utilizando Angular Material -->
+          <button mat-raised-button color="primary" type="submit" class="login-button">
+            Registrarse
+          </button>
+
+          <!-- Enlace para navegar a la página de inicio de sesión -->
+          <div class="register-link">
+            <p>¿Ya tienes una cuenta? <a href="#" (click)="navigateToLogin($event)">Inicia sesión aquí</a></p>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</ion-content>
