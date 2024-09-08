@@ -1,0 +1,47 @@
+<ion-content fullscreen class="login-content">
+  <div class="background-container">
+    <img src="assets/images/fondo1.jpeg" alt="Fondo" class="background-image">
+  </div>
+
+  <div class="content-overlay">
+    <img src="assets/images/logo_pawsy.png" alt="Logo" class="logo">
+
+    <ion-card class="login-card">
+      <ion-card-header>
+        <ion-card-title>Iniciar Sesión</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+          <ion-item>
+            <ion-label position="floating">Correo Electrónico</ion-label>
+            <ion-input formControlName="email" type="email"></ion-input>
+          </ion-item>
+          <ion-item *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            <p class="error">Por favor, ingresa un correo electrónico válido.</p>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Contraseña</ion-label>
+            <ion-input formControlName="password" type="password"></ion-input>
+          </ion-item>
+          <ion-item *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            <p class="error">La contraseña debe tener al menos 6 caracteres.</p>
+          </ion-item>
+
+          <ion-button expand="block" type="submit" class="login-button" [disabled]="loginForm.invalid">
+            Iniciar
+          </ion-button>
+
+          <div class="forgot-password">
+            <a href="#" (click)="presentResetPasswordModal($event)">¿Olvidaste tu contraseña?</a>
+          </div>
+          
+          <div class="register-link">
+            <p>¿Ya tienes una cuenta? <a href="#" (click)="navigateToRegister($event)">Registrate aquí</a></p>
+          </div>
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
