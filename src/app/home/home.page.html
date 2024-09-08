@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="custom-title">Pawsy</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="search-outline"></ion-icon>
+      </ion-button>
+      <ion-button>
+        <ion-icon name="location-outline"></ion-icon>
+      </ion-button>
+      <ion-button>
+        <ion-icon name="cart-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Saludo personalizado al usuario -->
+  <ion-card>
+    <ion-img src="assets/images/imghome3.webp"></ion-img>
+    <ion-card-header>
+      <ion-card-title>Bienvenido, {{ nombreUsuario }} a Pawsy</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      Aquí encuentras todo lo que tu mascota necesita, con el mismo amor y cuidado que tú le das. ¡Hagamos su vida más feliz juntos!
+    </ion-card-content>
+  </ion-card>
+  
+  <!-- Lista de Opciones -->
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Opciones de Navegación</ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-icon name="cart-outline" slot="start"></ion-icon>
+      <ion-label>Comprar Ahora</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="heart-outline" slot="start"></ion-icon>
+      <ion-label>Favoritos</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="settings-outline" slot="start"></ion-icon>
+      <ion-label>Configuración</ion-label> 
+    </ion-item>
+  </ion-list>
+</ion-content>

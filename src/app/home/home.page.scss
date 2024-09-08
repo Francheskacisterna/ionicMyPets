@@ -1,0 +1,33 @@
+ion-header {
+  background-color: #001e48;
+  color: white;
+  --ion-background-color: #001e48;
+  --ion-toolbar-background: #001e48;
+}
+
+ion-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+ion-title {
+  flex-grow: 1;
+  text-align: center;
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+}
+
+ion-buttons {
+  display: flex;
+  align-items: center;
+}
+
+ion-icon {
+  color: white;
+  font-size: 24px;
+  margin: 0 10px;
+}
+
