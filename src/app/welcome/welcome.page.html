@@ -1,0 +1,19 @@
+<ion-content fullscreen class="home-content">
+  <div class="background-container">
+    <img src="assets/images/fondo1.jpeg" alt="Fondo" class="background-image">
+  </div>
+
+  <div class="content-overlay">
+    <img src="assets/images/logo_pawsy.png" alt="Logo" class="logo">
+    <h1>Bienvenido a Pawsy</h1>
+
+    <!-- El botón al que se le aplicará la animación -->
+    <ion-button expand="block" class="login-button" (click)="navigateToLogin()">
+      INICIAR
+    </ion-button>
+
+    <ion-button expand="block" fill="outline" class="guest-button" (click)="navigateToHome()">
+      Entrar como invitado
+    </ion-button>
+  </div>
+</ion-content>

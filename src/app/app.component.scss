@@ -1,0 +1,38 @@
+ion-header {
+    background-color: #d4c0a1; /* Cambia esto al color que combine con tu logo */
+    color: #5d4638; /* Color del texto */
+    --ion-background-color: #d4c0a1; /* Fondo de la barra */
+    --ion-toolbar-background: #d4c0a1; /* Fondo de la toolbar */
+}
+
+.brand-title {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 22px;
+    color: #5d4638; /* Color del texto Pawsy */
+    font-weight: bold;
+}
+
+ion-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+ion-buttons {
+    display: flex;
+    align-items: center;
+}
+
+ion-icon {
+    color: #5d4638; /* Color de los iconos */
+    font-size: 26px; /* Aumenta el tamaño de los iconos */
+    margin: 0 10px;
+}
+
+ion-menu-button {
+    --ion-color-primary: #5d4638;;
+}
+
+
