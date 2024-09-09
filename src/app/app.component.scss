@@ -1,8 +1,8 @@
+/* Estilos para el ion-header y centrado del título "Pawsy" */
 ion-header {
-    background-color: #d4c0a1; /* Cambia esto al color que combine con tu logo */
-    color: #5d4638; /* Color del texto */
-    --ion-background-color: #d4c0a1; /* Fondo de la barra */
-    --ion-toolbar-background: #d4c0a1; /* Fondo de la toolbar */
+    background-color: #d4c0a1; /* Fondo de la barra */
+    --ion-background-color: #d4c0a1;
+    --ion-toolbar-background: #d4c0a1;
 }
 
 .brand-title {
@@ -11,8 +11,52 @@ ion-header {
     font-size: 22px;
     color: #5d4638; /* Color del texto Pawsy */
     font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
 }
 
+/* Estilo para mat-toolbar */
+mat-toolbar {
+    background-color: #d4c0a1;
+    color: #5d4638;
+}
+
+/* Cambiar tamaño del texto en el título del menú */
+mat-toolbar span {
+    font-size: 21px; /* Tamaño de letra reducido para Menú Principal */
+    font-weight: bold;
+}
+
+/* Estilo para los elementos del menú lateral */
+ion-item {
+    --background: transparent; /* Elimina el fondo blanco */
+    --border-color: #5d4638; /* Color del borde del separador */
+    color: #d4c0a1; /* Color del texto de los ítems */
+}
+
+/* Cambia el color de fondo al hacer hover */
+ion-item:hover {
+    --background: rgba(93, 70, 56, 0.1); /* Color suave de hover */
+}
+
+/* Estilo para el ion-searchbar dentro del menú */
+ion-searchbar {
+    --background: rgba(93, 70, 56, 0.1); /* Fondo suave para el searchbar */
+    --color: #5d4638; /* Color del texto dentro del searchbar */
+}
+
+/* Estilo para los iconos */
+ion-icon {
+    color: #5d4638; /* Color de los iconos */
+    font-size: 24px; /* Ajusta el tamaño de los iconos */
+}
+
+/* Aumentar espaciado entre elementos del menú */
+ion-list ion-item {
+    margin-bottom: 10px; /* Separación entre los ítems */
+}
+
+/* Centrado de los botones en la toolbar */
 ion-toolbar {
     display: flex;
     justify-content: space-between;
@@ -24,15 +68,3 @@ ion-buttons {
     display: flex;
     align-items: center;
 }
-
-ion-icon {
-    color: #5d4638; /* Color de los iconos */
-    font-size: 26px; /* Aumenta el tamaño de los iconos */
-    margin: 0 10px;
-}
-
-ion-menu-button {
-    --ion-color-primary: #5d4638;;
-}
-
-

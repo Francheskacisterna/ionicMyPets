@@ -30,6 +30,10 @@ const routes: Routes = [
   {
     path: 'perro',
     loadChildren: () => import('./perro/perro.module').then( m => m.PerroPageModule)
+  },
+  {
+    path: 'ave',
+    loadChildren: () => import('./ave/ave.module').then(m => m.AvePageModule)
   }
 ];
 

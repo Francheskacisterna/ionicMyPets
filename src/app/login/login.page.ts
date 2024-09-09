@@ -96,4 +96,10 @@ export class LoginPage implements AfterViewInit {
     event.preventDefault();
     this.navCtrl.navigateForward('/registro'); 
   }
+
+  navigateToHome() {
+    this.navCtrl.navigateForward('/home');
+  }
 }
+
+

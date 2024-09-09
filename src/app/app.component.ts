@@ -12,6 +12,10 @@ import { Subscription } from 'rxjs';
 export class AppComponent {
   showMenu: boolean = true;
   isAuthenticated: boolean = false; // Mantén un estado local para el menú
+  isSearchBarVisible: boolean = false; // Controla la visibilidad de la barra de búsqueda
+  searchQuery: string = ''; // Término de búsqueda actual
+  items: string[] = ['Gatos', 'Perros', 'Aves', 'Comida para perros', 'Juguetes para gatos']; // Lista de productos
+  filteredItems: string[] = []; // Elementos filtrados que se muestran al buscar
 
   private authSubscription: Subscription;
 
@@ -29,6 +33,9 @@ export class AppComponent {
         this.updateMenuVisibility(event.url);
       }
     });
+
+    // Inicializa los ítems filtrados para que coincidan con todos los productos
+    this.filteredItems = [...this.items];
   }
 
   // Desuscribirse cuando el componente se destruye
@@ -47,6 +54,7 @@ export class AppComponent {
     }
   }  
 
+  // Navegación
   navigateToHome() {
     this.navCtrl.navigateForward('/home');
   }
@@ -63,8 +71,34 @@ export class AppComponent {
     this.navCtrl.navigateForward('/gato');
   }
 
+  navigateToPerro() {
+    this.navCtrl.navigateForward('/perro');
+  }
+
+  navigateToAve() {
+    this.navCtrl.navigateForward('/ave');
+  }
+
   logout() {
     this.autenticacionService.logout();
     this.navCtrl.navigateRoot('/welcome');
+  }
+
+  // Funcionalidad de búsqueda
+  toggleSearch() {
+    this.isSearchBarVisible = !this.isSearchBarVisible; // Alternar visibilidad de la barra de búsqueda
+  }
+
+  filterItems(event: any) {
+    const searchTerm = event.target.value.toLowerCase();
+
+    if (searchTerm && searchTerm.trim() !== '') {
+      this.filteredItems = this.items.filter(item => {
+        return item.toLowerCase().includes(searchTerm);
+      });
+    } else {
+      // Si no hay búsqueda, mostrar todos los ítems
+      this.filteredItems = [...this.items];
+    }
   }
 }

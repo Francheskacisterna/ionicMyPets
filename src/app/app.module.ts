@@ -1,31 +1,28 @@
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { RouteReuseStrategy } from '@angular/router';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { RouteReuseStrategy } from '@angular/router';
 
-// Importaciones de Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+// Importa Angular Material Toolbar
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent], // Asegúrate de que AppComponent esté declarado aquí
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    BrowserAnimationsModule,  
-    // Angular Material modules
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule
+    MatToolbarModule,  // Importa el módulo de Material Toolbar
+    MatIconModule,  // Para los íconos de Material
+    MatButtonModule // Para los botones de Material
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]  // Asegúrate de que AppComponent esté en bootstrap
 })
-export class AppModule {}
+export class AppModule {}  // Asegúrate de exportar AppModule aquí

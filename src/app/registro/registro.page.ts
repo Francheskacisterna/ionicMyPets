@@ -111,4 +111,8 @@ export class RegistroPage implements AfterViewInit {
     event.preventDefault();
     this.navCtrl.navigateForward('/login');
   }
+  
+  navigateToHome() {
+    this.navCtrl.navigateForward('/home');
+  }
 }

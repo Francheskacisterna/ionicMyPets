@@ -2,41 +2,62 @@
   <!-- Menú lateral -->
   <ion-menu contentId="main-content" *ngIf="showMenu">
     <ion-header>
-      <ion-toolbar>
-        <ion-title>Menú Principal</ion-title>
-      </ion-toolbar>
+      <mat-toolbar color="primary" class="custom-toolbar">
+        <span>Menú Principal</span>
+      </mat-toolbar>
     </ion-header>
     <ion-content>
       <ion-searchbar></ion-searchbar>
       <ion-list>
         <ion-item (click)="navigateToHome()">Inicio</ion-item>
-        
+
         <!-- Mostrar solo si el usuario NO está autenticado -->
         <ion-item (click)="navigateToLogin()" *ngIf="!isAuthenticated">Iniciar Sesión</ion-item>
-        <ion-item (click)="navigateToRegister()" *ngIf="!isAuthenticated">Registrarse</ion-item>
-        <ion-item (click)="navigateToGato()">Gato</ion-item>
-        
+        <ion-item (click)="navigateToRegister()" *ngIf="!isAuthenticated">Registro</ion-item>
+        <ion-item (click)="navigateToGato()">Gatos</ion-item>
+        <ion-item (click)="navigateToPerro()">Perros</ion-item>
+        <ion-item (click)="navigateToAve()">Aves</ion-item>
+
         <!-- Mostrar solo si el usuario está autenticado -->
         <ion-item (click)="logout()" *ngIf="isAuthenticated">Cerrar Sesión</ion-item>
-        
+
       </ion-list>
     </ion-content>
   </ion-menu>
 
   <!-- Contenedor principal -->
   <ion-header *ngIf="showMenu">
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-menu-button></ion-menu-button>
-      </ion-buttons>
-      <ion-icon name="search-outline"></ion-icon>
-      <ion-title class="brand-title">Pawsy</ion-title>
-      <ion-buttons slot="end">
-        <ion-icon name="location-outline"></ion-icon>
-        <ion-icon name="cart-outline"></ion-icon>
-      </ion-buttons>
-    </ion-toolbar>
+    <mat-toolbar color="primary" class="custom-toolbar">
+      <ion-menu-toggle>
+        <button mat-icon-button>
+          <mat-icon>menu</mat-icon>
+        </button>
+      </ion-menu-toggle>
+      <span class="brand-title">Pawsy</span>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="toggleSearch()"> <!-- Añadimos el evento para mostrar la barra de búsqueda -->
+        <mat-icon>search</mat-icon>
+      </button>
+      <button mat-icon-button>
+        <mat-icon>place</mat-icon>
+      </button>
+      <button mat-icon-button>
+        <mat-icon>shopping_cart</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <!-- Barra de búsqueda, que se muestra u oculta según la acción de la lupa -->
+    <ion-searchbar *ngIf="isSearchBarVisible" placeholder="Buscar" (ionInput)="filterItems($event)"></ion-searchbar>
   </ion-header>
+
+  <ion-content>
+    <!-- Aquí mostrará los resultados filtrados de la búsqueda -->
+    <ion-list>
+      <ion-item *ngFor="let item of filteredItems">
+        {{ item }}
+      </ion-item>
+    </ion-list>
+  </ion-content>
 
   <ion-router-outlet id="main-content"></ion-router-outlet>
 </ion-app>

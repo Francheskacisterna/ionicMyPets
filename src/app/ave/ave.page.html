@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title class="custom-title">Pawsy - Perros</ion-title> <!-- Cambiado a Perros -->
+    <ion-title class="custom-title">Pawsy - Aves</ion-title>
     <ion-buttons slot="end">
       <ion-button>
         <ion-icon name="search-outline"></ion-icon>
@@ -22,7 +22,7 @@
   <!-- Breadcrumbs -->
   <ion-breadcrumbs>
     <ion-breadcrumb href="/home">Inicio</ion-breadcrumb>
-    <ion-breadcrumb>Perros</ion-breadcrumb> <!-- Cambiado a Perros -->
+    <ion-breadcrumb>Aves</ion-breadcrumb>
   </ion-breadcrumbs>
 
   <!-- Filtros y Orden -->
@@ -49,14 +49,14 @@
     <ion-row>
       <ion-col size="12" size-md="6" size-lg="4" *ngFor="let product of filteredProducts">
         <ion-card>
-          <ion-img [src]="product.img" class="fade-in"></ion-img> <!-- Imagen del producto -->
+          <ion-img [src]="product.img" class="fade-in"></ion-img>
           <ion-card-header>
-            <ion-card-title>{{ product.title }}</ion-card-title> <!-- Título del producto -->
+            <ion-card-title>{{ product.title }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <p>{{ product.description }}</p> <!-- Descripción del producto -->
+            <p>{{ product.description }}</p>
             <ion-list class="custom-list">
-              <!-- Selección de peso del producto -->
+              <!-- Lista de pesos y precios del producto -->
               <ion-item *ngFor="let weight of product.weights" (click)="selectWeight(product, weight)" [class.selected]="isSelected(product, weight)">
                 <p>{{ weight.size }}</p>
               </ion-item>
