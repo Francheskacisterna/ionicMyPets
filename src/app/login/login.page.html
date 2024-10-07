@@ -1,11 +1,15 @@
 <ion-content fullscreen class="login-content">
+  <!-- Contenedor para la imagen de fondo -->
   <div class="background-container">
     <img src="assets/images/fondo1.jpeg" alt="Fondo" class="background-image">
   </div>
 
+  <!-- Contenedor principal con contenido -->
   <div class="content-overlay">
+    <!-- Logo de la aplicación -->
     <img src="assets/images/logo_pawsy.png" alt="Logo" class="logo">
 
+    <!-- Tarjeta de inicio de sesión -->
     <ion-card class="login-card">
       <ion-card-header>
         <ion-card-title>Iniciar Sesión</ion-card-title>
@@ -13,6 +17,7 @@
 
       <ion-card-content>
         <form [formGroup]="loginForm" (ngSubmit)="login()">
+          <!-- Campo para el correo electrónico -->
           <ion-item>
             <ion-label position="floating">Correo Electrónico</ion-label>
             <ion-input formControlName="email" type="email"></ion-input>
@@ -21,27 +26,34 @@
             <p class="error">Por favor, ingresa un correo electrónico válido.</p>
           </ion-item>
 
+          <!-- Campo para la contraseña -->
           <ion-item>
             <ion-label position="floating">Contraseña</ion-label>
             <ion-input formControlName="password" type="password"></ion-input>
           </ion-item>
           <ion-item *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-            <p class="error">La contraseña debe tener al menos 6 caracteres.</p>
+            <p class="error">La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula y un número.</p>
           </ion-item>
 
+          <!-- Botón para iniciar sesión -->
           <ion-button expand="block" type="submit" class="login-button" [disabled]="loginForm.invalid">
             Iniciar
           </ion-button>
 
+          <!-- Enlace para resetear la contraseña -->
           <div class="forgot-password">
             <a href="#" (click)="presentResetPasswordModal($event)">¿Olvidaste tu contraseña?</a>
           </div>
-          
+
+          <!-- Enlace para registrarse -->
           <div class="register-link">
-            <p>¿Ya tienes una cuenta? <a href="#" (click)="navigateToRegister($event)">Registrate aquí</a></p>
+            <p>¿No tienes una cuenta? <a href="#" (click)="navigateToRegister($event)">Regístrate aquí</a></p>
           </div>
 
-          <ion-item (click)="navigateToHome()">Ir al home </ion-item>
+          <!-- Opción para navegar a la página de inicio directamente -->
+          <div class="go-home-link">
+            <ion-item (click)="navigateToHome()">Ir al home</ion-item>
+          </div>
         </form>
       </ion-card-content>
     </ion-card>
