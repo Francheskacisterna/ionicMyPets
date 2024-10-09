@@ -11,8 +11,14 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
+// Importa HttpClientModule
+import { HttpClientModule } from '@angular/common/http';
+
+// Importa Ionic Storage Module
+import { IonicStorageModule } from '@ionic/storage-angular';  // Asegura la importación del módulo de Storage
+
 @NgModule({
-  declarations: [AppComponent], // Asegúrate de que AppComponent esté declarado aquí
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -20,9 +26,11 @@ import { MatButtonModule } from '@angular/material/button';
     AppRoutingModule,
     MatToolbarModule,  // Importa el módulo de Material Toolbar
     MatIconModule,  // Para los íconos de Material
-    MatButtonModule // Para los botones de Material
+    MatButtonModule, // Para los botones de Material
+    HttpClientModule,  // Añadimos HttpClientModule aquí
+    IonicStorageModule.forRoot()  // Inicializamos el Storage Module aquí
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
-  bootstrap: [AppComponent]  // Asegúrate de que AppComponent esté en bootstrap
+  bootstrap: [AppComponent]
 })
-export class AppModule {}  // Asegúrate de exportar AppModule aquí
+export class AppModule {}

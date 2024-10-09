@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Editar Producto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form (ngSubmit)="updateProduct()">
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input [(ngModel)]="product.nombre" name="nombre" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Descripción</ion-label>
+      <ion-input [(ngModel)]="product.descripcion" name="descripcion" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Precio Base</ion-label>
+      <ion-input [(ngModel)]="product.precio" name="precio" type="number" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Stock</ion-label>
+      <ion-input [(ngModel)]="product.stock" name="stock" type="number" required></ion-input>
+    </ion-item>
+
+    <ion-list>
+      <ion-item *ngFor="let option of weightOptions; let i = index">
+        <ion-label>Opción de Peso {{ i + 1 }}</ion-label>
+        <ion-input placeholder="Peso (e.g., 1kg)" [(ngModel)]="option.size" name="size{{i}}" required></ion-input>
+        <ion-input placeholder="Precio" [(ngModel)]="option.price" name="price{{i}}" type="number" required></ion-input>
+        <ion-button (click)="removeWeightOption(i)" color="danger" *ngIf="weightOptions.length > 1">Eliminar</ion-button>
+      </ion-item>
+    </ion-list>
+
+    <ion-button (click)="addWeightOption()" expand="block" color="secondary">Agregar Otra Opción de Peso</ion-button>
+
+    <ion-button type="submit" expand="block" color="primary">Actualizar Producto</ion-button>
+  </form>
+</ion-content>

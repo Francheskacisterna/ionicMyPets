@@ -84,6 +84,10 @@ export class AppComponent {
     this.navCtrl.navigateRoot('/welcome');
   }
 
+  navigateToProductAdd() {
+    this.navCtrl.navigateForward('/productos/product-add');
+  }
+
   // Funcionalidad de búsqueda
   toggleSearch() {
     this.isSearchBarVisible = !this.isSearchBarVisible; // Alternar visibilidad de la barra de búsqueda

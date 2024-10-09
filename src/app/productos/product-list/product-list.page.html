@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Lista de Productos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="products && products.length > 0">
+    <ion-item *ngFor="let product of products" routerLink="/productos/product-detail/{{product.id}}">
+      <ion-label>
+        <h2>{{ product.nombre }}</h2>
+        <p>{{ product.descripcion }}</p>
+        <p>Precio: {{ product.precio }}</p>
+        <p>Stock: {{ product.stock }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="products.length === 0">
+    <p>No hay productos disponibles.</p>
+  </div>
+</ion-content>

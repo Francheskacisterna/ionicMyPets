@@ -1,0 +1,49 @@
+<div class="product-form">
+  <form [formGroup]="productForm" (ngSubmit)="addProduct()">
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input type="text" formControlName="nombre"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Descripción</ion-label>
+      <ion-textarea formControlName="descripcion"></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Precio Base</ion-label>
+      <ion-input type="number" formControlName="precio"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Stock</ion-label>
+      <ion-input type="number" formControlName="stock"></ion-input>
+    </ion-item>
+
+    <ion-button (click)="selectImage()" expand="block" color="tertiary">
+      Subir Imagen
+    </ion-button>
+
+    <ion-img *ngIf="productImage" [src]="productImage" class="uploaded-image"></ion-img>
+
+    <div formArrayName="weightOptions" *ngFor="let option of weightOptions.controls; let i = index">
+      <ion-item [formGroupName]="i">
+        <ion-label position="floating">Peso (Opción {{ i + 1 }})</ion-label>
+        <ion-input formControlName="size" placeholder="Peso (e.g., 1kg)"></ion-input>
+        <ion-input formControlName="price" placeholder="Precio" type="number"></ion-input>
+        <ion-input formControlName="stock" placeholder="Stock" type="number"></ion-input>
+        <ion-button *ngIf="weightOptions.length > 1" (click)="removeWeightOption(i)" color="danger">
+          Eliminar
+        </ion-button>
+      </ion-item>
+    </div>
+
+    <ion-button (click)="addWeightOption()" expand="block" color="secondary">
+      Agregar Otra Opción de Peso
+    </ion-button>
+
+    <ion-button type="submit" expand="block" color="primary" [disabled]="!productForm.valid">
+      Guardar Producto
+    </ion-button>
+  </form>
+</div>

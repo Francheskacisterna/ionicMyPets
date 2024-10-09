@@ -34,6 +34,18 @@ const routes: Routes = [
   {
     path: 'ave',
     loadChildren: () => import('./ave/ave.module').then(m => m.AvePageModule)
+  },
+  {
+    path: 'productos/product-add',
+    loadChildren: () => import('./productos/product-add/product-add.module').then( m => m.ProductAddPageModule)
+  },
+  {
+    path: 'productos/product-list',
+    loadChildren: () => import('./productos/product-list/product-list.module').then( m => m.ProductListPageModule)
+  },
+  {
+    path: 'productos/product-detail/:id',
+    loadChildren: () => import('./productos/product-detail/product-detail.module').then( m => m.ProductDetailPageModule)
   }
 ];
 
