@@ -7,11 +7,33 @@
 <ion-content>
   <ion-list *ngIf="products && products.length > 0">
     <ion-item *ngFor="let product of products" routerLink="/productos/product-detail/{{product.id}}">
+      <ion-thumbnail slot="start">
+        <!-- Muestra la imagen si existe, si no muestra una imagen por defecto -->
+        <ion-img [src]="product.imagen ? product.imagen : 'assets/logo_pawsy.png'"></ion-img>
+      </ion-thumbnail>
+
       <ion-label>
         <h2>{{ product.nombre }}</h2>
         <p>{{ product.descripcion }}</p>
-        <p>Precio: {{ product.precio }}</p>
-        <p>Stock: {{ product.stock }}</p>
+
+        <!-- Estilo de tabla para organizar mejor las opciones de peso -->
+        <div class="weight-options">
+          <h3>Opciones de Peso:</h3>
+          <table>
+            <tr>
+              <th>Peso</th>
+              <th>Precio</th>
+              <th>Stock</th>
+            </tr>
+            <tr *ngFor="let option of product.weightOptions">
+              <td>{{ option.size }}</td>
+              <td>{{ option.price | currency:'CLP' }}</td>
+              <td>{{ option.stock }}</td>
+            </tr>
+          </table>
+        </div>
+
+        <p>Categoría: {{ product.categoria }}</p> <!-- Mostrar categoría del producto -->
       </ion-label>
     </ion-item>
   </ion-list>
@@ -20,3 +42,4 @@
     <p>No hay productos disponibles.</p>
   </div>
 </ion-content>
+

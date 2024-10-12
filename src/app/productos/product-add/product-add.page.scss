@@ -1,22 +1,26 @@
 .product-form {
-    padding: 20px;
-    max-width: 600px;
-    margin: auto; /* Centra el formulario */
-  }
-  
-  .form-item {
-    margin-bottom: 15px; /* Añade espaciado entre los elementos del formulario */
-  }
-  
-  .uploaded-image {
-    display: block;
-    margin: 15px auto;
-    max-width: 100%; /* Asegura que la imagen cargada no sea más grande que el contenedor */
-    border-radius: 10px;
-  }
-  
-  ion-button {
-    margin-top: 10px;
-    font-weight: bold; /* Añade peso a la tipografía de los botones */
-  }
-  
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.form-item {
+  margin-bottom: 15px; /* Espaciado entre elementos del formulario */
+}
+
+.uploaded-image {
+  display: block;
+  margin: 15px auto;
+  max-width: 100%; /* Ajustar imagen al ancho del contenedor */
+  border-radius: 10px;
+  height: auto;
+}
+
+ion-button {
+  margin-top: 10px;
+  font-weight: bold; /* Destacar los botones */
+}
+
+ion-content {
+  padding-bottom: 20px;
+}

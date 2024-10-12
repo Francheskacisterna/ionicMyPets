@@ -23,7 +23,8 @@ export class ProductAddPage {
       descripcion: ['', Validators.required],
       precio: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
-      weightOptions: this.formBuilder.array([]),  // Aquí se almacenan las opciones de peso
+      categoria: ['', Validators.required],  // Nuevo campo de categoría
+      weightOptions: this.formBuilder.array([]),  // Opciones de peso
     });
 
     this.addWeightOption();  // Inicialmente agregamos una opción de peso
@@ -62,6 +63,11 @@ export class ProductAddPage {
     }
   }
 
+  // Función para eliminar la imagen seleccionada
+  deleteImage() {
+    this.productImage = null;  // Eliminamos la imagen seleccionada
+  }
+
   // Guardar el producto y luego las opciones de peso en una tabla separada
   async addProduct() {
     if (this.productForm.valid) {
@@ -69,7 +75,8 @@ export class ProductAddPage {
 
       const productData: Product = {
         ...product,
-        imagen: this.productImage || null // Aseguramos que la imagen sea null si no está presente
+        imagen: this.productImage || null,  // Aseguramos que la imagen sea null si no está presente
+        categoria: this.productForm.value.categoria  // Agregamos la categoría al producto
       };
 
       try {
@@ -94,6 +101,7 @@ export class ProductAddPage {
       descripcion: '',
       precio: 0,
       stock: 0,
+      categoria: ''  // Aseguramos que el campo categoría también se restablezca
     });
     this.productImage = null;
     this.weightOptions.clear();

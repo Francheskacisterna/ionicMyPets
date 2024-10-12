@@ -2,26 +2,29 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { CapacitorSQLite, SQLiteDBConnection, SQLiteConnection } from '@capacitor-community/sqlite'; // Mantén esta importación
+import { CapacitorSQLite, SQLiteDBConnection, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Storage } from '@ionic/storage-angular';
+import { Network } from '@capacitor/network';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { Capacitor } from '@capacitor/core'; // Usaremos Capacitor para obtener la plataforma
+
 
 export interface Product {
   id?: number;
   nombre: string;
   descripcion: string;
-  precio: number;
-  stock: number;
+  precio: number;  // Precio base
+  stock: number;  
   imagen?: string;
+  categoria: string;
+  weightOptions?: WeightOption[];  // Añadimos las opciones de peso
 }
 
 export interface WeightOption {
   id?: number;
   producto_id?: number;
-  size: string;
-  price: number;
-  stock: number;
+  size: string;  // Peso (ej. 1kg, 5kg)
+  price: number; // Precio por este peso
+  stock: number; // Stock de este peso
 }
 
 @Injectable({
@@ -30,172 +33,312 @@ export interface WeightOption {
 export class ProductService {
   private apiUrl = 'http://10.0.2.2:3000/productos';  // URL de la API
   private weightOptionsUrl = 'http://10.0.2.2:3000/pesos';  // URL para opciones de peso
+  productImage: string | undefined; 
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
   private sqliteConnection: SQLiteConnection | null = null;
   private db: SQLiteDBConnection | null = null;
-  private useSQLite: boolean = false;  // Determina si SQLite está disponible
+  private useSQLite: boolean = false;
 
   constructor(private http: HttpClient, private storage: Storage) {
     this.initDB();
+    this.monitorNetwork();  // Iniciar la monitorización de la red
   }
 
-  // Inicializar SQLite y LocalStorage
-  async initDB() {
-    await this.storage.create();  // Inicializar el LocalStorage
-  
-    // Comprobar si estamos en una plataforma web
-    if (Capacitor.getPlatform() === 'web') {
-      const jeepSqlite = document.createElement('jeep-sqlite');
-      document.body.appendChild(jeepSqlite);
-  
-      // Asegurarse de que el componente esté definido
-      await customElements.whenDefined('jeep-sqlite');
-  
-      // Registrar el service worker para SQLite
-      const isServiceWorkerAvailable = await (jeepSqlite as any).isServiceWorker();
-      if (isServiceWorkerAvailable) {
-        await (jeepSqlite as any).initWebStore(); // Iniciar el almacenamiento web para SQLite
-        console.log('Almacenamiento SQLite web inicializado.');
-      } else {
-        console.warn('Service worker no disponible para SQLite en la web.');
-      }
+  async closeDBConnection() {
+    if (this.db) {
+      console.log('Cerrando la conexión a la base de datos...');
+      await this.db.close();
+      this.db = null;
     }
+  }
+
+  async initDB() {
+    await this.storage.create();  // Inicializar LocalStorage
   
     try {
       if (CapacitorSQLite) {
-        this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
-        this.db = await this.sqliteConnection.createConnection('data.db', false, 'no-encryption', 1, false);
-        await this.db.open();
+        console.log('Iniciando la conexión con SQLite...');
   
-        // Crear las tablas si no existen
-        await this.db.execute(`
-          CREATE TABLE IF NOT EXISTS productos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            descripcion TEXT NOT NULL,
-            precio REAL NOT NULL,
-            stock INTEGER NOT NULL,
-            imagen TEXT
-          );
-        `);
+        await this.closeDBConnection();
   
-        await this.db.execute(`
-          CREATE TABLE IF NOT EXISTS pesos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            producto_id INTEGER NOT NULL,
-            size TEXT NOT NULL,
-            price REAL NOT NULL,
-            stock INTEGER NOT NULL,
-            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
-          );
-        `);
+        if (!this.sqliteConnection) {
+          this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
+        }
   
-        await this.db.close();
-        this.useSQLite = true;  // Si SQLite se inicializó correctamente, usar SQLite
+        if (!this.db) {
+          this.db = await this.sqliteConnection.createConnection('dataSQLite.db', false, 'no-encryption', 1, false);
+          await this.db.open();
+          console.log('SQLite abierto. Creando tablas...');
+  
+          await this.db.execute(`
+            CREATE TABLE IF NOT EXISTS productos (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              nombre TEXT NOT NULL,
+              descripcion TEXT NOT NULL,
+              precio REAL NOT NULL,
+              stock INTEGER NOT NULL,
+              imagen TEXT,
+              synced INTEGER DEFAULT 0
+            );
+          `);
+  
+          await this.db.execute(`
+            CREATE TABLE IF NOT EXISTS pesos (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              producto_id INTEGER NOT NULL,
+              size TEXT NOT NULL,
+              price REAL NOT NULL,
+              stock INTEGER NOT NULL,
+              FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+            );
+          `);
+        }
+  
+        this.useSQLite = true;
         console.log('SQLite está disponible y las tablas fueron creadas.');
+  
+        await this.syncProductsWithAPI();
+  
       } else {
         this.useSQLite = false;
         console.warn('SQLite no está disponible. Usando LocalStorage como fallback.');
       }
     } catch (err) {
       this.useSQLite = false;
-      console.warn('Error al inicializar SQLite. Usando LocalStorage como fallback.', err);
+      console.error('Error al inicializar SQLite. Usando LocalStorage como fallback:', err);
     }
   }
 
-  // Método para capturar una foto o seleccionar una imagen de la galería
-  async captureImage(): Promise<string | null> {
-    try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.DataUrl, // Para obtener la imagen como base64
-        source: CameraSource.Prompt // Permite elegir entre cámara y galería
-      });
-  
-      return image.dataUrl ?? null;  // Asegurarse de que siempre se retorne un valor de tipo string o null
-    } catch (error) {
-      console.error('Error al capturar la imagen:', error);
-      return null;
+  // Monitorización de la red
+  async monitorNetwork() {
+    const status = await Network.getStatus();
+    if (status.connected) {
+      console.log('Conexión inicial detectada, intentando sincronizar productos...');
+      await this.syncProductsWithAPI();
     }
+
+    Network.addListener('networkStatusChange', async (status) => {
+      if (status.connected) {
+        console.log('Conexión restablecida, intentando sincronizar productos...');
+        await this.syncProductsWithAPI();
+      } else {
+        console.log('Sin conexión a la red.');
+      }
+    });
   }
+
+  private async ensureDBIsOpen(): Promise<boolean> {
+    if (!this.db) return false;
+    const isDBOpen = await this.db.isDBOpen();
+    if (!isDBOpen.result) {
+      await this.db.open();
+    }
+    return true;
+  }
+
+  async getProductsSQLite(): Promise<Product[]> {
+    try {
+      if (!await this.ensureDBIsOpen()) return [];
   
-    // Método para agregar productos junto con la imagen capturada
-    async addProductWithImage(product: Product, weightOptions: WeightOption[], imageBase64: string | null): Promise<void> {
-      if (imageBase64) {
-        product.imagen = imageBase64;  // Asignar la imagen base64 al producto
+      // Obtenemos los productos
+      const res = await this.db!.query("SELECT * FROM productos");
+      const products = res.values as Product[];
+  
+      // Para cada producto, obtenemos sus opciones de peso
+      for (const product of products) {
+        const weightOptionsResult = await this.db!.query("SELECT * FROM pesos WHERE producto_id = ?", [product.id]);
+        product.weightOptions = weightOptionsResult.values as WeightOption[];
       }
   
-      await this.addProduct(product, weightOptions);  // Llamar al método de agregar producto existente
+      return products;
+    } catch (err) {
+      console.error('Error al obtener productos y opciones de peso de SQLite:', err);
+      return [];
+    }
+  }
+  
+  async closeDBAtAppExit() {
+    if (this.db) {
+      console.log('Cerrando la conexión a la base de datos al salir de la app...');
+      await this.db.close();
+      this.db = null;
+    }
+  }
+
+  async getProductsSQLiteNotSynced(): Promise<Product[]> {
+    try {
+      if (!await this.ensureDBIsOpen()) return [];
+      const res = await this.db!.query("SELECT * FROM productos WHERE synced = 0");
+
+      if (res.values && res.values.length > 0) {
+        return res.values as Product[];
+      } else {
+        console.log('No se encontraron productos no sincronizados.');
+        return [];
+      }
+    } catch (err) {
+      console.error('Error al obtener productos no sincronizados de SQLite:', err);
+      return [];
+    }
+  }
+
+  async markProductAsSyncedSQLite(productId: number): Promise<void> {
+    try {
+      if (!await this.ensureDBIsOpen()) return;
+      await this.db!.run(`UPDATE productos SET synced = 1 WHERE id = ?`, [productId]);
+    } catch (err) {
+      console.error('Error al marcar producto como sincronizado:', err);
+    }
+  }
+
+  async syncProductsWithAPI() {
+    try {
+      const products = await this.getProductsSQLiteNotSynced();
+      if (products.length === 0) {
+        console.log('No hay productos para sincronizar.');
+        return;
+      }
+
+      console.log(`Iniciando sincronización de ${products.length} productos...`);
+
+      for (const product of products) {
+        try {
+          const addedProduct = await this.addProductAPI(product).toPromise();
+          if (addedProduct && addedProduct.id) {
+            console.log(`Producto ${product.nombre} sincronizado.`);
+            await this.markProductAsSyncedSQLite(product.id!);
+            // Eliminar producto de SQLite después de sincronizar
+            await this.deleteProductSQLite(product.id!);
+          }
+        } catch (error) {
+          console.error(`Error al sincronizar el producto ${product.nombre}:`, error);
+        }
+      }
+
+      console.log('Sincronización finalizada.');
+    } catch (error) {
+      console.error('Error al sincronizar productos:', error);
+    }
+  }
+  // Función para seleccionar una imagen
+  async selectImage(): Promise<string | null> {
+    try {
+      const image = await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Prompt,
+        quality: 90
+      });
+  
+      if (image && image.webPath) {
+        this.productImage = image.webPath;  // Guardar la URI de la imagen
+        console.log('Imagen seleccionada:', this.productImage);
+        
+        // Convertir la imagen a base64
+        const base64Data = await this.readAsBase64(image);
+        return base64Data;  // Retornar el base64 para usar en el producto
+      }
+  
+      // Si no hay imagen seleccionada, retornar null
+      return null;
+  
+    } catch (error) {
+      console.error('Error al seleccionar la imagen:', error);
+      return null;  // Retornar null en caso de error
+    }
+  }
+  
+
+  // Convierte la imagen a base64
+  private async readAsBase64(image: any): Promise<string> {
+    const response = await fetch(image.webPath);
+    const blob = await response.blob();
+
+    return await this.convertBlobToBase64(blob) as string;
+  }
+
+  private convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
+
+  // Función para agregar el producto
+  async addProduct(product: Product, weightOptions: WeightOption[], imageBase64?: string): Promise<void> {
+    if (imageBase64) {
+      product.imagen = imageBase64;  // Usar la imagen convertida a base64
     }
 
-  // Agregar productos a SQLite, LocalStorage o la API según la disponibilidad
-  async addProduct(product: Product, weightOptions: WeightOption[]): Promise<void> {
-    if (navigator.onLine) {  // Si hay conexión a la red, usar la API
-      try {
+    try {
+      const status = await Network.getStatus();
+      if (status.connected) {
         const addedProduct = await this.addProductAPI(product).toPromise();
         if (addedProduct && addedProduct.id) {
           for (const option of weightOptions) {
             option.producto_id = addedProduct.id;
             await this.addWeightOptionAPI(option).toPromise();
           }
+          console.log('Producto añadido a la API:', JSON.stringify(addedProduct));
+        } else {
+          throw new Error('No se pudo añadir el producto a la API.');
         }
-        console.log('Producto añadido a la API.');
-      } catch (error) {
-        console.error('Error al añadir producto a la API:', error);
-        await this.addProductLocal(product, weightOptions);  // Si falla, usar LocalStorage o SQLite
+      } else {
+        throw new Error('Sin conexión a la red');
       }
-    } else if (this.useSQLite) {  // Usar SQLite si no hay conexión
-      await this.addProductSQLite(product, weightOptions);
-    } else {
-      await this.addProductLocal(product, weightOptions);  // Usar LocalStorage si SQLite no está disponible
+    } catch (error) {
+      console.error('Error al añadir producto:', error);
+      if (this.useSQLite) {
+        await this.addProductSQLite(product, weightOptions);
+      }
     }
   }
 
-  // Agregar producto a LocalStorage
-  async addProductLocal(product: Product, weightOptions: WeightOption[]): Promise<void> {
-    const products = await this.storage.get('productos') || [];
-    const weights = await this.storage.get('weights') || [];
-    products.push(product);
-    weights.push(...weightOptions);
-    await this.storage.set('productos', products);
-    await this.storage.set('weights', weights);
-    console.log('Producto añadido en LocalStorage.');
-  }
 
-  // Agregar producto a SQLite
   async addProductSQLite(product: Product, weightOptions: WeightOption[]): Promise<void> {
     try {
-      if (!this.db) return;
-      await this.db.open();
-      const query = `INSERT INTO productos (nombre, descripcion, precio, stock, imagen) VALUES (?, ?, ?, ?, ?)`;
-      const values = [product.nombre, product.descripcion, product.precio, product.stock, product.imagen];
-      const result = await this.db.run(query, values);
-
-      if (!result.changes || !result.changes.lastId) {
-        throw new Error('Error al insertar el producto en SQLite.');
+      if (!await this.ensureDBIsOpen()) return;
+  
+      // Incluir la columna `categoria` en la consulta SQL
+      const query = `INSERT INTO productos (nombre, descripcion, precio, stock, imagen, categoria, synced) VALUES (?, ?, ?, ?, ?, ?, 0)`;
+      
+      // Asegurarse de incluir `product.categoria` en los valores
+      const values = [product.nombre, product.descripcion, product.precio, product.stock, product.imagen, product.categoria];
+      
+      const result = await this.db!.run(query, values);
+      if (result.changes && result.changes.lastId) {
+        console.log('Producto añadido en SQLite con ID:', result.changes.lastId);
+        const productId = result.changes.lastId;
+  
+        for (const option of weightOptions) {
+          const weightQuery = `INSERT INTO pesos (producto_id, size, price, stock) VALUES (?, ?, ?, ?)`;
+          await this.db!.run(weightQuery, [productId, option.size, option.price, option.stock]);
+        }
+        console.log('Producto y opciones de peso añadidos en SQLite con éxito.');
+      } else {
+        console.error('Error al insertar el producto en SQLite.');
       }
-
-      const productId = result.changes.lastId;
-      for (const option of weightOptions) {
-        const weightQuery = `INSERT INTO pesos (producto_id, size, price, stock) VALUES (?, ?, ?, ?)`;
-        await this.db.run(weightQuery, [productId, option.size, option.price, option.stock]);
-      }
-
-      await this.db.close();
-      console.log('Producto añadido a SQLite.');
     } catch (err) {
-      console.error('Error al agregar producto y pesos en SQLite:', err);
-      if (this.db) {
-        await this.db.close();  // Cerrar la base de datos en caso de error
-      }
+      console.error('Error al añadir producto a SQLite:', err);
+    }
+  }
+  
+
+  async deleteProductSQLite(productId: number): Promise<void> {
+    try {
+      if (!await this.ensureDBIsOpen()) return;
+
+      await this.db!.run(`DELETE FROM productos WHERE id = ?`, [productId]);
+      console.log(`Producto con ID ${productId} eliminado de SQLite.`);
+    } catch (err) {
+      console.error('Error al eliminar producto de SQLite:', err);
     }
   }
 
-  // Métodos CRUD con la API
   getProductsAPI(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl, this.httpOptions)
       .pipe(
@@ -204,20 +347,12 @@ export class ProductService {
       );
   }
 
-  getProductAPI(id: string): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`, this.httpOptions)
-      .pipe(
-        tap(product => console.log('Producto obtenido de la API:', product)),
-        catchError(this.handleError<Product>('getProductAPI'))
-      );
-  }
-
   addProductAPI(product: Product): Observable<Product> {
     return this.http.post<Product>(this.apiUrl, product, this.httpOptions)
       .pipe(
         tap(newProduct => console.log('Producto añadido a la API:', newProduct)),
         catchError((error) => {
-          console.error('Error al añadir producto:', error);
+          console.error('Error al añadir producto a la API:', error);
           return of({} as Product);
         })
       );
@@ -234,63 +369,6 @@ export class ProductService {
       );
   }
 
-  updateProductAPI(id: number, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, product, this.httpOptions)
-      .pipe(
-        tap(_ => console.log(`Producto actualizado en la API id=${id}`)),
-        catchError(this.handleError<any>('updateProductAPI'))
-      );
-  }
-
-  deleteProductAPI(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, this.httpOptions)
-      .pipe(
-        tap(_ => console.log(`Producto eliminado en la API id=${id}`)),
-        catchError(this.handleError<void>('deleteProductAPI'))
-      );
-  }
-
-  // Sincronizar productos entre SQLite y la API cuando vuelva la conexión
-  async syncProductsWithAPI() {
-    try {
-      const products = await this.getProductsSQLite(); // Obtener productos de SQLite
-  
-      for (const product of products) {
-        try {
-          const syncedProduct = await this.addProductAPI(product).toPromise();
-  
-          // Verificamos si syncedProduct no es undefined o null
-          if (syncedProduct && syncedProduct.nombre) {
-            console.log(`Producto sincronizado con la API: ${syncedProduct.nombre}`);
-          } else {
-            console.warn('Producto no pudo ser sincronizado o la API no devolvió el producto correctamente.');
-          }
-        } catch (error) {
-          console.error('Error al sincronizar producto con la API:', error);
-        }
-      }
-    } catch (err) {
-      console.error('Error durante la sincronización con la API:', err);
-    }
-  }
-  
-  
-
-  // Obtener productos desde SQLite
-  async getProductsSQLite(): Promise<Product[]> {
-    try {
-      if (!this.db) return [];
-      await this.db.open();
-      const res = await this.db.query("SELECT * FROM productos");
-      await this.db.close();
-      return res.values as Product[];
-    } catch (err) {
-      console.error('Error al obtener productos de SQLite:', err);
-      return [];
-    }
-  }
-
-  // Manejo de errores
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(`${operation} falló:`, error);
