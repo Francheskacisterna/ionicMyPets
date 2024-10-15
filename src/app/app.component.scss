@@ -68,3 +68,34 @@ ion-buttons {
     display: flex;
     align-items: center;
 }
+
+button.mat-icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0; /* Asegura que no haya márgenes inesperados */
+    padding: 10px;
+}
+
+.icon-location {
+    font-size: 24px;
+}
+
+/* Estilos para que el logo no se mueva */
+.logo-container {
+    position: fixed; /* Hace que el logo no se mueva con el contenido */
+    top: 20px; /* Ajusta según sea necesario */
+    left: 50%; 
+    transform: translateX(-50%); /* Esto centra el logo horizontalmente */
+    z-index: 10; /* Asegura que esté por encima de otros elementos */
+}
+
+.logo-container img {
+    width: 100px; /* Ajusta el tamaño del logo */
+    height: auto; /* Mantiene las proporciones del logo */
+}
+
+.nav-location {
+    display: inline-block;
+    margin-left: 5px; /* Ajusta según sea necesario */
+}

@@ -18,6 +18,7 @@
         <ion-item (click)="navigateToPerro()">Perros</ion-item>
         <ion-item (click)="navigateToAve()">Aves</ion-item>
         <ion-item (click)="navigateToProductAdd()">Productos</ion-item>
+        <ion-item (click)="navigateToProductList()">Lista de productos</ion-item>
 
         <!-- Mostrar solo si el usuario está autenticado -->
         <ion-item (click)="logout()" *ngIf="isAuthenticated">Cerrar Sesión</ion-item>
@@ -26,30 +27,33 @@
     </ion-content>
   </ion-menu>
 
-  <!-- Contenedor principal -->
-  <ion-header *ngIf="showMenu">
-    <mat-toolbar color="primary" class="custom-toolbar">
-      <ion-menu-toggle>
-        <button mat-icon-button>
-          <mat-icon>menu</mat-icon>
-        </button>
-      </ion-menu-toggle>
-      <span class="brand-title">Pawsy</span>
-      <span class="spacer"></span>
-      <button mat-icon-button (click)="toggleSearch()"> <!-- Añadimos el evento para mostrar la barra de búsqueda -->
-        <mat-icon>search</mat-icon>
-      </button>
+<!-- Contenedor principal -->
+<ion-header *ngIf="showMenu">
+  <mat-toolbar color="primary" class="custom-toolbar">
+    <ion-menu-toggle>
       <button mat-icon-button>
-        <mat-icon>place</mat-icon>
+        <mat-icon>menu</mat-icon>
       </button>
-      <button mat-icon-button>
-        <mat-icon>shopping_cart</mat-icon>
-      </button>
-    </mat-toolbar>
+    </ion-menu-toggle>
+    <span class="brand-title">Pawsy</span>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="toggleSearch()"> <!-- Añadimos el evento para mostrar la barra de búsqueda -->
+      <mat-icon>search</mat-icon>
+    </button>
+    <button mat-icon-button (click)="getCurrentPosition()"> <!-- Utiliza getCurrentPosition para obtener la ubicación -->
+      <mat-icon class="icon-location">place</mat-icon>
+    </button>    
+    <button mat-icon-button>
+      <mat-icon>shopping_cart</mat-icon>
+    </button>
+  </mat-toolbar>
 
-    <!-- Barra de búsqueda, que se muestra u oculta según la acción de la lupa -->
-    <ion-searchbar *ngIf="isSearchBarVisible" placeholder="Buscar" (ionInput)="filterItems($event)"></ion-searchbar>
-  </ion-header>
+  <!-- Barra de búsqueda, que se muestra u oculta según la acción de la lupa -->
+  <ion-searchbar *ngIf="isSearchBarVisible" placeholder="Buscar" (ionInput)="filterItems($event)"></ion-searchbar>
+</ion-header>
+<ion-content>
+</ion-content>
+
 
   <ion-content>
     <!-- Aquí mostrará los resultados filtrados de la búsqueda -->

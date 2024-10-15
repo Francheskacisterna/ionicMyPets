@@ -46,7 +46,20 @@ const routes: Routes = [
   {
     path: 'productos/product-detail/:id',
     loadChildren: () => import('./productos/product-detail/product-detail.module').then( m => m.ProductDetailPageModule)
+  },
+  {
+    path: 'productos/product-edit/:id',
+    loadChildren: () => import('./productos/product-edit/product-edit.module').then(m => m.ProductEditPageModule)
+  },
+  {
+    path: 'user-add',
+    loadChildren: () => import('./user-add/user-add.module').then( m => m.UserAddPageModule)
+  },
+  {
+    path: 'user-list',
+    loadChildren: () => import('./user-list/user-list.module').then( m => m.UserListPageModule)
   }
+  
 ];
 
 @NgModule({

@@ -1,38 +1,75 @@
-/* Añadir márgenes entre las secciones para mayor claridad */
-.weight-options {
-    margin-top: 10px;
-  }
-  
-  /* Mejorar la tabla para que se vea más organizada */
-  .weight-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background-color: #f9f9f9;
-  }
-  
-  /* Darle estilo a los encabezados */
-  .weight-table th {
-    padding: 8px;
-    text-align: left;
-    background-color: #f2f2f2;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  /* Darle estilo a las celdas */
-  .weight-table td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  /* Agregar espacio entre los productos para mayor claridad */
-  ion-item {
-    margin-bottom: 15px;
-  }
-  
-  /* Mejora para que las imágenes no sean muy grandes */
-  ion-thumbnail {
-    max-width: 60px;
-    max-height: 60px;
-  }
-  
+.product-item {
+  align-items: flex-start;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.product-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 5px 0;
+}
+
+.weight-options h3 {
+  margin-top: 5px;
+  font-weight: bold;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.options-table {
+  width: 100%;
+  margin-top: 5px;
+  border-collapse: collapse;
+}
+
+.options-table th, .options-table td {
+  text-align: left;
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.85rem;
+}
+
+.product-category {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.product-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.thumbnail-image {
+  margin-right: 15px;
+}
+
+.no-products {
+  text-align: center;
+  color: #999;
+  font-size: 1.2rem;
+  margin-top: 20px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 5px;
+}
+
+.button-group ion-button {
+  margin-top: 5px;
+  width: 100px;  /* Para que ambos botones tengan el mismo ancho */
+}

@@ -5,6 +5,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';  // Importar HttpClient
 import { Subscription } from 'rxjs';
 import { ProductService } from './productos/product-service.service';  // Importar el servicio de productos
+import { Geolocation } from '@capacitor/geolocation';  // Importar Geolocalización
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent {
   isSearchBarVisible: boolean = false;
   searchQuery: string = ''; 
   items: string[] = ['Gatos', 'Perros', 'Aves', 'Comida para perros', 'Juguetes para gatos'];
+  locationName: string = '';
   filteredItems: string[] = []; 
 
   private authSubscription: Subscription;
@@ -108,6 +110,10 @@ export class AppComponent {
     this.navCtrl.navigateForward('/productos/product-add');
   }
 
+  navigateToProductList() {
+    this.navCtrl.navigateForward('/productos/product-list');
+  }
+
   // Funcionalidad de búsqueda
   toggleSearch() {
     this.isSearchBarVisible = !this.isSearchBarVisible; // Alternar visibilidad de la barra de búsqueda
@@ -125,4 +131,39 @@ export class AppComponent {
       this.filteredItems = [...this.items];
     }
   }
+
+   // Función para obtener la ubicación actual y convertirla a nombre de lugar
+   async getCurrentPosition() {
+    const coordinates = await Geolocation.getCurrentPosition();
+    console.log('Latitud:', coordinates.coords.latitude, 'Longitud:', coordinates.coords.longitude); // Verifica las coordenadas aquí
+    this.reverseGeocode(coordinates.coords.latitude, coordinates.coords.longitude);
+  }
+  
+
+
+  reverseGeocode(lat: number, lon: number) {
+    const apiKey = 'AIzaSyAbRD4Qy8Qnx1PhMHhPhnoLEBjJFsp217E'; // Coloca aquí tu API key válida
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${apiKey}`;
+  
+    this.http.get(url).subscribe((response: any) => {
+      if (response.status === 'OK' && response.results.length > 0) {
+        this.locationName = response.results[0].formatted_address; // Asigna la dirección formateada
+        alert(`Ubicación: ${this.locationName}`);  // Muestra la ubicación
+      } else {
+        console.error('No se pudo obtener la dirección.');
+      }
+    }, error => {
+      console.error('Error al obtener la dirección:', error);
+    });
+  }
+
+  mostrarUbicacion() {
+    if (this.locationName) {
+      alert(`Ubicación: ${this.locationName}`);
+    } else {
+      alert('Ubicación no disponible');
+    }
+  }
 }
+  
+
