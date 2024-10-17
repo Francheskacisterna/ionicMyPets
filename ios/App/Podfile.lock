@@ -22,6 +22,8 @@ PODS:
     - Capacitor
   - CapacitorStatusBar (6.0.1):
     - Capacitor
+  - CapacitorStorage (1.2.5):
+    - Capacitor
   - SQLCipher (4.6.1):
     - SQLCipher/standard (= 4.6.1)
   - SQLCipher/common (4.6.1)
@@ -41,6 +43,7 @@ DEPENDENCIES:
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+  - "CapacitorStorage (from `../../node_modules/@capacitor/storage`)"
 
 SPEC REPOS:
   trunk:
@@ -70,6 +73,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/network"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
+  CapacitorStorage:
+    :path: "../../node_modules/@capacitor/storage"
 
 SPEC CHECKSUMS:
   Capacitor: 679f9673fdf30597493a6362a5d5bf233d46abc2
@@ -83,9 +88,10 @@ SPEC CHECKSUMS:
   CapacitorKeyboard: 2700f9b18687be021e28b5a09b59eb151a46d5e0
   CapacitorNetwork: 8796cf1f1104a00b289957b6150b7c60e1c2a8d3
   CapacitorStatusBar: b81d4fb5d4e0064c712018071b3ab4b810b39a63
+  CapacitorStorage: 63255170c2f7e9f7363b3e5e015584e6d18f2969
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: e2fe30cbde7610f71217cd6be7994b34e3fcf8e8
+PODFILE CHECKSUM: 98a27b4805391db504290f04f18f16a2afd1be10
 
 COCOAPODS: 1.15.2

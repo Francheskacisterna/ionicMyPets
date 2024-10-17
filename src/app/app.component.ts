@@ -114,6 +114,19 @@ export class AppComponent {
     this.navCtrl.navigateForward('/productos/product-list');
   }
 
+
+  navigateToUserAdd() {
+    this.navCtrl.navigateForward('/usuarios/user-add');
+  }
+
+  navigateToUserList() {
+    this.navCtrl.navigateForward('/usuarios/user-list');
+  }
+
+  navigateToUserAll() {
+    this.navCtrl.navigateForward('/usuarios/user-all');
+  }
+
   // Funcionalidad de búsqueda
   toggleSearch() {
     this.isSearchBarVisible = !this.isSearchBarVisible; // Alternar visibilidad de la barra de búsqueda

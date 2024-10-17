@@ -61,12 +61,6 @@ async loadProduct(id: number) {
     this.product = products.find(p => p.id === id);
     if (this.product) {
       this.originalProduct = JSON.parse(JSON.stringify(this.product));
-
-      // Cargar las opciones de peso desde SQLite
-      this.weightOptions = await this.productService.getWeightOptionsByProductIdSQLite(id);
-      console.log('Opciones de peso cargadas desde SQLite:', this.weightOptions);
-      this.product.weightOptions = this.weightOptions || [];  // Asegúrate de que no esté vacío o indefinido
-      this.productImagePath = this.product.imagen;
     } else {
       console.error('Producto no encontrado en SQLite');
     }

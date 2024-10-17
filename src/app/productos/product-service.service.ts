@@ -581,7 +581,7 @@ async deleteProductWithWeightsAPI(productId: number): Promise<void> {
           const addedProduct = await this.addProductAPI(productWithoutWeights).toPromise();
 
           if (addedProduct && addedProduct.id) {
-            console.log(`Producto "${product.nombre}" sincronizado con éxito, ID API: ${addedProduct.id}`);
+            console.log(`Usuario "${product.nombre}" sincronizado con éxito, ID API: ${addedProduct.id}`);
 
             // Marcar el producto como sincronizado en SQLite
             await this.markProductAsSyncedSQLite(product.id!);

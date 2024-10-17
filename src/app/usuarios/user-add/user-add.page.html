@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Agregar Usuario</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToUserAll()">
+        <ion-icon slot="icon-only" name="list"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding user-add-content">
+  <form [formGroup]="userForm" (ngSubmit)="addUser()">
+    <ion-item class="styled-input">
+      <ion-label position="floating">Nombre de Usuario</ion-label>
+      <ion-input formControlName="nombre" type="text" required></ion-input>
+    </ion-item>
+
+    <ion-item class="styled-input">
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input formControlName="contrasena" type="password" required></ion-input>
+    </ion-item>
+
+    <ion-item class="styled-input">
+      <ion-label>Rol</ion-label>
+      <ion-select formControlName="rol" placeholder="Selecciona Rol" required>
+        <ion-select-option value="administrador">Administrador</ion-select-option>
+        <ion-select-option value="empleado">Empleado</ion-select-option>
+        <ion-select-option value="usuario">Usuario</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-button expand="full" type="submit" color="success" [disabled]="!userForm.valid">
+      <ion-icon slot="start" name="person-add"></ion-icon>
+      Agregar Usuario
+    </ion-button>
+  </form>
+
+  <ion-button expand="full" color="tertiary" (click)="goToUserAll()">
+    <ion-icon slot="start" name="arrow-back"></ion-icon>
+    Volver a la Lista de Usuarios
+  </ion-button>
+</ion-content>

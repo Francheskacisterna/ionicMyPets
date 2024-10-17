@@ -2,7 +2,7 @@
   "productos": [
     {
       "id": "75",
-      "nombre": "adele",
+      "nombre": "adelo",
       "descripcion": "aaa",
       "precio": 11,
       "stock": 15,
@@ -13,7 +13,7 @@
     },
     {
       "id": "76",
-      "nombre": "jjjj",
+      "nombre": "878787",
       "descripcion": "jjjjj",
       "precio": 8899889,
       "stock": 888,
@@ -56,11 +56,22 @@
       "weightOptions": []
     },
     {
-      "id": 81,
+      "id": "81",
       "nombre": "Pera",
       "descripcion": "222",
       "precio": 333,
       "stock": 3333,
+      "imagen": null,
+      "synced": 0,
+      "categoria": "aves",
+      "weightOptions": []
+    },
+    {
+      "id": "82",
+      "nombre": "Vamos",
+      "descripcion": "vamos",
+      "precio": 111,
+      "stock": 1111,
       "imagen": null,
       "synced": 0,
       "categoria": "aves",
@@ -104,11 +115,48 @@
       "stock": 111
     },
     {
-      "id": 84,
+      "id": "84",
       "producto_id": 81,
       "size": "333",
       "price": 33,
       "stock": 3333
+    },
+    {
+      "id": "85",
+      "producto_id": 82,
+      "size": "111",
+      "price": 111,
+      "stock": 1111
+    }
+  ],
+  "usuarios": [
+    {
+      "id": "27",
+      "nombre": "Chinches",
+      "contrasena": "q22222222",
+      "rol": "administrador",
+      "synced": 0
+    },
+    {
+      "id": "29",
+      "nombre": "Francheska Cisterna",
+      "contrasena": "030303003030",
+      "rol": "administrador",
+      "synced": 0
+    },
+    {
+      "id": "30",
+      "nombre": "Dominique",
+      "contrasena": "hermosa",
+      "rol": "usuario",
+      "synced": 0
+    },
+    {
+      "id": "5e20",
+      "nombre": "lllllllll",
+      "contrasena": "ppppppppp",
+      "rol": "administrador",
+      "synced": 0
     }
   ]
 }

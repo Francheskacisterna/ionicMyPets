@@ -52,12 +52,24 @@ const routes: Routes = [
     loadChildren: () => import('./productos/product-edit/product-edit.module').then(m => m.ProductEditPageModule)
   },
   {
-    path: 'user-add',
-    loadChildren: () => import('./user-add/user-add.module').then( m => m.UserAddPageModule)
+    path: 'usuarios/user-add',
+    loadChildren: () => import('./usuarios/user-add/user-add.module').then( m => m.UserAddPageModule)
   },
   {
-    path: 'user-list',
-    loadChildren: () => import('./user-list/user-list.module').then( m => m.UserListPageModule)
+    path: 'usuarios/user-list',
+    loadChildren: () => import('./usuarios/user-list/user-list.module').then( m => m.UserListPageModule)
+  },
+  {
+    path: 'usuarios/user-edit/:id',
+    loadChildren: () => import('./usuarios/user-edit/user-edit.module').then( m => m.UserEditPageModule)
+  },
+  {
+    path: 'usuarios/user-detail/:id',
+    loadChildren: () => import('./usuarios/user-detail/user-detail.module').then( m => m.UserDetailPageModule)
+  },
+  {
+    path: 'usuarios/user-all',
+    loadChildren: () => import('./usuarios/user-all/user-all.module').then( m => m.UserAllPageModule)
   }
   
 ];

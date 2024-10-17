@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Editar Usuario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="userForm">
+    <ion-item>
+      <ion-label position="stacked">Nombre</ion-label>
+      <ion-input formControlName="nombre"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('nombre')?.invalid && userForm.get('nombre')?.touched">
+      El nombre es requerido.
+    </ion-text>
+
+    <ion-item>
+      <ion-label position="stacked">Contraseña</ion-label>
+      <ion-input formControlName="contrasena" type="password"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('contrasena')?.invalid && userForm.get('contrasena')?.touched">
+      La contraseña es requerida y debe tener al menos 6 caracteres.
+    </ion-text>
+
+    <ion-item>
+      <ion-label position="stacked">Rol</ion-label>
+      <ion-select formControlName="rol">
+        <ion-select-option value="usuario">Usuario</ion-select-option>
+        <ion-select-option value="administrador">Administrador</ion-select-option>
+        <ion-select-option value="empleado">Empleado</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('rol')?.invalid && userForm.get('rol')?.touched">
+      El rol es requerido.
+    </ion-text>
+
+    <ion-button expand="full" [disabled]="!userForm.valid" (click)="saveChanges()">Guardar Cambios</ion-button>
+    <ion-button expand="full" color="light" (click)="cancelChanges()">Cancelar</ion-button>
+  </form>
+</ion-content>

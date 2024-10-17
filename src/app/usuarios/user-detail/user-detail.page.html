@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Detalles del Usuario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card *ngIf="usuario">
+    <ion-card-header>
+      <ion-card-title>{{ usuario.nombre }}</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p><strong>ID:</strong> {{ usuario.id }}</p>
+      <p><strong>Nombre:</strong> {{ usuario.nombre }}</p>
+      <p><strong>Contraseña:</strong> {{ usuario.contrasena }}</p>
+      <p><strong>Rol:</strong> {{ usuario.rol }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Mensaje si no se encuentra el usuario -->
+  <ion-card *ngIf="!usuario">
+    <ion-card-content>
+      <p>No se encontró el usuario.</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Botón para regresar a la lista de usuarios -->
+  <ion-button expand="full" (click)="goBackToList()">Regresar a la lista de usuarios</ion-button>
+</ion-content>

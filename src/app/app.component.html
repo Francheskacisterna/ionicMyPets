@@ -19,6 +19,8 @@
         <ion-item (click)="navigateToAve()">Aves</ion-item>
         <ion-item (click)="navigateToProductAdd()">Productos</ion-item>
         <ion-item (click)="navigateToProductList()">Lista de productos</ion-item>
+        <ion-item (click)="navigateToUserAll()">Lista de Usuaarios</ion-item>
+        <ion-item (click)="navigateToUserAdd()">Usuarios</ion-item>
 
         <!-- Mostrar solo si el usuario está autenticado -->
         <ion-item (click)="logout()" *ngIf="isAuthenticated">Cerrar Sesión</ion-item>

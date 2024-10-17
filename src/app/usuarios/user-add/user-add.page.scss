@@ -1,0 +1,30 @@
+.user-add-content {
+    --background: #f4f4f4;
+  }
+  
+  .styled-input {
+    --padding-start: 15px;
+    --border-radius: 8px;
+    --background: #ffffff;
+    margin-bottom: 15px;
+  }
+  
+  ion-button {
+    margin-top: 20px;
+  }
+  
+  ion-toolbar {
+    --background: #3880ff;  /* Cambia el color del toolbar */
+    --color: white;
+  }
+  
+  ion-button[color="success"] {
+    --background: #28a745;
+    --border-radius: 8px;
+  }
+  
+  ion-button[color="tertiary"] {
+    --background: #6c757d;
+    --border-radius: 8px;
+  }
+  
