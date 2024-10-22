@@ -1,6 +1,6 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { UserService, Usuario } from '../user.service';
-import { Router } from '@angular/router';
+import { Router, NavigationExtras } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 
@@ -32,22 +32,30 @@ export class UserListPage implements OnInit {
 
   async loadUsuarios() {
     try {
+      // Cargar usuarios desde SQLite
       const localUsuarios = await this.userService.getUsuariosSQLite();
       console.log('Usuarios locales obtenidos de SQLite:', localUsuarios);
   
       this.ngZone.run(() => {
         this.usuarios = localUsuarios;
-        this.filteredUsuarios = localUsuarios;  // Asegúrate de que filteredUsuarios también se inicialice
+        this.filteredUsuarios = localUsuarios;  // Asegurarte de que filteredUsuarios también se inicialice
       });
   
+      // Verificar si hay conexión
       if (navigator.onLine) {
         this.userService.getUsuariosAPI().subscribe(
           apiUsuarios => {
             this.ngZone.run(() => {
               if (apiUsuarios && apiUsuarios.length > 0) {
-                this.usuarios = [...localUsuarios, ...apiUsuarios];
-                this.filteredUsuarios = this.usuarios;  // También actualiza filteredUsuarios
-                console.log('Usuarios combinados:', this.usuarios);
+                // Filtrar usuarios de la API que no estén en SQLite para evitar duplicación
+                const usuariosNoDuplicados = apiUsuarios.filter(apiUsuario => 
+                  !this.usuarios.some(localUsuario => localUsuario.id === apiUsuario.id)
+                );
+  
+                // Combinar usuarios locales con los de la API sin duplicar
+                this.usuarios = [...this.usuarios, ...usuariosNoDuplicados];
+                this.filteredUsuarios = this.usuarios;  // Actualiza filteredUsuarios
+                console.log('Usuarios combinados (sin duplicados):', this.usuarios);
               } else {
                 this.usuarios = localUsuarios;
                 this.filteredUsuarios = localUsuarios;
@@ -69,20 +77,21 @@ export class UserListPage implements OnInit {
     }
   }
   
-    // Función para filtrar los usuarios
-    filterUsers(event: any) {
-      const searchTerm = event.target.value?.toLowerCase();
-      if (searchTerm && searchTerm.trim() !== '') {
-        this.filteredUsuarios = this.usuarios.filter(usuario =>
-          usuario.nombre.toLowerCase().includes(searchTerm)
-        );
-      } else {
-        this.filteredUsuarios = this.usuarios;  // Mostrar todos si no hay filtro
-      }
+  
+  // Función para filtrar los usuarios
+  filterUsers(event: any) {
+    const searchTerm = event.target.value?.toLowerCase();
+    if (searchTerm && searchTerm.trim() !== '') {
+      this.filteredUsuarios = this.usuarios.filter(usuario =>
+        usuario.nombre.toLowerCase().includes(searchTerm)
+      );
+    } else {
+      this.filteredUsuarios = this.usuarios;  // Mostrar todos si no hay filtro
     }
+  }
 
   // Función para eliminar un usuario
-  async deleteUser(id: number | undefined) {
+  async deleteUser(id: string | undefined) {  // Cambiamos a string
     if (id === undefined) {
       console.error('El ID del usuario es indefinido.');
       return;
@@ -103,20 +112,26 @@ export class UserListPage implements OnInit {
           text: 'Eliminar',
           handler: async () => {
             try {
-              // Verificar estado de la red antes de intentar eliminar en la API
+              const userIdString = id.toString();  // Convertimos el id a string
+
+              // Proceder a eliminar el usuario de SQLite primero
+              await this.userService.deleteUsuarioSQLite(userIdString);
+              console.log(`Usuario con ID ${userIdString} eliminado de SQLite`);
+
+              // Verificar si hay conexión para intentar eliminar de la API
               if (navigator.onLine) {
-                const result = await firstValueFrom(this.userService.deleteUsuarioAPI(id));
-                if (!result) {
-                  throw new Error('Falló la eliminación en la API');
+                try {
+                  const result = await firstValueFrom(this.userService.deleteUsuarioAPI(userIdString));
+                  if (!result) {
+                    throw new Error('Falló la eliminación en la API');
+                  }
+                  console.log(`Usuario con ID ${userIdString} eliminado de la API`);
+                } catch (apiError) {
+                  console.error('Error al eliminar usuario de la API:', apiError);
                 }
-                console.log(`Usuario con ID ${id} eliminado de la API`);
               } else {
                 console.log('No hay conexión a la red, no se puede eliminar de la API');
               }
-
-              // Proceder a eliminar el usuario de SQLite
-              await this.userService.deleteUsuarioSQLite(id);
-              console.log(`Usuario con ID ${id} eliminado de SQLite`);
 
               // Recargar la lista de usuarios
               this.loadUsuarios();
@@ -131,25 +146,28 @@ export class UserListPage implements OnInit {
     await alert.present();
   }
 
-
   // Función para navegar a la página de edición de usuario
-  editUser(userId: number | undefined) {
-    if (userId === undefined) {
-      console.error('El ID del usuario es indefinido.');
-      return;
+  editUser(usuario: Usuario) {
+    if (usuario.id) {  // Asegúrate de que usuario.id esté definido
+      this.router.navigate(['/usuarios/user-edit'], {
+        state: { user: usuario }  // Pasar el objeto usuario completo como estado de navegación
+      });
+    } else {
+      console.error('ID de usuario no válido');
     }
-    this.router.navigate(['/usuarios/user-edit', userId]);
   }
+    
 
-  // Función para navegar a los detalles del usuario
-  goToUserDetail(id: number) {
-    this.router.navigate(['/usuarios/user-detail', id]);  // Navegar a la página de detalles del usuario
+  // Función para navegar a los detalles del usuario usando NavigationExtras
+  goToUserDetail(usuario: Usuario) {
+    this.router.navigate(['/usuarios/user-detail'], {
+      state: { user: usuario }  // Pasar el usuario completo en el estado de navegación
+    });
+  }  
+
+
+  // Función para redirigir a la página 'user-all'
+  goToUserAll() {
+    this.router.navigate(['/usuarios/user-all']);
   }
-
-    // Función para redirigir a la página 'user-all'
-    goToUserAll() {
-      this.router.navigate(['/usuarios/user-all']);
-    }
-  
-
 }

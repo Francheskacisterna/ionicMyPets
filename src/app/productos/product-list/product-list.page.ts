@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService, Product } from '../product-service.service';
 import { Router } from '@angular/router';  // Importar Router para navegación
 import { AlertController } from '@ionic/angular';  // Importar AlertController para confirmación
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -29,19 +30,32 @@ export class ProductListPage implements OnInit {
   async loadProducts() {
     try {
       const localProducts = await this.productService.getProductsSQLite();
-      console.log('Productos locales obtenidos de SQLite:', localProducts);  
-
+      console.log('Productos locales obtenidos de SQLite:', localProducts);
+  
       // Verificar si hay conexión antes de llamar a la API
       if (!navigator.onLine) {
         this.products = localProducts;
         console.log('No hay conexión. Mostrando productos locales:', this.products);
         return;
       }
-
+  
       // Si hay conexión, intenta obtener los productos de la API
       this.productService.getProductsAPI().subscribe(
-        apiProducts => {
+        async apiProducts => {
           if (apiProducts && apiProducts.length > 0) {
+            // Procesar los productos de la API
+            for (let product of apiProducts) {
+              // Verificar que el ID del producto no sea undefined
+              if (product.id !== undefined) {
+                // Obtener y asignar las opciones de peso de cada producto
+                const weightOptions = await firstValueFrom(this.productService.getWeightOptionsByProductIdAPI(product.id));
+                product.weightOptions = weightOptions;  // Asignar las opciones de peso al producto
+                console.log('Opciones de peso obtenidas para el producto:', product.nombre, weightOptions);
+              } else {
+                console.warn('El producto no tiene un ID válido:', product);
+              }
+            }
+  
             // Si hay productos de la API, combínalos con los locales
             this.products = [...localProducts, ...apiProducts];
             console.log('Productos combinados:', this.products);
@@ -61,6 +75,8 @@ export class ProductListPage implements OnInit {
       console.error('Error al cargar productos:', error);
     }
   }
+  
+  
 
   // Función para eliminar un producto, validando si el id existe
   async deleteProduct(id: number | undefined) {

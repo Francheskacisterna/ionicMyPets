@@ -60,11 +60,11 @@ const routes: Routes = [
     loadChildren: () => import('./usuarios/user-list/user-list.module').then( m => m.UserListPageModule)
   },
   {
-    path: 'usuarios/user-edit/:id',
+    path: 'usuarios/user-edit',
     loadChildren: () => import('./usuarios/user-edit/user-edit.module').then( m => m.UserEditPageModule)
   },
   {
-    path: 'usuarios/user-detail/:id',
+    path: 'usuarios/user-detail',
     loadChildren: () => import('./usuarios/user-detail/user-detail.module').then( m => m.UserDetailPageModule)
   },
   {

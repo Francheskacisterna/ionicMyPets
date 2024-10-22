@@ -7,7 +7,7 @@ import { Storage } from '@ionic/storage-angular';
 import { Network } from '@capacitor/network';
 
 export interface Usuario {
-  id?: number;
+  id?: string;  // Aseguramos que el ID sea numérico para SQLite y API
   nombre: string;
   contrasena: string;
   rol: string;
@@ -42,39 +42,39 @@ export class UserService {
 
   async initDB() {
     await this.storage.create();
-    
+
     try {
       if (CapacitorSQLite) {
         console.log('Iniciando la conexión con SQLite...');
-    
         await this.closeDBConnection();
-    
+
         if (!this.sqliteConnection) {
           this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
         }
-    
+
         if (!this.db) {
           this.db = await this.sqliteConnection.createConnection('usuarios.db', false, 'no-encryption', 1, false);
           await this.db.open();
           console.log('SQLite abierto. Creando tablas...');
-    
+
           // No eliminar la tabla cada vez que se carga el programa
           await this.db.execute(`
-            CREATE TABLE IF NOT EXISTS usuarios (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              nombre TEXT NOT NULL,
-              contrasena TEXT NOT NULL,
-              rol TEXT NOT NULL,
-              synced INTEGER DEFAULT 0
-            );
+CREATE TABLE IF NOT EXISTS usuarios (
+  id TEXT PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  contrasena TEXT NOT NULL,
+  rol TEXT NOT NULL,
+  synced INTEGER DEFAULT 0
+);
+
           `);
-    
+
           console.log('SQLite está disponible y las tablas fueron creadas.');
         }
-    
+
         this.useSQLite = true;
         await this.syncUsuariosWithAPI();
-    
+
       } else {
         this.useSQLite = false;
         console.warn('SQLite no está disponible. Usando LocalStorage como fallback.');
@@ -84,8 +84,6 @@ export class UserService {
       console.error('Error al inicializar SQLite. Usando LocalStorage como fallback:', err);
     }
   }
-  
-  
 
   async monitorNetwork() {
     const status = await Network.getStatus();
@@ -93,7 +91,7 @@ export class UserService {
       console.log('Conexión inicial detectada, intentando sincronizar usuarios...');
       await this.syncUsuariosWithAPI();
     }
-  
+
     Network.addListener('networkStatusChange', async (status) => {
       if (status.connected) {
         console.log('Conexión restablecida, intentando sincronizar usuarios...');
@@ -103,7 +101,6 @@ export class UserService {
       }
     });
   }
-  
 
   private async ensureDBIsOpen(): Promise<boolean> {
     if (!this.db) return false;
@@ -116,18 +113,32 @@ export class UserService {
 
   // CRUD SQLite
 
-  // Añadir usuario a SQLite
-// Función para añadir un usuario a SQLite
+  generateUUID(): string {
+    return 'xxxx'.replace(/[xy]/g, function (c) {
+      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+
+// Añadir usuario a SQLite
 async addUsuarioSQLite(usuario: Usuario): Promise<void> {
   try {
     if (!await this.ensureDBIsOpen()) return;
 
-    const query = `INSERT INTO usuarios (nombre, contrasena, rol, synced) VALUES (?, ?, ?, 0)`;
-    const values = [usuario.nombre, usuario.contrasena, usuario.rol];
+    // Verificar si el ID es un string antes de insertar en SQLite
+    if (usuario.id) {
+      usuario.id = usuario.id.toString();  // Convertir a string si es necesario
+    } else {
+      usuario.id = this.generateUUID();  // Generar un UUID si no hay ID
+    }
+
+    const query = `INSERT INTO usuarios (id, nombre, contrasena, rol, synced) VALUES (?, ?, ?, ?, 0)`;
+    const values = [usuario.id, usuario.nombre, usuario.contrasena, usuario.rol];
 
     const result = await this.db!.run(query, values);
     if (result.changes && result.changes.lastId) {
-      console.log('Usuario añadido en SQLite con ID:', result.changes.lastId);
+      console.log('Usuario añadido en SQLite con ID:', usuario.id);
     } else {
       console.error('Error al insertar el usuario en SQLite.');
     }
@@ -138,42 +149,54 @@ async addUsuarioSQLite(usuario: Usuario): Promise<void> {
 
 
   // Obtener todos los usuarios desde SQLite
-
-async getUsuariosSQLite(): Promise<Usuario[]> {
-  try {
-    if (!await this.ensureDBIsOpen()) return [];
-
-    const res = await this.db!.query("SELECT * FROM usuarios");
-    const products = res.values as Usuario[];
-
-    return products;
-  } catch (err) {
-    console.error('Error al obtener productos y opciones de peso de SQLite:', err);
-    return [];
+  async getUsuariosSQLite(): Promise<Usuario[]> {
+    try {
+      if (!await this.ensureDBIsOpen()) return [];
+  
+      const res = await this.db!.query("SELECT * FROM usuarios");
+  
+      // Verificar si res.values está definido antes de mapear
+      const usuarios = res.values ? res.values.map(usuario => ({
+        ...usuario,
+        id: usuario.id.toString()
+      })) : [];
+  
+      return usuarios as Usuario[];
+    } catch (err) {
+      console.error('Error al obtener usuarios de SQLite:', err);
+      return [];
+    }
   }
-}
-
-// Método para agregar un usuario con verificación de conexión
-async addUsuario(usuario: Usuario): Promise<void> {
-  try {
-    const status = await Network.getStatus();
-    if (status.connected) {
-      const addedUsuario = await firstValueFrom(this.addUsuarioAPI(usuario)); // Usamos firstValueFrom para convertir a promesa
-      if (addedUsuario && addedUsuario.id) {
-        console.log('Usuario añadido a la API:', JSON.stringify(addedUsuario));
+  
+  // Método para agregar un usuario con verificación de conexión
+  async addUsuario(usuario: Usuario): Promise<void> {
+    try {
+      // Asegurarse de que el ID es string
+      if (!usuario.id) {
+        usuario.id = this.generateUUID();  // Generar un ID si no está presente
       } else {
-        throw new Error('No se pudo añadir el usuario a la API.');
+        usuario.id = usuario.id.toString();  // Asegurarse de que el ID existente sea string
       }
-    } else {
-      throw new Error('Sin conexión a la red');
-    }
-  } catch (error) {
-    console.error('Error al añadir usuario:', error);
-    if (this.useSQLite) {
-      await this.addUsuarioSQLite(usuario);
+
+      const status = await Network.getStatus();
+      if (status.connected) {
+        const addedUsuario = await firstValueFrom(this.addUsuarioAPI(usuario));
+        if (addedUsuario && addedUsuario.id) {
+          console.log('Usuario añadido a la API:', JSON.stringify(addedUsuario));
+        } else {
+          throw new Error('No se pudo añadir el usuario a la API.');
+        }
+      } else {
+        throw new Error('Sin conexión a la red');
+      }
+    } catch (error) {
+      console.error('Error al añadir usuario:', error);
+      if (this.useSQLite) {
+        await this.addUsuarioSQLite(usuario);  // Guardar en SQLite en caso de falta de conexión
+      }
     }
   }
-}
+
 
   // Actualizar usuario en SQLite
   async updateUsuarioSQLite(usuario: Usuario): Promise<void> {
@@ -181,7 +204,7 @@ async addUsuario(usuario: Usuario): Promise<void> {
       if (!await this.ensureDBIsOpen()) return;
 
       const query = `UPDATE usuarios SET nombre = ?, contrasena = ?, rol = ? WHERE id = ?`;
-      const values = [usuario.nombre, usuario.contrasena, usuario.rol, usuario.id];
+      const values = [usuario.nombre, usuario.contrasena, usuario.rol, usuario.id!.toString()];
       await this.db!.run(query, values);
       console.log(`Usuario con ID ${usuario.id} actualizado en SQLite.`);
     } catch (err) {
@@ -189,26 +212,30 @@ async addUsuario(usuario: Usuario): Promise<void> {
     }
   }
 
-  
-  // Eliminar usuario de SQLite
-  async deleteUsuarioSQLite(usuarioId: number): Promise<void> {
+  // Eliminar usuario de SQLite con id como string
+  async deleteUsuarioSQLite(usuarioId: string): Promise<void> {
     try {
       if (!await this.ensureDBIsOpen()) return;
-
-      await this.db!.run(`DELETE FROM usuarios WHERE id = ?`, [usuarioId]);
+      await this.db!.run(`DELETE FROM usuarios WHERE id = ?`, [usuarioId.toString()]);
       console.log(`Usuario con ID ${usuarioId} eliminado de SQLite.`);
     } catch (err) {
       console.error('Error al eliminar usuario de SQLite:', err);
     }
   }
-
   // Obtener usuarios no sincronizados desde SQLite
   async getUsuariosSQLiteNotSynced(): Promise<Usuario[]> {
     try {
       if (!await this.ensureDBIsOpen()) return [];
+  
       const res = await this.db!.query("SELECT * FROM usuarios WHERE synced = 0");
-      console.log('Usuarios no sincronizados obtenidos:', JSON.stringify(res.values));
-      return res.values as Usuario[];
+  
+      // Verificar si res.values está definido antes de mapear
+      const usuarios = res.values ? res.values.map(usuario => ({
+        ...usuario,
+        id: usuario.id.toString()
+      })) : [];
+  
+      return usuarios as Usuario[];
     } catch (err) {
       console.error('Error al obtener usuarios no sincronizados de SQLite:', err);
       return [];
@@ -216,17 +243,18 @@ async addUsuario(usuario: Usuario): Promise<void> {
   }
   
 
+
   // Marcar usuario como sincronizado en SQLite
-  async markUsuarioAsSyncedSQLite(usuarioId: number): Promise<void> {
+  async markUsuarioAsSyncedSQLite(usuarioId: string): Promise<void> {
     try {
       if (!await this.ensureDBIsOpen()) return;
-      await this.db!.run(`UPDATE usuarios SET synced = 1 WHERE id = ?`, [usuarioId]);
+      await this.db!.run(`UPDATE usuarios SET synced = 1 WHERE id = ?`, [usuarioId.toString()]);
       console.log(`Usuario con ID ${usuarioId} marcado como sincronizado en SQLite.`);
     } catch (err) {
       console.error('Error al marcar usuario como sincronizado:', err);
     }
   }
-  
+
 
   // Funciones API
 
@@ -239,18 +267,17 @@ async addUsuario(usuario: Usuario): Promise<void> {
       );
   }
 
-// Añadir un usuario a la API
-
-addUsuarioAPI(usuario: Usuario): Observable<Usuario> {
-  return this.http.post<Usuario>(this.apiUrl, usuario, this.httpOptions)
-    .pipe(
-      tap(newUsuario => console.log('Usuario añadido con éxito en la API:', newUsuario)),
-      catchError((error) => {
-        console.error('Error al intentar añadir usuario a la API:', error);
-        return of({} as Usuario); // Devuelve un usuario vacío en caso de error
-      })
-    );
-}
+  // Añadir un usuario a la API
+  addUsuarioAPI(usuario: Usuario): Observable<Usuario> {
+    return this.http.post<Usuario>(this.apiUrl, usuario, this.httpOptions)
+      .pipe(
+        tap(newUsuario => console.log('Usuario añadido con éxito en la API:', newUsuario)),
+        catchError((error) => {
+          console.error('Error al intentar añadir usuario a la API:', error);
+          return of({} as Usuario);
+        })
+      );
+  }
 
   // Actualizar usuario en la API
   updateUsuarioAPI(usuario: Usuario): Observable<any> {
@@ -262,7 +289,7 @@ addUsuarioAPI(usuario: Usuario): Observable<Usuario> {
   }
 
   // Eliminar usuario en la API
-  deleteUsuarioAPI(usuarioId: number): Observable<any> {
+  deleteUsuarioAPI(usuarioId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${usuarioId}`, this.httpOptions)
       .pipe(
         tap(() => console.log(`Usuario con ID ${usuarioId} eliminado de la API`)),
@@ -273,67 +300,41 @@ addUsuarioAPI(usuario: Usuario): Observable<Usuario> {
       );
   }
 
-  // Sincronizar productos y sus opciones de peso con la API
+  // Sincronizar usuarios con la API
   async syncUsuariosWithAPI() {
     try {
       const usuarios = await this.getUsuariosSQLiteNotSynced();
       if (usuarios.length === 0) {
-        console.log('No hay productos para sincronizar.');
+        console.log('No hay usuarios para sincronizar.');
         return;
       }
 
-      console.log(`Iniciando sincronización de ${usuarios.length} productos...`);
-
       for (const usuario of usuarios) {
-        try {
-          // Crear una copia del producto sin `weightOptions` antes de enviarlo a la API
-          const productWithoutWeights = { ...usuario};
+        const addedUsuario = await firstValueFrom(this.addUsuarioAPI(usuario));
 
-          // Sincronizar el producto con la API
-          const addedUsuario = await this.addUsuarioAPI(productWithoutWeights).toPromise();
-
-          if (addedUsuario && addedUsuario.id) {
-            console.log(`Usuario "${usuario.nombre}" sincronizado con éxito, ID API: ${addedUsuario.id}`);
-
-            // Marcar el producto como sincronizado en SQLite
-            await this.markUsuarioAsSyncedSQLite(usuario.id!);
-
-            // Eliminar el producto de SQLite después de sincronizarlo
-            await this.deleteUsuarioSQLite(usuario.id!);
-          } else {
-            console.error(`Error al sincronizar el producto "${usuario.nombre}".`);
-          }
-        } catch (error) {
-          console.error(`Error al sincronizar el producto "${usuario.nombre}":`, error);
+        if (addedUsuario && addedUsuario.id) {
+          await this.markUsuarioAsSyncedSQLite(usuario.id!);
+          await this.deleteUsuarioSQLite(usuario.id!);
+        } else {
+          console.error(`Error al sincronizar el usuario "${usuario.nombre}".`);
         }
       }
-
-      console.log('Sincronización finalizada.');
     } catch (error) {
-      console.error('Error al sincronizar productos:', error);
+      console.error('Error al sincronizar usuarios:', error);
     }
   }
 
-// Obtener un usuario específico desde la API por ID
-getUsuarioByIdAPI(usuarioId: number): Observable<Usuario> {
-  console.log(`Realizando solicitud GET para obtener el usuario con ID ${usuarioId}`);
-  
-  return this.http.get<Usuario>(`${this.apiUrl}/${usuarioId}`, this.httpOptions)
-    .pipe(
-      tap(usuario => {
-        console.log(`Usuario con ID ${usuarioId} obtenido de la API:`, usuario);
-      }),
-      catchError((error) => {
-        console.error(`Error al obtener el usuario con ID ${usuarioId} desde la API:`, error.message || error);
-        return of({} as Usuario);  // Devuelve un objeto vacío si hay error
-      })
-    );
-}
-
-
-
-
-// Funciones convinadas  
+  // Obtener un usuario específico desde la API por ID
+  getUsuarioByIdAPI(usuarioId: string): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.apiUrl}/${usuarioId}`, this.httpOptions)
+      .pipe(
+        tap(usuario => console.log(`Usuario con ID ${usuarioId} obtenido de la API:`, usuario)),
+        catchError((error) => {
+          console.error(`Error al obtener el usuario con ID ${usuarioId} desde la API:`, error.message || error);
+          return of({} as Usuario);
+        })
+      );
+  }
 
   // Manejo de errores genérico
   private handleError<T>(operation = 'operation', result?: T) {

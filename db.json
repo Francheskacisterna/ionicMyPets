@@ -1,162 +1,117 @@
 {
   "productos": [
     {
-      "id": "75",
-      "nombre": "adelo",
-      "descripcion": "aaa",
-      "precio": 11,
-      "stock": 15,
-      "imagen": null,
-      "synced": 0,
-      "categoria": "Gato",
-      "weightOptions": []
-    },
-    {
-      "id": "76",
-      "nombre": "878787",
-      "descripcion": "jjjjj",
-      "precio": 8899889,
-      "stock": 888,
-      "imagen": null,
-      "synced": 0,
+      "id": "40c9",
+      "nombre": "prueba",
+      "descripcion": "eeeeeee",
+      "precio": 111111,
+      "stock": 11111111,
       "categoria": "aves",
-      "weightOptions": []
+      "weightOptions": [
+        {
+          "size": "22222",
+          "price": 9999,
+          "stock": 99999
+        }
+      ],
+      "imagen": null
     },
     {
-      "id": "78",
-      "nombre": "Pruebas",
-      "descripcion": "1",
-      "precio": 1,
-      "stock": 1,
-      "imagen": null,
-      "synced": 0,
-      "categoria": "aves",
-      "weightOptions": []
-    },
-    {
-      "id": "79",
-      "nombre": "pepe",
-      "descripcion": "eee",
-      "precio": 111,
-      "stock": 111,
-      "imagen": null,
-      "synced": 0,
-      "categoria": "aves",
-      "weightOptions": []
-    },
-    {
-      "id": "80",
-      "nombre": "papa",
-      "descripcion": "2222",
-      "precio": 1222,
-      "stock": 1222,
-      "imagen": null,
-      "synced": 0,
+      "id": "NaN",
+      "nombre": "gggggggg",
+      "descripcion": "111111111",
+      "precio": 11111111111,
+      "stock": 66666666,
       "categoria": "gato",
-      "weightOptions": []
+      "weightOptions": [
+        {
+          "size": "111111",
+          "price": 11111,
+          "stock": 111111
+        }
+      ]
     },
     {
-      "id": "81",
-      "nombre": "Pera",
-      "descripcion": "222",
-      "precio": 333,
-      "stock": 3333,
-      "imagen": null,
-      "synced": 0,
-      "categoria": "aves",
-      "weightOptions": []
-    },
-    {
-      "id": "82",
-      "nombre": "Vamos",
-      "descripcion": "vamos",
-      "precio": 111,
-      "stock": 1111,
-      "imagen": null,
-      "synced": 0,
-      "categoria": "aves",
-      "weightOptions": []
+      "id": "40ca",
+      "nombre": "rereeee",
+      "descripcion": "ggfg",
+      "precio": 2222,
+      "stock": 22222,
+      "categoria": "gato",
+      "weightOptions": [
+        {
+          "size": "222",
+          "price": 222,
+          "stock": 222
+        }
+      ]
     }
   ],
   "pesos": [
     {
-      "id": "78",
-      "producto_id": 75,
-      "size": "111",
-      "price": 111,
-      "stock": 1111
+      "id": "0689",
+      "size": "22222",
+      "price": 9999,
+      "stock": 99999
     },
     {
-      "id": "79",
-      "producto_id": 76,
-      "size": "1111",
-      "price": 4444,
-      "stock": 7777
+      "id": "0b75",
+      "size": "111111",
+      "price": 11111,
+      "stock": 111111
     },
     {
-      "id": "81",
-      "producto_id": 78,
-      "size": "12",
-      "price": 111,
-      "stock": 1111
-    },
-    {
-      "id": "82",
-      "producto_id": 79,
-      "size": "111",
-      "price": 111,
-      "stock": 111
-    },
-    {
-      "id": "83",
-      "producto_id": 80,
-      "size": "1111",
-      "price": 1111,
-      "stock": 111
-    },
-    {
-      "id": "84",
-      "producto_id": 81,
-      "size": "333",
-      "price": 33,
-      "stock": 3333
-    },
-    {
-      "id": "85",
-      "producto_id": 82,
-      "size": "111",
-      "price": 111,
-      "stock": 1111
+      "id": "bd99",
+      "size": "222",
+      "price": 222,
+      "stock": 222
     }
   ],
   "usuarios": [
     {
-      "id": "27",
-      "nombre": "Chinches",
-      "contrasena": "q22222222",
-      "rol": "administrador",
-      "synced": 0
+      "id": "63c8",
+      "nombre": "lona",
+      "contrasena": "perroski",
+      "rol": "usuario"
     },
     {
-      "id": "29",
-      "nombre": "Francheska Cisterna",
-      "contrasena": "030303003030",
-      "rol": "administrador",
-      "synced": 0
+      "id": "29a7",
+      "nombre": "ddddd",
+      "contrasena": "123456",
+      "rol": "empleado"
     },
     {
-      "id": "30",
-      "nombre": "Dominique",
-      "contrasena": "hermosa",
+      "id": "b042",
+      "nombre": "vanessa",
+      "contrasena": "Domi.3007",
       "rol": "usuario",
       "synced": 0
     },
     {
-      "id": "5e20",
-      "nombre": "lllllllll",
-      "contrasena": "ppppppppp",
-      "rol": "administrador",
+      "id": "e96f",
+      "nombre": "perros",
+      "contrasena": "Domi.3007",
+      "rol": "usuario",
       "synced": 0
+    },
+    {
+      "id": "c27f",
+      "nombre": "Salmon",
+      "contrasena": "Domi.3007",
+      "rol": "usuario",
+      "synced": 0
+    },
+    {
+      "id": "9040",
+      "nombre": "palta",
+      "contrasena": "44444444444",
+      "rol": "administrador"
+    },
+    {
+      "id": "4cb1",
+      "nombre": "Mari Sol",
+      "contrasena": "123456",
+      "rol": "empleado"
     }
   ]
 }

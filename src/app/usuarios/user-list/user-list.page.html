@@ -13,24 +13,25 @@
 
   <!-- Nueva lista con navegación a los detalles del usuario -->
   <ion-list *ngIf="filteredUsuarios.length > 0">
-    <ion-item *ngFor="let usuario of filteredUsuarios" (click)="usuario.id ? goToUserDetail(usuario.id) : null">
+    <ion-item *ngFor="let usuario of filteredUsuarios" (click)="goToUserDetail(usuario)">
       <ion-label>
         <h2>{{ usuario.nombre }}</h2>
         <p>{{ usuario.rol }}</p>
       </ion-label>
       <ion-buttons slot="end">
-        <ion-button fill="clear" color="primary" (click)="editUser(usuario.id)" (click)="$event.stopPropagation()">
+        <!-- Solo permitir la edición si usuario.id está definido -->
+        <ion-button *ngIf="usuario.id" fill="clear" color="primary" (click)="editUser(usuario)" (click)="$event.stopPropagation()">
           <ion-icon name="create"></ion-icon>
         </ion-button>
-        <ion-button fill="clear" color="danger" (click)="deleteUser(usuario.id)" (click)="$event.stopPropagation()">
+        <ion-button *ngIf="usuario.id" fill="clear" color="danger" (click)="deleteUser(usuario.id)" (click)="$event.stopPropagation()">
           <ion-icon name="trash"></ion-icon>
         </ion-button>
       </ion-buttons>
-    </ion-item>
+    </ion-item>    
   </ion-list>
 
   <!-- Botón para ver todos los usuarios -->
   <ion-button expand="block" color="primary" (click)="goToUserAll()" class="beautiful-button">
-    Ver Todos los Usuarios
+    Volver
   </ion-button>
 </ion-content>

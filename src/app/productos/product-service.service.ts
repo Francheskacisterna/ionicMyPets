@@ -417,6 +417,7 @@ export class ProductService {
       );
   }
 
+// Añadir un usuario a la API con más registros de depurac
   async updateProduct(product: Product): Promise<void> {
     try {
       if (this.useSQLite) {
@@ -531,9 +532,6 @@ getWeightOptionsByProductIdAPI(productId: number): Observable<WeightOption[]> {
 }
 
 
-
-
-  
 
 // Eliminar un producto junto con sus opciones de peso en la API
 async deleteProductWithWeightsAPI(productId: number): Promise<void> {
