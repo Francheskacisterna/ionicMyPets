@@ -44,11 +44,11 @@ const routes: Routes = [
     loadChildren: () => import('./productos/product-list/product-list.module').then( m => m.ProductListPageModule)
   },
   {
-    path: 'productos/product-detail/:id',
+    path: 'productos/product-detail',
     loadChildren: () => import('./productos/product-detail/product-detail.module').then( m => m.ProductDetailPageModule)
   },
   {
-    path: 'productos/product-edit/:id',
+    path: 'productos/product-edit',
     loadChildren: () => import('./productos/product-edit/product-edit.module').then(m => m.ProductEditPageModule)
   },
   {

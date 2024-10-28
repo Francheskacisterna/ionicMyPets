@@ -1,70 +1,71 @@
 {
   "productos": [
     {
-      "id": "40c9",
-      "nombre": "prueba",
-      "descripcion": "eeeeeee",
-      "precio": 111111,
-      "stock": 11111111,
-      "categoria": "aves",
-      "weightOptions": [
-        {
-          "size": "22222",
-          "price": 9999,
-          "stock": 99999
-        }
-      ],
+      "id": "c81e5808-9dd7-4509-97f8-689686d84e86",
+      "nombre": "33333",
+      "descripcion": "11111",
+      "precio": 1111,
+      "stock": 1111,
+      "categoria": "Perro",
       "imagen": null
     },
     {
-      "id": "NaN",
-      "nombre": "gggggggg",
-      "descripcion": "111111111",
-      "precio": 11111111111,
-      "stock": 66666666,
-      "categoria": "gato",
-      "weightOptions": [
-        {
-          "size": "111111",
-          "price": 11111,
-          "stock": 111111
-        }
-      ]
+      "id": "8aafabd2-eb3f-4464-bec5-f4a32f9a57e6",
+      "nombre": "ppppp",
+      "descripcion": "8888",
+      "precio": 11111,
+      "stock": 88888,
+      "categoria": "perro",
+      "imagen": null
     },
     {
-      "id": "40ca",
-      "nombre": "rereeee",
-      "descripcion": "ggfg",
-      "precio": 2222,
-      "stock": 22222,
+      "id": "81264add-059a-404a-aaab-d7012d345d9f",
+      "nombre": "domi",
+      "descripcion": "domi",
+      "precio": 11111,
+      "stock": 11111,
+      "categoria": "aves",
+      "imagen": null
+    },
+    {
+      "id": "dd3debe5-830c-4f16-b008-48d41ae96b8f",
+      "nombre": "Miriam",
+      "descripcion": "Elisa",
+      "precio": 11111,
+      "stock": 11111,
+      "imagen": null,
       "categoria": "gato",
-      "weightOptions": [
-        {
-          "size": "222",
-          "price": 222,
-          "stock": 222
-        }
-      ]
+      "synced": 0
     }
   ],
   "pesos": [
     {
-      "id": "0689",
-      "size": "22222",
-      "price": 9999,
-      "stock": 99999
+      "id": "27844f45-0af9-46d9-9dda-27bb22ff0282",
+      "size": 811,
+      "price": 1111,
+      "stock": 1111,
+      "producto_id": "c81e5808-9dd7-4509-97f8-689686d84e86"
     },
     {
-      "id": "0b75",
-      "size": "111111",
-      "price": 11111,
-      "stock": 111111
+      "id": "979d0a28-ae8c-42cd-b17e-3b1cb0a1ab7f",
+      "size": 7888,
+      "price": 98888,
+      "stock": 88888,
+      "producto_id": "8aafabd2-eb3f-4464-bec5-f4a32f9a57e6"
     },
     {
-      "id": "bd99",
-      "size": "222",
-      "price": 222,
-      "stock": 222
+      "id": "d647e0dc-a2fd-47c5-809a-147e06f02754",
+      "size": 2111,
+      "price": 1111,
+      "stock": 1111,
+      "producto_id": "81264add-059a-404a-aaab-d7012d345d9f"
+    },
+    {
+      "id": "769b2a7b-247b-4b0a-8859-822a644e5fd4",
+      "producto_id": "dd3debe5-830c-4f16-b008-48d41ae96b8f",
+      "size": "1111",
+      "price": 1111,
+      "stock": 1111
     }
   ],
   "usuarios": [

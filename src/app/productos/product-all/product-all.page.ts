@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ProductService, Product, WeightOption } from '../product-service.service'; // Servicio en la misma carpeta
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-all',
@@ -7,23 +7,20 @@ import { ProductService, Product, WeightOption } from '../product-service.servic
   styleUrls: ['./product-all.page.scss'],
 })
 export class ProductAllPage implements OnInit {
-  productsWithWeights: { product: Product; weights: WeightOption[] }[] = [];
 
-  constructor(private productService: ProductService) {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
-    this.loadAllProducts();
+    // Cargar la página sin mostrar la lista de productos al inicio.
   }
 
-  async loadAllProducts() {
-    // Primero obtenemos todos los productos
-    const products = await this.productService.getProductsSQLite();
-    this.productsWithWeights = [];
+  // Función para redirigir a la lista de productos
+  goToProductList() {
+    this.router.navigate(['/productos/product-list']);
+  }
 
-    // Para cada producto, obtenemos sus opciones de peso
-    for (const product of products) {
-      const { weights } = await this.productService.getProductWithWeightsSQLite(product.id!);
-      this.productsWithWeights.push({ product, weights });
-    }
+  // Función para redirigir a la página de agregar producto
+  addProduct() {
+    this.router.navigate(['/productos/product-add']);
   }
 }

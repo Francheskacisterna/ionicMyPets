@@ -19,7 +19,8 @@
     </ion-card-header>
   </ion-card>
 
-  <ion-card *ngIf="product.weightOptions && product.weightOptions.length > 0" class="weight-options-card">
+  <!-- Mostrar opciones de peso si existen -->
+  <ion-card *ngIf="weightOptions.length > 0" class="weight-options-card">
     <ion-card-header>
       <ion-card-title>Opciones de Peso</ion-card-title>
     </ion-card-header>
@@ -33,7 +34,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let option of product.weightOptions">
+          <tr *ngFor="let option of weightOptions">
             <td>{{ option.size }} kg</td>
             <td>{{ option.price | currency:'CLP':'symbol' }}</td>
             <td>{{ option.stock }}</td>
@@ -43,11 +44,9 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- Nuevo botón para regresar a la lista de productos -->
   <ion-button expand="full" color="secondary" (click)="goBackToList()" class="back-button">
     Volver a Lista de Productos
   </ion-button>
-
 </ion-content>
 
 <ion-footer>

@@ -1,26 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable,firstValueFrom, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { Observable, firstValueFrom, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { CapacitorSQLite, SQLiteDBConnection, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Storage } from '@ionic/storage-angular';
 import { Network } from '@capacitor/network';
 
-
 export interface Product {
-  id?: number;
+  id?: string;
   nombre: string;
   descripcion: string;
   precio: number;
   stock: number;
   imagen?: string;
   categoria: string;
+  synced?: number;
   weightOptions?: WeightOption[];
 }
 
 export interface WeightOption {
-  id?: number;
-  producto_id?: number;
+  id?: string;
+  producto_id?: string;
   size: string;
   price: number;
   stock: number;
@@ -32,7 +32,6 @@ export interface WeightOption {
 export class ProductService {
   private apiUrl = 'http://10.0.2.2:3000/productos';
   private weightOptionsUrl = 'http://10.0.2.2:3000/pesos';
-  productImage: string | undefined;
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
@@ -48,7 +47,6 @@ export class ProductService {
 
   async closeDBConnection() {
     if (this.db) {
-      console.log('Cerrando la conexión a la base de datos...');
       await this.db.close();
       this.db = null;
     }
@@ -59,22 +57,18 @@ export class ProductService {
 
     try {
       if (CapacitorSQLite) {
-        console.log('Iniciando la conexión con SQLite...');
-
         await this.closeDBConnection();
-
         if (!this.sqliteConnection) {
           this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
         }
 
         if (!this.db) {
-          this.db = await this.sqliteConnection.createConnection('dataSQLite.db', false, 'no-encryption', 1, false);
+          this.db = await this.sqliteConnection.createConnection('productos.db', false, 'no-encryption', 1, false);
           await this.db.open();
-          console.log('SQLite abierto. Creando tablas...');
-
+          
           await this.db.execute(`
             CREATE TABLE IF NOT EXISTS productos (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              id TEXT PRIMARY KEY,
               nombre TEXT NOT NULL,
               descripcion TEXT NOT NULL,
               precio REAL NOT NULL,
@@ -87,8 +81,8 @@ export class ProductService {
 
           await this.db.execute(`
             CREATE TABLE IF NOT EXISTS pesos (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              producto_id INTEGER NOT NULL,
+              id TEXT PRIMARY KEY,
+              producto_id TEXT NOT NULL,
               size TEXT NOT NULL,
               price REAL NOT NULL,
               stock INTEGER NOT NULL,
@@ -98,35 +92,37 @@ export class ProductService {
         }
 
         this.useSQLite = true;
-        console.log('SQLite está disponible y las tablas fueron creadas.');
-
         await this.syncProductsWithAPI();
-
       } else {
         this.useSQLite = false;
-        console.warn('SQLite no está disponible. Usando LocalStorage como fallback.');
       }
     } catch (err) {
       this.useSQLite = false;
-      console.error('Error al inicializar SQLite. Usando LocalStorage como fallback:', err);
+      console.error('Error al inicializar SQLite:', err);
     }
   }
 
   async monitorNetwork() {
     const status = await Network.getStatus();
     if (status.connected) {
-      console.log('Conexión inicial detectada, intentando sincronizar productos...');
       await this.syncProductsWithAPI();
     }
 
     Network.addListener('networkStatusChange', async (status) => {
       if (status.connected) {
-        console.log('Conexión restablecida, intentando sincronizar productos...');
         await this.syncProductsWithAPI();
-      } else {
-        console.log('Sin conexión a la red.');
       }
     });
+  }
+
+  async isApiAvailable(): Promise<boolean> {
+    try {
+      const response = await fetch(this.apiUrl);  // Realiza una solicitud para verificar la conexión con la API
+      return response.ok;  // Retorna true si la API responde correctamente
+    } catch (error) {
+      console.error('API no disponible:', error);
+      return false;  // Si hay algún error, la API no está disponible
+    }
   }
 
   private async ensureDBIsOpen(): Promise<boolean> {
@@ -138,417 +134,437 @@ export class ProductService {
     return true;
   }
 
-
-  // Marcar un producto como sincronizado en SQLite
-  async markProductAsSyncedSQLite(productId: number): Promise<void> {
-    try {
-      if (!await this.ensureDBIsOpen()) return;
-      await this.db!.run(`UPDATE productos SET synced = 1 WHERE id = ?`, [productId]);
-      console.log(`Producto con ID ${productId} marcado como sincronizado.`);
-    } catch (err) {
-      console.error('Error al marcar producto como sincronizado:', err);
-    }
+  // CRUD en SQLite
+  generateUUID(): string {
+    return 'xxxx'.replace(/[xy]/g, function (c) {
+      const r = Math.random() * 4 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(4);
+    });
   }
 
+// Funciones convinadas SQLite  
 
-  // Función para añadir un producto y sus opciones de peso
-  async addProduct(product: Product, weightOptions: WeightOption[], imageBase64?: string): Promise<void> {
-    if (imageBase64) {
-      product.imagen = imageBase64;  // Usar la imagen convertida a base64
-    }
-
+  // Añadir producto y peso a SQLite
+  async addProductWithWeightsSQLite(product: Product, weightOptions: WeightOption[]): Promise<void> {
     try {
-      const status = await Network.getStatus();
-      if (status.connected) {
-        const productWithoutWeights = { ...product, weightOptions: [] };
-        const addedProduct = await this.addProductAPI(productWithoutWeights).toPromise();
-        if (addedProduct && addedProduct.id) {
-          console.log('Producto añadido a la API:', JSON.stringify(addedProduct));
-
-          for (const option of weightOptions) {
-            option.producto_id = addedProduct.id;
-            await this.addWeightOptionAPI(option).toPromise();
-            console.log(`Opción de peso "${option.size}" añadida a la API.`);
-          }
-        } else {
-          throw new Error('No se pudo añadir el producto a la API.');
-        }
-      } else {
-        throw new Error('Sin conexión a la red');
-      }
-    } catch (error) {
-      console.error('Error al añadir producto:', error);
-      if (this.useSQLite) {
-        await this.addProductSQLite(product, weightOptions);
-      }
-    }
-  }
-  // Funciones SQLite
-
-  // Obtener todos los productos desde SQLite, incluyendo las opciones de peso
-  async getProductsSQLite(): Promise<Product[]> {
-    try {
-      if (!await this.ensureDBIsOpen()) return [];
-
-      const res = await this.db!.query("SELECT * FROM productos");
-      const products = res.values as Product[];
-
-      for (const product of products) {
-        const weightOptionsResult = await this.db!.query("SELECT * FROM pesos WHERE producto_id = ?", [product.id]);
-        product.weightOptions = weightOptionsResult.values as WeightOption[];
-      }
-
-      return products;
-    } catch (err) {
-      console.error('Error al obtener productos y opciones de peso de SQLite:', err);
-      return [];
-    }
-  }
-
-  // Obtener productos que no han sido sincronizados aún
-  async getProductsSQLiteNotSynced(): Promise<Product[]> {
-    try {
-      if (!await this.ensureDBIsOpen()) return [];
-      const res = await this.db!.query("SELECT * FROM productos WHERE synced = 0");
-
-      if (res.values && res.values.length > 0) {
-        for (const product of res.values) {
-          const weightOptionsResult = await this.db!.query("SELECT * FROM pesos WHERE producto_id = ?", [product.id]);
-          product.weightOptions = weightOptionsResult.values as WeightOption[];
-        }
-        return res.values as Product[];
-      } else {
-        console.log('No se encontraron productos no sincronizados.');
-        return [];
-      }
-    } catch (err) {
-      console.error('Error al obtener productos no sincronizados de SQLite:', err);
-      return [];
-    }
-  }
-
-  async updateProductSQLite(product: Product): Promise<void> {
-    if (!await this.ensureDBIsOpen()) {
-      console.error("No se pudo abrir la base de datos.");
-      return;
-    }
-
-    try {
-      // Actualizar el producto
-      const productQuery = `UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, stock = ?, categoria = ? WHERE id = ?`;
-      const productValues = [product.nombre, product.descripcion, product.precio, product.stock, product.categoria, product.id];
+      const productQuery = `INSERT INTO productos (id, nombre, descripcion, precio, stock, imagen, categoria, synced) VALUES (?, ?, ?, ?, ?, ?, ?, 0)`;
+      const productValues = [product.id, product.nombre, product.descripcion, product.precio, product.stock, product.imagen, product.categoria];
       await this.db!.run(productQuery, productValues);
-
-      // Actualizar las opciones de peso
-      for (const option of product.weightOptions || []) {
-        if (option.id) {
-          // Si la opción de peso ya tiene un ID, actualizarla
-          const weightUpdateQuery = `UPDATE pesos SET size = ?, price = ?, stock = ?, producto_id = ? WHERE id = ?`;
-          const weightValues = [option.size, option.price, option.stock, product.id, option.id];
-          await this.db!.run(weightUpdateQuery, weightValues);
-        } else {
-          // Si la opción de peso no tiene ID, agregarla como nueva opción
-          const weightInsertQuery = `INSERT INTO pesos (producto_id, size, price, stock) VALUES (?, ?, ?, ?)`;
-          const weightInsertValues = [product.id, option.size, option.price, option.stock];
-          await this.db!.run(weightInsertQuery, weightInsertValues);
-        }
+      console.log('Producto añadido en SQLite con ID:', product.id);
+  
+      for (const option of weightOptions) {
+        const weightOptionQuery = `INSERT INTO pesos (id, producto_id, size, price, stock) VALUES (?, ?, ?, ?, ?)`;
+        const weightOptionValues = [option.id, product.id, option.size, option.price, option.stock];
+        await this.db!.run(weightOptionQuery, weightOptionValues);
+        console.log(`Opción de peso "${option.size}" añadida en SQLite para el producto con ID ${product.id}`);
       }
+    } catch (err) {
+      console.error('Error al añadir producto y opciones de peso a SQLite:', err);
+    }
+  }
 
-      console.log(`Producto con ID ${product.id} actualizado correctamente en SQLite.`);
+  // Método para sincronizar el producto y las opciones de peso con la API
+  private async syncProductWithAPI(product: Product, weightOptions: WeightOption[]): Promise<void> {
+    try {
+      const response = await firstValueFrom(this.addProductAPI(product));
+      console.log('Producto sincronizado en la API con éxito:', response);
+  
+      // Sincroniza cada opción de peso con la API
+      for (const option of weightOptions) {
+        console.log(`Intentando sincronizar opción de peso con ID: ${option.id} y producto_id: ${option.producto_id}`);
+        await firstValueFrom(this.addWeightOptionAPI(option));
+        console.log(`Opción de peso "${option.size}" sincronizada en la API para el producto con ID ${product.id}`);
+      }
     } catch (error) {
-      console.error('Error al actualizar el producto en SQLite:', error);
+      console.error('Error al sincronizar producto y opciones de peso en la API:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     }
   }
 
-
-  // Función para añadir un producto a SQLite
-  async addProductSQLite(product: Product, weightOptions: WeightOption[]): Promise<void> {
-    try {
-      if (!await this.ensureDBIsOpen()) return;
-
-      const query = `INSERT INTO productos (nombre, descripcion, precio, stock, imagen, categoria, synced) VALUES (?, ?, ?, ?, ?, ?, 0)`;
-      const values = [product.nombre, product.descripcion, product.precio, product.stock, product.imagen, product.categoria];
-
-      const result = await this.db!.run(query, values);
-
-      if (result.changes && result.changes.lastId) {
-        console.log('Producto añadido en SQLite con ID:', result.changes.lastId);
-        const productId = result.changes.lastId;
-
+    // Actualizar el producto y las opciones de peso en SQLite
+    async updateProductWithWeightsSQLite(product: Product, weightOptions: WeightOption[]): Promise<void> {
+      if (!this.db) return;
+      try {
+        // Actualizar el producto
+        const query = `UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, stock = ?, categoria = ? WHERE id = ?`;
+        const values = [product.nombre, product.descripcion, product.precio, product.stock, product.categoria, product.id];
+        await this.db.run(query, values);
+  
+        // Actualizar las opciones de peso
         for (const option of weightOptions) {
-          const weightQuery = `INSERT INTO pesos (producto_id, size, price, stock) VALUES (?, ?, ?, ?)`;
-          await this.db!.run(weightQuery, [productId, option.size, option.price, option.stock]);
-          console.log(`Opción de peso "${option.size}" añadida en SQLite con producto_id: ${productId}.`);
+          await this.updateWeightOptionSQLite(option);
         }
-        console.log('Producto y opciones de peso añadidos en SQLite con éxito.');
-      } else {
-        console.error('Error al insertar el producto en SQLite.');
+  
+        console.log('Producto y opciones de peso actualizados en SQLite');
+      } catch (err) {
+        console.error('Error al actualizar producto y opciones de peso en SQLite:', err);
       }
-    } catch (err) {
-      console.error('Error al añadir producto a SQLite:', err);
     }
+
+
+// En tu servicio de ProductService
+async deleteProductWithWeightsSQLite(productId: string): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
+  
+    // Primero eliminamos todas las opciones de peso relacionadas con el producto
+    await this.db!.run(`DELETE FROM pesos WHERE producto_id = ?`, [productId]);
+    console.log(`Opciones de peso del producto con ID ${productId} eliminadas de SQLite.`);
+  
+    // Luego eliminamos el producto
+    await this.db!.run(`DELETE FROM productos WHERE id = ?`, [productId]);
+    console.log(`Producto con ID ${productId} eliminado de SQLite.`);
+  } catch (err) {
+    console.error('Error al eliminar el producto y sus opciones de peso de SQLite:', err);
   }
+}
 
-  // Función para eliminar un producto de SQLite
-  async deleteProductSQLite(productId: number): Promise<void> {
-    try {
-      if (!await this.ensureDBIsOpen()) return;
 
-      await this.db!.run(`DELETE FROM productos WHERE id = ?`, [productId]);
-      console.log(`Producto con ID ${productId} eliminado de SQLite.`);
-    } catch (err) {
-      console.error('Error al eliminar producto de SQLite:', err);
-    }
+// Funciones para productos
+
+// Obtener todos los productos de SQLite
+async getProductsSQLite(): Promise<Product[]> {
+  try {
+    if (!await this.ensureDBIsOpen()) return [];
+
+    const res = await this.db!.query("SELECT * FROM productos");
+    return res.values as Product[];
+  } catch (err) {
+    console.error('Error al obtener productos de SQLite:', err);
+    return [];
   }
+}
 
-  // Obtener un producto por ID desde SQLite, incluyendo las opciones de peso
-  async getProductByIdSQLite(productId: number): Promise<Product | null> {
-    try {
-      if (!await this.ensureDBIsOpen()) return null;
+// Obtener un producto por ID desde SQLite
+async getProductByIdSQLite(productId: string): Promise<Product | null> {
+  try {
+    if (!await this.ensureDBIsOpen()) return null;
 
-      const res = await this.db!.query("SELECT * FROM productos WHERE id = ?", [productId]);
-
-      if (res.values && res.values.length > 0) {
-        const product = res.values[0] as Product;
-        const weightOptionsResult = await this.db!.query("SELECT * FROM pesos WHERE producto_id = ?", [product.id]);
-        product.weightOptions = weightOptionsResult.values as WeightOption[];
-        return product;
-      } else {
-        console.log(`Producto con ID ${productId} no encontrado.`);
-        return null;
-      }
-    } catch (err) {
-      console.error('Error al obtener el producto desde SQLite:', err);
+    const res = await this.db!.query("SELECT * FROM productos WHERE id = ?", [productId]);
+    if (res.values && res.values.length > 0) {
+      return res.values[0] as Product;
+    } else {
+      console.log('Producto no encontrado en SQLite con ID:', productId);
       return null;
     }
+  } catch (err) {
+    console.error('Error al obtener producto desde SQLite:', err);
+    return null;
   }
+}
 
+// Actualizar producto en SQLite
+async updateProductSQLite(product: Product): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
 
-  // Eliminar una opción de peso de SQLite
-  async deleteWeightOptionSQLite(weightOptionId: number): Promise<void> {
-    try {
-      if (!await this.ensureDBIsOpen()) return;
+    const query = `UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, stock = ?, categoria = ? WHERE id = ?`;
+    const values = [product.nombre, product.descripcion, product.precio, product.stock, product.categoria, product.id];
+    await this.db!.run(query, values);
 
-      await this.db!.run(`DELETE FROM pesos WHERE id = ?`, [weightOptionId]);
-      console.log(`Opción de peso con ID ${weightOptionId} eliminada de SQLite.`);
-    } catch (err) {
-      console.error('Error al eliminar la opción de peso desde SQLite:', err);
-    }
+    console.log('Producto con ID', product.id, 'actualizado en SQLite');
+  } catch (err) {
+    console.error('Error al actualizar producto en SQLite:', err);
   }
+}
 
-  // Actualizar una opción de peso en SQLite
-  async updateWeightOptionSQLite(weightOption: WeightOption): Promise<void> {
-    try {
-      if (!await this.ensureDBIsOpen()) return;
-
-      const query = `UPDATE pesos SET size = ?, price = ?, stock = ? WHERE id = ?`;
-      const values = [weightOption.size, weightOption.price, weightOption.stock, weightOption.id];
-
-      await this.db!.run(query, values);
-      console.log(`Opción de peso con ID ${weightOption.id} actualizada en SQLite.`);
-    } catch (err) {
-      console.error('Error al actualizar la opción de peso en SQLite:', err);
-    }
+// Eliminar producto en SQLite
+async deleteProductSQLite(productId: string): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
+    await this.db!.run(`DELETE FROM productos WHERE id = ?`, [productId]);
+    console.log('Producto con ID', productId, 'eliminado de SQLite');
+  } catch (err) {
+    console.error('Error al eliminar producto de SQLite:', err);
   }
-
-  // Obtener todas las opciones de peso de un producto específico
-  async getWeightOptionsByProductIdSQLite(productId: number): Promise<WeightOption[]> {
-    try {
-      if (!await this.ensureDBIsOpen()) return [];
-
-      const res = await this.db!.query("SELECT * FROM pesos WHERE producto_id = ?", [productId]);
-      return res.values as WeightOption[];
-    } catch (err) {
-      console.error('Error al obtener las opciones de peso desde SQLite:', err);
-      return [];
-    }
-  }
-
-  // Eliminar todas las opciones de peso de un producto
-  async deleteWeightOptionsByProductIdSQLite(productId: number): Promise<void> {
-    try {
-      if (!await this.ensureDBIsOpen()) return;
-
-      await this.db!.run(`DELETE FROM pesos WHERE producto_id = ?`, [productId]);
-      console.log(`Todas las opciones de peso para el producto con ID ${productId} eliminadas de SQLite.`);
-    } catch (err) {
-      console.error('Error al eliminar las opciones de peso desde SQLite:', err);
-    }
-  }
-
-  async addWeightOptionSQLite(option: WeightOption): Promise<void> {
-    try {
-      await this.ensureDBIsOpen();  // Verificar que la DB esté abierta
-      if (!this.db) {
-        throw new Error('Base de datos no inicializada.');
-      }
+}
+// Obtener productos no sincronizados desde SQLite
+async getProductsSQLiteNotSynced(): Promise<Product[]> {
+  try {
+    if (!await this.ensureDBIsOpen()) return [];
   
-      const query = `INSERT INTO pesos (producto_id, size, price, stock) VALUES (?, ?, ?, ?)`;
-      const values = [option.producto_id, option.size, option.price, option.stock];
-      await this.db.run(query, values);
-      console.log(`Opción de peso "${option.size}" añadida a SQLite para el producto con ID ${option.producto_id}.`);
-    } catch (error) {
-      console.error('Error al añadir opción de peso a SQLite:', error);
+    const res = await this.db!.query("SELECT * FROM productos WHERE synced = 0");
+    return res.values as Product[];
+  } catch (err) {
+    console.error('Error al obtener productos no sincronizados desde SQLite:', err);
+    return [];
+  }
+}
+
+// Marcar producto como sincronizado en SQLite
+async markProductAsSyncedSQLite(productId: string): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
+    await this.db!.run(`UPDATE productos SET synced = 1 WHERE id = ?`, [productId]);
+    console.log('Producto con ID', productId, 'marcado como sincronizado en SQLite');
+  } catch (err) {
+    console.error('Error al marcar producto como sincronizado en SQLite:', err);
+  }
+}
+
+// Funciones para opciones de peso (WeightOption)
+
+// Añadir una opción de peso a SQLite
+async addWeightOptionSQLite(weightOption: WeightOption): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
+
+    if (!weightOption.id) {
+      weightOption.id = this.generateUUID();  // Generar UUID si no tiene ID
     }
+
+    const query = `INSERT INTO pesos (id, producto_id, size, price, stock) VALUES (?, ?, ?, ?, ?)`;
+    const values = [weightOption.id, weightOption.producto_id, weightOption.size, weightOption.price, weightOption.stock];
+    await this.db!.run(query, values);
+
+    console.log('Opción de peso añadida en SQLite con ID:', weightOption.id);
+  } catch (err) {
+    console.error('Error al añadir opción de peso a SQLite:', err);
   }
-  
-  
+}
 
-  // Funciones API
+// Obtener todas las opciones de peso por producto desde SQLite
+async getWeightOptionsByProductIdSQLite(productId: string): Promise<WeightOption[]> {
+  try {
+    if (!await this.ensureDBIsOpen()) return [];
 
-  // Obtener todos los productos desde la API
-  getProductsAPI(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl, this.httpOptions)
-      .pipe(
-        tap(products => console.log('Productos obtenidos de la API:', products)),
-        catchError(this.handleError<Product[]>('getProductsAPI', []))
-      );
+    const res = await this.db!.query("SELECT * FROM pesos WHERE producto_id = ?", [productId]);
+    console.log(`Opciones de peso recuperadas desde SQLite para el producto con ID ${productId}:`, res.values);
+    return res.values as WeightOption[];
+  } catch (err) {
+    console.error('Error al obtener opciones de peso desde SQLite:', err);
+    return [];
   }
+}
 
-  // Añadir un producto a la API
-  addProductAPI(product: Product): Observable<Product> {
-    return this.http.post<Product>(this.apiUrl, product, this.httpOptions)
-      .pipe(
-        tap(newProduct => console.log('Producto añadido a la API:', newProduct)),
-        catchError((error) => {
-          console.error('Error al añadir producto a la API:', error);
-          return of({} as Product);
-        })
-      );
+
+// Actualizar una opción de peso en SQLite
+async updateWeightOptionSQLite(weightOption: WeightOption): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
+
+    const query = `UPDATE pesos SET size = ?, price = ?, stock = ? WHERE id = ?`;
+    const values = [weightOption.size, weightOption.price, weightOption.stock, weightOption.id];
+    await this.db!.run(query, values);
+
+    console.log('Opción de peso con ID', weightOption.id, 'actualizada en SQLite');
+  } catch (err) {
+    console.error('Error al actualizar opción de peso en SQLite:', err);
   }
+}
 
-// Añadir un usuario a la API con más registros de depurac
-  async updateProduct(product: Product): Promise<void> {
-    try {
-      if (this.useSQLite) {
-        // Actualizar en SQLite
-        await this.updateProductSQLite(product);
-      } else {
-        // Actualizar en la API
-        await this.updateProductAPI(product).toPromise();
-      }
-    } catch (error) {
-      console.error('Error al actualizar el producto:', error);
-      throw error;
-    }
+
+// Eliminar una opción de peso en SQLite
+async deleteWeightOptionSQLite(weightOptionId: string): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
+
+    await this.db!.run(`DELETE FROM pesos WHERE id = ?`, [weightOptionId]);
+    console.log('Opción de peso con ID', weightOptionId, 'eliminada de SQLite');
+  } catch (err) {
+    console.error('Error al eliminar opción de peso desde SQLite:', err);
   }
+}
 
+// Eliminar todas las opciones de peso por producto desde SQLite
+async deleteWeightOptionsByProductIdSQLite(productId: string): Promise<void> {
+  try {
+    if (!await this.ensureDBIsOpen()) return;
 
-  updateProductAPI(product: Product): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${product.id}`, product, this.httpOptions)
-      .pipe(
-        tap(() => console.log(`Producto con ID ${product.id} actualizado en la API`)),
-        catchError(this.handleError<any>('updateProductAPI'))
-      );
+    await this.db!.run(`DELETE FROM pesos WHERE producto_id = ?`, [productId]);
+    console.log('Opciones de peso para producto con ID', productId, 'eliminadas de SQLite');
+  } catch (err) {
+    console.error('Error al eliminar opciones de peso desde SQLite:', err);
   }
+}
 
+// Funciones para productos
 
-  // Añadir una opción de peso a la API
-  addWeightOptionAPI(weightOption: WeightOption): Observable<WeightOption> {
-    return this.http.post<WeightOption>(this.weightOptionsUrl, weightOption, this.httpOptions)
-      .pipe(
-        tap(newWeightOption => console.log('Opción de peso añadida a la API:', newWeightOption)),
-        catchError((error) => {
-          console.error('Error al añadir opción de peso a la API:', error);
-          return of({} as WeightOption);
-        })
-      );
-  }
+// Obtener todos los productos desde la API
+getProductsAPI(): Observable<Product[]> {
+  console.log('Intentando obtener productos de la API...');
+  return this.http.get<Product[]>(this.apiUrl, this.httpOptions).pipe(
+    tap((products) => console.log('Productos recibidos de la API:', products)),
+    catchError(error => {
+      console.error('Error en la API:', error);
+      return of([]);  // Retorna un arreglo vacío si hay un error
+    })
+  );
+}
 
-  // Eliminar una opción de peso en la API
-  deleteWeightOptionAPI(weightOptionId: number): Observable<any> {
-    return this.http.delete(`${this.weightOptionsUrl}/${weightOptionId}`, this.httpOptions)
-      .pipe(
-        tap(() => console.log(`Opción de peso con ID ${weightOptionId} eliminada de la API`)),
-        catchError((error) => {
-          console.error(`Error al eliminar la opción de peso con ID ${weightOptionId} de la API:`, error);
-          return of(null);
-        })
-      );
-  }
-
-  // Actualizar una opción de peso en la API
-  updateWeightOptionAPI(weightOption: WeightOption): Observable<any> {
-    return this.http.put(`${this.weightOptionsUrl}/${weightOption.id}`, weightOption, this.httpOptions)
-      .pipe(
-        tap(() => console.log(`Opción de peso con ID ${weightOption.id} actualizada en la API`)),
-        catchError((error) => {
-          console.error(`Error al actualizar la opción de peso con ID ${weightOption.id} en la API:`, error);
-          return of(null);
-        })
-      );
-  }
-
-  // Eliminar un producto en la API
-  deleteProductAPI(productId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${productId}`, this.httpOptions)
-      .pipe(
-        tap(() => console.log(`Producto con ID ${productId} eliminado de la API`)),
-        catchError((error) => {
-          console.error(`Error al eliminar el producto con ID ${productId} de la API:`, error);
-          return of(null);
-        })
-      );
-  }
-
-  // Obtener un producto específico desde la API
-  getProductByIdAPI(productId: number): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/${productId}`, this.httpOptions)
-      .pipe(
-        tap(product => console.log(`Producto con ID ${productId} obtenido de la API:`, product)),
-        catchError((error) => {
-          console.error(`Error al obtener el producto con ID ${productId} desde la API:`, error);
-          return of({} as Product);
-        })
-      );
-  }
-
-
-  // Obtener una opción de peso específica desde la API
-  getWeightOptionByIdAPI(weightOptionId: number): Observable<WeightOption> {
-    return this.http.get<WeightOption>(`${this.weightOptionsUrl}/${weightOptionId}`, this.httpOptions)
-      .pipe(
-        tap(weightOption => console.log(`Opción de peso con ID ${weightOptionId} obtenida de la API:`, weightOption)),
-        catchError((error) => {
-          console.error(`Error al obtener la opción de peso con ID ${weightOptionId} desde la API:`, error);
-          return of({} as WeightOption);
-        })
-      );
-  }
-
-// Obtener opciones de peso desde la API
-getWeightOptionsByProductIdAPI(productId: number): Observable<WeightOption[]> {
-  return this.http.get<{ pesos: WeightOption[] }>(`${this.weightOptionsUrl}/product/${productId}`, this.httpOptions)
+// Obtener un producto específico por ID desde la API
+getProductByIdAPI(productId: string): Observable<Product> {
+  return this.http.get<Product>(`${this.apiUrl}/${productId}`, this.httpOptions)
     .pipe(
-      map((response: { pesos: WeightOption[] }) => {
-        console.log('Respuesta completa de la API:', JSON.stringify(response, null, 2));
-        return response.pesos;  // Acceder al campo "pesos"
-      }),
+      tap(product => console.log(`Producto con ID ${productId} obtenido de la API:`, product)),
+      catchError(this.handleError<Product>(`getProductByIdAPI id=${productId}`))
+    );
+}
+
+// Añadir un producto a la API
+addProductAPI(product: Product): Observable<Product> {
+  return this.http.post<Product>(this.apiUrl, product, this.httpOptions)
+    .pipe(
+      tap(newProduct => console.log('Producto añadido a la API:', newProduct)),
+      catchError(this.handleError<Product>('addProductAPI'))
+    );
+}
+
+// Actualizar un producto en la API
+updateProductAPI(product: Product): Observable<any> {
+  return this.http.put(`${this.apiUrl}/${product.id}`, product, this.httpOptions)
+    .pipe(
+      tap(() => console.log(`Producto con ID ${product.id} actualizado en la API`)),
+      catchError(this.handleError<any>('updateProductAPI'))
+    );
+}
+
+// Eliminar un producto en la API
+deleteProductAPI(productId: string): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/${productId}`, this.httpOptions)
+    .pipe(
+      tap(() => console.log(`Producto con ID ${productId} eliminado de la API`)),
+      catchError(this.handleError<any>('deleteProductAPI'))
+    );
+}
+
+// Funciones para opciones de peso (WeightOption)
+
+// Obtener todas las opciones de peso para un producto por ID desde la API
+getWeightOptionsByProductIdAPI(productId: string): Observable<WeightOption[]> {
+  return this.http.get<WeightOption[]>(`${this.weightOptionsUrl}?producto_id=${productId}`, this.httpOptions)
+    .pipe(
+      tap(options => console.log(`Opciones de peso para el producto con ID ${productId} obtenidas de la API:`, options)),
+      catchError(this.handleError<WeightOption[]>('getWeightOptionsByProductIdAPI', []))
+    );
+}
+
+  
+async addProductWithWeightsAPI(product: Product, weightOptions: WeightOption[]): Promise<void> {
+  try {
+    await firstValueFrom(this.addProductAPI(product));
+    console.log('Producto añadido en la API con éxito.');
+
+    for (const option of weightOptions) {
+      await firstValueFrom(this.addWeightOptionAPI(option));
+      console.log(`Opción de peso "${option.size}" añadida en la API para el producto con ID ${product.id}`);
+    }
+  } catch (error) {
+    console.error('Error al sincronizar con la API:', error);
+  }
+}
+ 
+
+// Añadir una opción de peso a la API
+addWeightOptionAPI(weightOption: WeightOption): Observable<WeightOption> {
+  console.log('Sincronizando opción de peso en la API:', JSON.stringify(weightOption, null, 2));
+  return this.http.post<WeightOption>(`${this.weightOptionsUrl}`, weightOption, this.httpOptions)
+    .pipe(
+      tap(newOption => console.log('Opción de peso añadida a la API:', newOption)),
       catchError(error => {
-        console.error(`Error al obtener las opciones de peso para el producto con ID ${productId} desde la API:`, error);
-        return of([]);  // En caso de error, devolver un arreglo vacío
+        // Mostrar todos los detalles del error
+        console.error('addWeightOptionAPI falló:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+        return throwError(error);
       })
     );
 }
 
 
+// Actualizar una opción de peso en la API
+updateWeightOptionAPI(weightOption: WeightOption): Observable<any> {
+  return this.http.put(`${this.weightOptionsUrl}/${weightOption.id}`, weightOption, this.httpOptions)
+    .pipe(
+      tap(() => console.log(`Opción de peso con ID ${weightOption.id} actualizada en la API`)),
+      catchError(this.handleError<any>('updateWeightOptionAPI'))
+    );
+}
 
-// Eliminar un producto junto con sus opciones de peso en la API
-async deleteProductWithWeightsAPI(productId: number): Promise<void> {
+// Eliminar una opción de peso en la API
+deleteWeightOptionAPI(weightOptionId: string): Observable<any> {
+  return this.http.delete(`${this.weightOptionsUrl}/${weightOptionId}`, this.httpOptions)
+    .pipe(
+      tap(() => console.log(`Opción de peso con ID ${weightOptionId} eliminada de la API`)),
+      catchError(this.handleError<any>('deleteWeightOptionAPI'))
+    );
+}
+
+// Eliminar todas las opciones de peso para un producto en la API
+deleteWeightOptionsByProductIdAPI(productId: string): Observable<any> {
+  return this.http.delete(`${this.weightOptionsUrl}/product/${productId}`, this.httpOptions)
+    .pipe(
+      tap(() => console.log(`Opciones de peso para el producto con ID ${productId} eliminadas de la API`)),
+      catchError(this.handleError<any>('deleteWeightOptionsByProductIdAPI'))
+    );
+}
+
+// Sincronizar productos y sus opciones de peso con la API
+async syncProductsWithAPI() {
   try {
-    // Asegurarse de que el tipo esperado es un array de WeightOption
-    const weightOptions: WeightOption[] = await firstValueFrom(this.getWeightOptionsByProductIdAPI(productId));
-
-    // Eliminar cada opción de peso
-    for (const weightOption of weightOptions) {
-      if (weightOption.id !== undefined) {
-        await firstValueFrom(this.deleteWeightOptionAPI(weightOption.id));
-      } else {
-        console.warn(`Opción de peso sin ID, no se puede eliminar:`, weightOption);
+      const products = await this.getProductsSQLiteNotSynced();
+      if (products.length === 0) {
+          console.log('No hay productos para sincronizar.');
+          return;
       }
+
+      console.log(`Iniciando sincronización de ${products.length} productos...`);
+
+      for (const product of products) {
+          try {
+              // Sincronizar el producto en la API
+              const addedProduct = await firstValueFrom(this.addProductAPI(product));
+              if (addedProduct && addedProduct.id) {
+                  console.log(`Producto "${product.nombre}" sincronizado con éxito, ID API: ${addedProduct.id}`);
+
+                  // Marcar el producto como sincronizado en SQLite
+                  await this.markProductAsSyncedSQLite(product.id!);
+
+                  // Cargar opciones de peso desde SQLite y sincronizarlas
+                  const weightOptions = await this.getWeightOptionsByProductIdSQLite(product.id!);
+                  if (weightOptions.length > 0) {
+                      for (const option of weightOptions) {
+                          option.producto_id = addedProduct.id;
+                          const weightOptionResponse = await firstValueFrom(this.addWeightOptionAPI(option));
+                          if (weightOptionResponse && weightOptionResponse.id) {
+                              console.log(`Opción de peso "${option.size}" sincronizada con éxito para el producto "${product.nombre}"`);
+                          }
+                      }
+                  } else {
+                      console.warn(`No se encontraron opciones de peso para el producto "${product.nombre}".`);
+                  }
+
+                  // Eliminar el producto y sus opciones de peso de SQLite
+                  await this.deleteProductWithWeightsSQLite(product.id!);
+              }
+          } catch (error) {
+              console.error(`Error al sincronizar el producto "${product.nombre}":`, error);
+          }
+      }
+
+      console.log('Sincronización de productos finalizada.');
+  } catch (error) {
+      console.error('Error al sincronizar productos:', error);
+  }
+}
+
+
+// Obtener un producto y sus opciones de peso por ID desde la API
+async getProductWithWeightsByIdAPI(productId: string): Promise<{ product: Product, weightOptions: WeightOption[] }> {
+  const product = await firstValueFrom(this.getProductByIdAPI(productId));
+  const weightOptions = await firstValueFrom(this.getWeightOptionsByProductIdAPI(productId));
+
+  return { product, weightOptions };
+}
+
+// En tu servicio de ProductService
+async deleteProductWithWeightsAPI(productId: string): Promise<void> {
+  try {
+    // Primero eliminar las opciones de peso relacionadas con el producto en la API
+    const weightOptions: WeightOption[] = await firstValueFrom(this.getWeightOptionsByProductIdAPI(productId));
+    
+    for (const weightOption of weightOptions) {
+      await firstValueFrom(this.deleteWeightOptionAPI(weightOption.id!));
     }
 
-    // Finalmente, eliminar el producto
+    // Luego eliminar el producto en la API
     await firstValueFrom(this.deleteProductAPI(productId));
     console.log(`Producto con ID ${productId} y sus opciones de peso eliminados de la API`);
   } catch (error) {
@@ -557,72 +573,8 @@ async deleteProductWithWeightsAPI(productId: number): Promise<void> {
 }
 
 
-  // Funciones convinadas
-
-  // Sincronizar productos y sus opciones de peso con la API
-  async syncProductsWithAPI() {
-    try {
-      const products = await this.getProductsSQLiteNotSynced();
-      if (products.length === 0) {
-        console.log('No hay productos para sincronizar.');
-        return;
-      }
-
-      console.log(`Iniciando sincronización de ${products.length} productos...`);
-
-      for (const product of products) {
-        try {
-          // Crear una copia del producto sin `weightOptions` antes de enviarlo a la API
-          const productWithoutWeights = { ...product, weightOptions: [] };
-
-          // Sincronizar el producto con la API
-          const addedProduct = await this.addProductAPI(productWithoutWeights).toPromise();
-
-          if (addedProduct && addedProduct.id) {
-            console.log(`Usuario "${product.nombre}" sincronizado con éxito, ID API: ${addedProduct.id}`);
-
-            // Marcar el producto como sincronizado en SQLite
-            await this.markProductAsSyncedSQLite(product.id!);
-
-            // Sincronizar las opciones de peso
-            if (product.weightOptions && product.weightOptions.length > 0) {
-              console.log(`Opciones de peso encontradas para el producto "${product.nombre}":`, product.weightOptions);
-
-              for (const option of product.weightOptions) {
-                // Asignar el nuevo ID del producto de la API
-                option.producto_id = addedProduct.id;
-                console.log(`Sincronizando opción de peso con producto_id: ${option.producto_id}`, option);
-
-                const weightOptionResponse = await this.addWeightOptionAPI(option).toPromise();
-
-                if (weightOptionResponse && weightOptionResponse.id) {
-                  console.log(`Opción de peso "${option.size}" sincronizada con éxito, ID API: ${weightOptionResponse.id}`);
-                } else {
-                  console.error(`Error al sincronizar la opción de peso "${option.size}" para el producto "${product.nombre}".`);
-                }
-              }
-            } else {
-              console.warn(`No se encontraron opciones de peso para el producto "${product.nombre}".`);
-            }
-
-            // Eliminar el producto de SQLite después de sincronizarlo
-            await this.deleteProductSQLite(product.id!);
-          } else {
-            console.error(`Error al sincronizar el producto "${product.nombre}".`);
-          }
-        } catch (error) {
-          console.error(`Error al sincronizar el producto "${product.nombre}":`, error);
-        }
-      }
-
-      console.log('Sincronización finalizada.');
-    } catch (error) {
-      console.error('Error al sincronizar productos:', error);
-    }
-  }
 
 
-  
   // Manejo de errores genérico
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {

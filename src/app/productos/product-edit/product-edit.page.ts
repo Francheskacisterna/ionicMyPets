@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ProductService, Product, WeightOption } from '../product-service.service';
-import { AlertController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';  // Para manejar la imagen en el almacenamiento
-import { Network } from '@capacitor/network';
+import { AlertController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-
 
 @Component({
   selector: 'app-product-edit',
@@ -14,264 +12,243 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./product-edit.page.scss'],
 })
 export class ProductEditPage implements OnInit {
-  product: Product | undefined = undefined;  // Producto actual para editar
-  originalProduct: Product | undefined = undefined;  // Copia del producto original para restaurar si se cancela
-  weightOptions: WeightOption[] = [];  // Opciones de peso del producto
-  productImagePath: string | undefined = '';  // Para almacenar el path de la imagen en el sistema de archivos
+  productForm: FormGroup;
+  productImage: string | null | undefined = null;
+  product: Product | undefined;
+  categories = ['perro', 'gato', 'aves']; // Definir las categorías disponibles en minúsculas
 
   constructor(
-    private route: ActivatedRoute,
-    private productService: ProductService,
+    private formBuilder: FormBuilder,
     private router: Router,
-    private alertController: AlertController  // Para mostrar alertas al guardar
-  ) { }
+    private productService: ProductService,
+    private alertController: AlertController
+  ) {
+    this.productForm = this.formBuilder.group({
+      nombre: ['', Validators.required],
+      descripcion: ['', Validators.required],
+      precio: ['', [Validators.required, Validators.min(1)]],
+      stock: ['', [Validators.required, Validators.min(1)]],
+      categoria: ['', Validators.required],
+      imagen: [null],
+      weightOptions: this.formBuilder.array([]), // FormArray para opciones de peso
+    });
+
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras?.state?.['product']) {
+      this.product = navigation.extras.state['product'];
+    }
+  }
 
   ngOnInit() {
-    const productId = this.route.snapshot.paramMap.get('id');
-    if (productId) {
-      this.loadProduct(parseInt(productId));
-    }
-  }
-
-// Cargar producto desde SQLite o la API
-async loadProduct(id: number) {
-  const status = await Network.getStatus();
-  if (status.connected) {
-    // Si hay conexión, cargar el producto desde la API
-    try {
-      this.product = await firstValueFrom(this.productService.getProductByIdAPI(id));
-      if (this.product) {
-        this.originalProduct = JSON.parse(JSON.stringify(this.product));  // Guardar copia del producto original
-
-        // Cargar las opciones de peso desde la API
-        const options = await firstValueFrom(this.productService.getWeightOptionsByProductIdAPI(id));
-        console.log('Opciones de peso cargadas desde API:', options);
-        this.weightOptions = options || [];  // Asegúrate de que no esté vacío o indefinido
-        this.product.weightOptions = this.weightOptions;
-        this.productImagePath = this.product.imagen;  // Asignar la imagen si ya está almacenada
-      } else {
-        console.error('No se encontró el producto en la API');
-      }
-    } catch (error) {
-      console.error('Error al cargar el producto desde la API:', error);
-    }
-  } else {
-    // Si no hay conexión, cargar el producto desde SQLite
-    const products = await this.productService.getProductsSQLite();
-    this.product = products.find(p => p.id === id);
     if (this.product) {
-      this.originalProduct = JSON.parse(JSON.stringify(this.product));
-    } else {
-      console.error('Producto no encontrado en SQLite');
-    }
-  }
-}
-
-
-
-  // Cambiar la imagen del producto utilizando la cámara o galería y guardarla en el sistema de archivos local
-  async changeImage() {
-    const image = await Camera.getPhoto({
-      quality: 90,
-      allowEditing: false,
-      resultType: CameraResultType.Uri,
-      source: CameraSource.Photos,  // Permitir elegir desde la galería
-    });
-
-    if (this.product && image.webPath) {
-      // Guardar la imagen en el sistema de archivos del dispositivo
-      const fileName = `product-image-${this.product.id}.jpeg`;  // Definir un nombre único para la imagen
-      const savedImage = await this.saveImageToFilesystem(image.webPath, fileName);
-
-      if (savedImage) {
-        // Asignar la ruta de la imagen guardada al producto
-        this.product.imagen = savedImage;
-        this.productImagePath = savedImage;  // Actualizar la ruta de la imagen
-      }
-    }
-  }
-
-  // Función para guardar la imagen en el sistema de archivos
-  async saveImageToFilesystem(webPath: string, fileName: string): Promise<string | null> {
-    try {
-      // Obtener la imagen como un blob (binary large object)
-      const response = await fetch(webPath);
-      const blob = await response.blob();
-
-      // Leer el blob como base64
-      const reader = new FileReader();
-      return new Promise((resolve, reject) => {
-        reader.onloadend = async () => {
-          const base64Data = (reader.result as string).split(',')[1];  // Obtener solo los datos base64
-          try {
-            // Guardar la imagen en el sistema de archivos
-            await Filesystem.writeFile({
-              path: fileName,
-              data: base64Data,
-              directory: Directory.Data,
-            });
-            const fileUri = await Filesystem.getUri({
-              path: fileName,
-              directory: Directory.Data,
-            });
-            resolve(fileUri.uri);  // Retornar la URI donde se guardó la imagen
-          } catch (error) {
-            console.error('Error al guardar la imagen:', error);
-            reject(null);
-          }
-        };
-        reader.onerror = () => {
-          console.error('Error al leer el archivo de imagen');
-          reject(null);
-        };
-        reader.readAsDataURL(blob);  // Convertir el blob a base64 para almacenamiento
+      this.productForm.patchValue({
+        nombre: this.product.nombre,
+        descripcion: this.product.descripcion,
+        precio: this.product.precio,
+        stock: this.product.stock,
+        categoria: this.product.categoria.toLowerCase(),  // Asegurarse de que esté en minúsculas
+        imagen: this.product.imagen,
       });
-    } catch (error) {
-      console.error('Error al guardar la imagen en el sistema de archivos:', error);
-      return null;
+  
+      if (this.product.imagen) {
+        this.productImage = this.product.imagen;
+      }
+  
+      this.loadWeightOptions();  // Cargar opciones de peso
+    } else {
+      console.error('No se encontraron datos del producto en el estado de navegación');
     }
   }
-
-  // Guardar cambios en el producto
-  async saveProduct() {
-    if (this.product) {
+  
+  // Función para comparar la categoría seleccionada con las opciones
+  compareWith(o1: any, o2: any): boolean {
+    return o1 === o2;
+  }
+  
+  // Cargar opciones de peso desde la API o SQLite
+  async loadWeightOptions() {
+    if (this.product?.id) {
       try {
-        // Verifica que el producto tenga un ID válido
-        if (!this.product.id) {
-          console.error('Error: El producto no tiene un ID válido');
-          return;
-        }
+        let weightOptions: WeightOption[] = [];
   
-        // Asignar las opciones de peso actualizadas al producto
-        this.product.weightOptions = this.weightOptions;
+        // Primero, intenta obtener opciones de peso desde SQLite
+        weightOptions = await this.productService.getWeightOptionsByProductIdSQLite(this.product.id);
+        console.log('Opciones de peso obtenidas de SQLite:', weightOptions);
   
-        // Verificar la conexión a la red
-        const status = await Network.getStatus();
-        if (status.connected) {
-          // Actualizar en la API
-          await this.productService.updateProductAPI(this.product).toPromise();
+        // Si no hay opciones en SQLite y hay conexión, intenta cargar desde la API
+        if (weightOptions.length === 0 && navigator.onLine) {
+          console.log('No se encontraron opciones de peso en SQLite, cargando desde la API...');
+          weightOptions = await firstValueFrom(this.productService.getWeightOptionsByProductIdAPI(this.product.id));
+          console.log('Opciones de peso obtenidas de la API:', weightOptions);
   
-          // Actualizar las opciones de peso en la API
-          for (const option of this.weightOptions) {
-            if (option.id) {
-              await this.productService.updateWeightOptionAPI(option).toPromise();
-            } else {
-              // Si no tiene ID, añadirla a la API
-              await this.productService.addWeightOptionAPI(option).toPromise();
-            }
-          }
-  
-          // Actualizar también en SQLite
-          await this.productService.updateProductSQLite(this.product);
-        } else {
-          // Solo actualizar en SQLite si no hay conexión
-          await this.productService.updateProductSQLite(this.product);
-  
-          // Actualizar también las opciones de peso en SQLite
-          for (const option of this.weightOptions) {
-            if (option.id) {
-              await this.productService.updateWeightOptionSQLite(option);
-            } else {
-              // Si no tiene ID, añadirla en SQLite
+          // Opcional: guardar en SQLite las opciones obtenidas de la API para disponibilidad offline
+          if (weightOptions.length > 0) {
+            for (const option of weightOptions) {
+              option.producto_id = this.product.id;
               await this.productService.addWeightOptionSQLite(option);
             }
+            console.log('Opciones de peso sincronizadas en SQLite para uso offline.');
           }
         }
   
-        // Mostrar un mensaje de éxito
-        const alert = await this.alertController.create({
-          header: 'Éxito',
-          message: 'Producto actualizado correctamente.',
-          buttons: ['OK'],
-        });
-        await alert.present();
-  
-        // Navegar de vuelta a la lista de productos
-        this.router.navigate(['/productos']);
+        // Asignar las opciones de peso al formulario si se encontraron
+        if (weightOptions.length > 0) {
+          this.setWeightOptions(weightOptions);
+        } else {
+          console.warn('No se encontraron opciones de peso ni en SQLite ni en la API.');
+        }
       } catch (error) {
-        console.error('Error al actualizar producto:', error);
-  
-        // Mostrar un mensaje de error
-        const alert = await this.alertController.create({
-          header: 'Error',
-          message: 'Ocurrió un error al actualizar el producto.',
-          buttons: ['OK'],
-        });
-        await alert.present();
+        console.error('Error al cargar las opciones de peso:', error);
       }
     }
   }
   
 
-  // Restablecer los cambios realizados restaurando el producto original
-  resetChanges() {
-    if (this.originalProduct) {
-      this.product = JSON.parse(JSON.stringify(this.originalProduct));  // Restaurar el producto original
-      this.weightOptions = this.originalProduct.weightOptions || [];  // Restaurar las opciones de peso originales
-
-      // Verificar que 'this.product' no sea undefined antes de asignar la imagen
-      if (this.product) {
-        this.productImagePath = this.product.imagen;  // Restaurar la imagen original
-      }
-    }
-  }
-
-  // Función para volver a la lista de productos
-  backToList() {
-    this.router.navigate(['/productos/product-list']);
-  }
-
-  // Seleccionar categoría
-  async selectCategory() {
-    const alert = await this.alertController.create({
-      header: 'Selecciona Categoría',
-      inputs: [
-        {
-          name: 'Perro',
-          type: 'radio',
-          label: 'Perro',
-          value: 'Perro',
-          checked: this.product?.categoria === 'Perro',
-        },
-        {
-          name: 'Gato',
-          type: 'radio',
-          label: 'Gato',
-          value: 'Gato',
-          checked: this.product?.categoria === 'Gato',
-        },
-        {
-          name: 'Aves',
-          type: 'radio',
-          label: 'Aves',
-          value: 'Aves',
-          checked: this.product?.categoria === 'Aves',
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-        },
-        {
-          text: 'OK',
-          handler: (data: string) => {
-            if (this.product) {
-              this.product.categoria = data;
-            }
-          },
-        },
-      ],
+  
+  
+  setWeightOptions(weightOptions: WeightOption[]) {
+    const weightOptionsFormArray = this.productForm.get('weightOptions') as FormArray;
+    weightOptionsFormArray.clear();
+  
+    weightOptions.forEach(option => {
+      const weightGroup = this.formBuilder.group({
+        id: [option.id],  // Agregamos el campo ID para distinguir entre opciones nuevas y existentes
+        size: [option.size, Validators.required],
+        price: [option.price, [Validators.required, Validators.min(0)]],
+        stock: [option.stock, [Validators.required, Validators.min(0)]],
+      });
+      weightOptionsFormArray.push(weightGroup);
     });
-
-    await alert.present();
   }
 
-  // Eliminar la imagen del producto
-  async deleteImage() {
-    if (this.product) {
-      this.product.imagen = '';  // Eliminar la imagen asignada
-      this.productImagePath = '';  // Restablecer la ruta de la imagen
+  addWeightOption() {
+    const weightOptionsFormArray = this.productForm.get('weightOptions') as FormArray;
+    const newWeightGroup = this.formBuilder.group({
+      size: ['', Validators.required],
+      price: [0, [Validators.required, Validators.min(0)]],
+      stock: [0, [Validators.required, Validators.min(0)]],
+    });
+    weightOptionsFormArray.push(newWeightGroup);
+  }
+
+  removeWeightOption(index: number) {
+    const weightOptionsFormArray = this.productForm.get('weightOptions') as FormArray;
+    const optionToRemove = weightOptionsFormArray.at(index).value;
+  
+    // Si la opción de peso tiene un ID, la eliminamos también de la base de datos (API y SQLite)
+    if (optionToRemove.id) {
+      this.deleteWeightOption(optionToRemove.id);
     }
+  
+    // Eliminamos la opción de peso del FormArray (de la UI)
+    weightOptionsFormArray.removeAt(index);
+  }
+
+  async selectImage() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Prompt,
+      });
+
+      this.productImage = image.dataUrl;
+      this.productForm.patchValue({ imagen: this.productImage });
+    } catch (error) {
+      console.error('Error al capturar imagen:', error);
+    }
+  }
+
+  deleteImage() {
+    this.productImage = null;
+    this.productForm.patchValue({ imagen: null });
+  }
+
+  async saveChanges() {
+    if (this.productForm.valid) {
+      const updatedProduct: Product = {
+        id: this.product?.id,
+        nombre: this.productForm.value.nombre,
+        descripcion: this.productForm.value.descripcion,
+        precio: this.productForm.value.precio,
+        stock: this.productForm.value.stock,
+        categoria: this.productForm.value.categoria,
+        imagen: this.productImage || this.product?.imagen,
+      };
+  
+      // Mapeamos las opciones de peso del formulario
+      const weightOptions = this.productForm.value.weightOptions.map((option: any) => ({
+        ...option,
+        producto_id: updatedProduct.id,  // Aseguramos que el producto_id esté presente
+      }));
+  
+      try {
+        // Actualizamos el producto en SQLite
+        await this.productService.updateProductSQLite(updatedProduct);
+  
+        // Sincronizar producto con la API usando firstValueFrom
+        const apiProduct = await firstValueFrom(this.productService.updateProductAPI(updatedProduct));
+  
+        if (apiProduct && apiProduct.id) {
+          for (const option of weightOptions) {
+            if (option.id) {
+              // Si existe un ID, significa que la opción de peso ya existe y debe actualizarse
+              await firstValueFrom(this.productService.updateWeightOptionAPI(option));
+              console.log(`Opción de peso con ID ${option.id} actualizada en la API`);
+            } else {
+              // Si no hay ID, es una opción nueva y se debe agregar
+              const weightOptionResponse = await firstValueFrom(this.productService.addWeightOptionAPI(option));
+              if (weightOptionResponse && weightOptionResponse.id) {
+                console.log(`Opción de peso añadida con éxito, ID API: ${weightOptionResponse.id}`);
+              }
+            }
+          }
+  
+          const alert = await this.alertController.create({
+            header: 'Éxito',
+            message: 'Producto actualizado correctamente.',
+            buttons: ['OK'],
+          });
+          await alert.present();
+  
+          this.router.navigate(['/productos/product-list']);  // Redirige a la lista de productos
+        } else {
+          console.error('Error al sincronizar el producto en la API.');
+        }
+      } catch (error) {
+        console.error('Error al actualizar el producto y las opciones de peso:', error);
+      }
+    } else {
+      console.log('Formulario inválido');
+    }
+  }
+
+  // Función para eliminar la opción de peso en la base de datos
+  async deleteWeightOption(weightOptionId: string) {
+    try {
+      // Eliminar la opción de peso en SQLite
+      await this.productService.deleteWeightOptionSQLite(weightOptionId);
+      console.log(`Opción de peso con ID ${weightOptionId} eliminada de SQLite`);
+  
+      // Verificar si hay conexión para eliminar en la API
+      if (navigator.onLine) {
+        await firstValueFrom(this.productService.deleteWeightOptionAPI(weightOptionId));
+        console.log(`Opción de peso con ID ${weightOptionId} eliminada de la API`);
+      } else {
+        console.log('No hay conexión a la red, no se puede eliminar de la API');
+      }
+    } catch (error) {
+      console.error('Error al eliminar la opción de peso:', error);
+    }
+  }
+  
+  // Getter para acceder a las opciones de peso en el HTML
+  get weightOptionsControls() {
+    return (this.productForm.get('weightOptions') as FormArray).controls;
+  }
+
+  cancelChanges() {
+    this.router.navigate(['/productos/product-list']);
   }
 }

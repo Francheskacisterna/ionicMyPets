@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { ProductService, Product } from '../product-service.service';
-import { Router } from '@angular/router';  // Importar Router para navegación
-import { AlertController } from '@ionic/angular';  // Importar AlertController para confirmación
+import { Router, NavigationExtras } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-product-list',
@@ -11,116 +13,172 @@ import { firstValueFrom } from 'rxjs';
 })
 export class ProductListPage implements OnInit {
   products: Product[] = [];
+  filteredProducts: Product[] = [];  // Lista filtrada de productos
+  filterTerm: string = '';  // Término de búsqueda
 
   constructor(
     private productService: ProductService,
-    private router: Router, // Inyectar el Router para navegación
-    private alertController: AlertController // Para mostrar alertas
-  ) {}
+    private router: Router,
+    private alertController: AlertController,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef 
+    
+  ) { }
 
   ngOnInit() {
-    // Aquí puedes dejar vacío si quieres, ya que ionViewWillEnter se encarga de cargar los productos
+    // Este método queda vacío si la carga se maneja en ionViewWillEnter
   }
 
-  // ionViewWillEnter se ejecuta cada vez que se entra a la vista
   ionViewWillEnter() {
     this.loadProducts(); // Cargar productos cada vez que se entre a la vista
   }
 
   async loadProducts() {
     try {
-      const localProducts = await this.productService.getProductsSQLite();
-      console.log('Productos locales obtenidos de SQLite:', localProducts);
-  
-      // Verificar si hay conexión antes de llamar a la API
-      if (!navigator.onLine) {
-        this.products = localProducts;
-        console.log('No hay conexión. Mostrando productos locales:', this.products);
-        return;
-      }
-  
-      // Si hay conexión, intenta obtener los productos de la API
-      this.productService.getProductsAPI().subscribe(
-        async apiProducts => {
-          if (apiProducts && apiProducts.length > 0) {
-            // Procesar los productos de la API
-            for (let product of apiProducts) {
-              // Verificar que el ID del producto no sea undefined
-              if (product.id !== undefined) {
-                // Obtener y asignar las opciones de peso de cada producto
-                const weightOptions = await firstValueFrom(this.productService.getWeightOptionsByProductIdAPI(product.id));
-                product.weightOptions = weightOptions;  // Asignar las opciones de peso al producto
-                console.log('Opciones de peso obtenidas para el producto:', product.nombre, weightOptions);
-              } else {
-                console.warn('El producto no tiene un ID válido:', product);
-              }
-            }
-  
-            // Si hay productos de la API, combínalos con los locales
-            this.products = [...localProducts, ...apiProducts];
-            console.log('Productos combinados:', this.products);
-          } else {
-            // Si la API no tiene productos, mostrar solo los locales
+        // Obtener productos locales desde SQLite
+        const localProducts = await this.productService.getProductsSQLite();
+        for (let product of localProducts) {
+            const weightOptions = await this.productService.getWeightOptionsByProductIdSQLite(product.id!);
+            product.weightOptions = weightOptions;
+        }
+        console.log('Productos locales obtenidos de SQLite:', localProducts);
+
+        this.ngZone.run(() => {
             this.products = localProducts;
-            console.log('Solo mostrando productos locales:', this.products);
+            this.filteredProducts = localProducts;
+        });
+
+        // Si hay conexión a la red, obtenemos productos de la API
+        if (navigator.onLine) {
+            try {
+                const apiProducts = await firstValueFrom(this.productService.getProductsAPI());
+                console.log('Productos obtenidos de la API:', apiProducts);
+
+                if (apiProducts && apiProducts.length > 0) {
+                    // Eliminar productos duplicados
+                    const productosNoDuplicados = apiProducts.filter(apiProduct =>
+                        !localProducts.some(localProduct => localProduct.id === apiProduct.id)
+                    );
+
+                    // Obtener las opciones de peso para los productos no duplicados
+                    for (let product of productosNoDuplicados) {
+                        try {
+                            const weightOptions = await firstValueFrom(this.productService.getWeightOptionsByProductIdAPI(product.id!));
+                            console.log(`Opciones de peso para el producto ${product.id}:`, weightOptions);  // Verificación de los pesos obtenidos
+                            product.weightOptions = weightOptions;  // Asignar opciones de peso si existen
+                        } catch (error) {
+                            console.warn(`Error al obtener opciones de peso para el producto ${product.id}:`, error);
+                            product.weightOptions = []; // Si falla, asignamos una lista vacía de opciones de peso
+                        }
+                    }
+
+                    // Combinar productos locales y los de la API sin duplicados
+                    this.ngZone.run(() => {
+                        this.products = [...localProducts, ...productosNoDuplicados];
+                        this.filteredProducts = this.products;
+                        console.log('Productos combinados (sin duplicados):', this.products);
+                    });
+                }
+            } catch (apiError) {
+                console.error('Error obteniendo productos de la API:', apiError);
+                this.ngZone.run(() => {
+                    this.products = localProducts;
+                    this.filteredProducts = localProducts;
+                });
+            }
+        } else {
+            console.log('Sin conexión a la red, mostrando solo productos locales.');
+        }
+    } catch (error) {
+        console.error('Error al cargar productos:', error);
+    }
+}
+
+  
+  
+  // Función para filtrar los productos
+  filterProducts(event: any) {
+    const searchTerm = event.target.value?.toLowerCase();
+    if (searchTerm && searchTerm.trim() !== '') {
+      this.filteredProducts = this.products.filter(product =>
+        product.nombre.toLowerCase().includes(searchTerm)
+      );
+    } else {
+      this.filteredProducts = this.products;  // Mostrar todos si no hay filtro
+    }
+  }
+
+// Función para eliminar un producto
+async deleteProduct(id: string | undefined) {
+  if (id === undefined) {
+    console.error('El ID del producto es indefinido.');
+    return;
+  }
+
+  const alert = await this.alertController.create({
+    header: 'Confirmar',
+    message: '¿Estás seguro de que deseas eliminar este producto?',
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+        handler: () => {
+          console.log('Eliminación cancelada');
+        },
+      },
+      {
+        text: 'Eliminar',
+        handler: async () => {
+          try {
+            const productIdString = id.toString();  // Convertimos el id a string
+
+            // Eliminar en SQLite junto con las opciones de peso
+            await this.productService.deleteProductWithWeightsSQLite(productIdString);
+            console.log(`Producto con ID ${productIdString} eliminado de SQLite`);
+
+            // Verificar si hay conexión para eliminar en la API
+            if (navigator.onLine) {
+              try {
+                // Eliminar en la API junto con las opciones de peso
+                await this.productService.deleteProductWithWeightsAPI(productIdString);
+                console.log(`Producto con ID ${productIdString} eliminado de la API`);
+              } catch (apiError) {
+                console.error('Error al eliminar producto de la API:', apiError);
+              }
+            } else {
+              console.log('No hay conexión a la red, no se puede eliminar de la API');
+            }
+
+            // Recargar la lista de productos
+            this.loadProducts();  
+          } catch (error) {
+            console.error('Error al eliminar producto:', error);
           }
         },
-        error => {
-          console.error('Error obteniendo productos de la API:', error);
-          // En caso de error al obtener productos de la API, mostrar solo los locales
-          this.products = localProducts;
-        }
-      );
-    } catch (error) {
-      console.error('Error al cargar productos:', error);
-    }
-  }
-  
-  
+      },
+    ],
+  });
 
-  // Función para eliminar un producto, validando si el id existe
-  async deleteProduct(id: number | undefined) {
-    if (id === undefined) {
-      console.error('El ID del producto es indefinido.');
-      return;
-    }
-    
-    const alert = await this.alertController.create({
-      header: 'Confirmar',
-      message: '¿Estás seguro de que deseas eliminar este producto?',
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          handler: () => {
-            console.log('Eliminación cancelada');
-          },
-        },
-        {
-          text: 'Eliminar',
-          handler: async () => {
-            try {
-              await this.productService.deleteProductSQLite(id); // Eliminar el producto de SQLite
-              this.loadProducts(); // Recargar la lista de productos
-              console.log(`Producto con ID ${id} eliminado`);
-            } catch (error) {
-              console.error('Error al eliminar producto:', error);
-            }
-          },
-        },
-      ],
-    });
+  await alert.present();
+}
 
-    await alert.present();
-  }
 
   // Función para navegar a la página de edición de producto
-  editProduct(productId: number | undefined) {
-    if (productId === undefined) {
-      console.error('El ID del producto es indefinido.');
-      return;
+  editProduct(product: Product) {
+    if (product.id) {
+      this.router.navigate(['/productos/product-edit'], {
+        state: { product }  // Pasar el producto completo como estado de navegación
+      });
+    } else {
+      console.error('ID de producto no válido');
     }
-    this.router.navigate(['/productos/product-edit', productId]);
+  }
+
+  // Función para ver los detalles del producto
+  viewProductDetails(product: Product) {
+    this.router.navigate(['/productos/product-detail'], {
+      state: { product }  // Pasar el producto completo en el estado de navegación
+    });
   }
 
   // Función para navegar a la página de agregar nuevo producto

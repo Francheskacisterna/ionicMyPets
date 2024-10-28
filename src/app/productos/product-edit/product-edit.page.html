@@ -1,76 +1,100 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/productos"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Editar Producto</ion-title>
+    <ion-title>{{ product ? 'Editar Producto' : 'Agregar Producto' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="product">
-  <ion-card>
-
-    <!-- Opción para cambiar la imagen del producto -->
-    <ion-item>
-      <ion-label position="stacked">Imagen del Producto</ion-label>
-      <ion-img [src]="product.imagen ? product.imagen : 'assets/logo_pawsy.png'" class="product-image"></ion-img>
-      <ion-button expand="full" (click)="changeImage()">Cambiar Imagen</ion-button>
-    </ion-item>
-
+<ion-content>
+  <form [formGroup]="productForm">
     <ion-item>
       <ion-label position="stacked">Nombre</ion-label>
-      <ion-input [(ngModel)]="product.nombre" placeholder="Nombre del producto"></ion-input>
+      <ion-input formControlName="nombre"></ion-input>
     </ion-item>
+    <ion-text color="danger" *ngIf="productForm.get('nombre')?.invalid && productForm.get('nombre')?.touched">
+      El nombre es requerido.
+    </ion-text>
 
     <ion-item>
       <ion-label position="stacked">Descripción</ion-label>
-      <ion-textarea [(ngModel)]="product.descripcion" placeholder="Descripción"></ion-textarea>
+      <ion-textarea formControlName="descripcion"></ion-textarea>
     </ion-item>
+    <ion-text color="danger" *ngIf="productForm.get('descripcion')?.invalid && productForm.get('descripcion')?.touched">
+      La descripción es requerida.
+    </ion-text>
 
     <ion-item>
       <ion-label position="stacked">Precio Base</ion-label>
-      <ion-input [(ngModel)]="product.precio" type="number" placeholder="Precio base"></ion-input>
+      <ion-input formControlName="precio" type="number"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="productForm.get('precio')?.invalid && productForm.get('precio')?.touched">
+      El precio es requerido y debe ser mayor a 0.
+    </ion-text>
+
+    <ion-item>
+      <ion-label position="stacked">Stock Inicial</ion-label>
+      <ion-input formControlName="stock" type="number"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="productForm.get('stock')?.invalid && productForm.get('stock')?.touched">
+      El stock es requerido y debe ser mayor a 0.
+    </ion-text>
+
+    <ion-item>
+      <ion-label position="stacked">Categoría</ion-label>
+      <ion-select formControlName="categoria" [compareWith]="compareWith">
+        <ion-select-option *ngFor="let category of categories" [value]="category">{{ category }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    
+    <ion-item *ngIf="productImage">
+      <ion-label>Imagen Actual</ion-label>
+      <ion-img [src]="productImage" class="product-image"></ion-img>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Stock Total</ion-label>
-      <ion-input [(ngModel)]="product.stock" type="number" placeholder="Stock total"></ion-input>
+      <ion-button expand="full" (click)="selectImage()">Cambiar Imagen</ion-button>
+      <ion-button expand="full" color="danger" *ngIf="productImage" (click)="deleteImage()">Eliminar Imagen</ion-button>
     </ion-item>
 
-    <ion-item button (click)="selectCategory()">
-      <ion-label position="stacked">Categoría</ion-label>
-      <ion-input readonly [value]="product.categoria" placeholder="Categoría del producto"></ion-input>
-    </ion-item>
+    <!-- Opciones de peso -->
+<!-- Opciones de peso -->
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Opciones de Peso</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <div formArrayName="weightOptions">
+      <ion-grid *ngFor="let option of weightOptionsControls; let i = index" [formGroupName]="i">
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label>Peso (kg)</ion-label>
+              <ion-input formControlName="size" type="number"></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-label>Precio</ion-label>
+              <ion-input formControlName="price" type="number"></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-label>Stock</ion-label>
+              <ion-input formControlName="stock" type="number"></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col size="auto">
+            <ion-button color="danger" (click)="removeWeightOption(i)">Eliminar</ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+    <ion-button expand="block" (click)="addWeightOption()">Añadir Opción de Peso</ion-button>
+  </ion-card-content>
+</ion-card>
 
-    <ion-card-header>
-      <ion-card-title>Opciones de Peso</ion-card-title>
-    </ion-card-header>
 
-    <!-- Tabla organizada para opciones de peso, con opción de editar el tamaño (size) -->
-    <ion-grid>
-      <ion-row>
-        <ion-col size="4"><strong>Peso</strong></ion-col>
-        <ion-col size="4"><strong>Precio</strong></ion-col>
-        <ion-col size="4"><strong>Stock</strong></ion-col>
-      </ion-row>
-      <ion-row *ngFor="let option of weightOptions">
-        <ion-col size="4">
-          <ion-input [(ngModel)]="option.size" type="number" placeholder="Tamaño (kg)"></ion-input>
-        </ion-col>
-        <ion-col size="4">
-          <ion-input [(ngModel)]="option.price" type="number" placeholder="Precio"></ion-input>
-        </ion-col>
-        <ion-col size="4">
-          <ion-input [(ngModel)]="option.stock" type="number" placeholder="Stock"></ion-input>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-
-    <!-- Botones para guardar o restablecer cambios -->
-    <ion-button expand="full" color="primary" (click)="saveProduct()">Guardar Cambios</ion-button>
-    <ion-button expand="full" color="danger" (click)="resetChanges()">Cancelar</ion-button>
-
-    <!-- Botón para volver a la lista de productos -->
-    <ion-button expand="full" color="secondary" (click)="backToList()">Volver a Lista de Productos</ion-button>
-  </ion-card>
+    <ion-button expand="full" [disabled]="!productForm.valid" (click)="saveChanges()">Guardar Cambios</ion-button>
+    <ion-button expand="full" color="light" (click)="cancelChanges()">Cancelar</ion-button>
+  </form>
 </ion-content>
