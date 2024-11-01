@@ -39,7 +39,23 @@
         <ion-select-option value="aves">Aves</ion-select-option> 
       </ion-select>
     </ion-item>
-    
+
+    <!-- Sección para agregar y mostrar imagen -->
+    <ion-item lines="none">
+      <ion-label>Imagen del Producto</ion-label>
+      <ion-button color="primary" expand="full" (click)="selectImage()">
+        <ion-icon slot="start" name="camera"></ion-icon>
+        Seleccionar Imagen
+      </ion-button>
+    </ion-item>
+
+    <div *ngIf="productImage" class="image-preview">
+      <img [src]="productImage" alt="Imagen del producto" />
+      <ion-button color="danger" expand="full" (click)="deleteImage()">
+        <ion-icon slot="start" name="trash"></ion-icon>
+        Eliminar Imagen
+      </ion-button>
+    </div>
 
     <!-- Lista dinámica de opciones de peso -->
     <ion-item *ngFor="let weight of weightOptions.controls; let i = index" [formGroup]="getWeightFormGroup(i)">

@@ -52,6 +52,8 @@ export class ProductService {
     }
   }
 
+  
+
   async initDB() {
     await this.storage.create();
 
@@ -142,6 +144,37 @@ export class ProductService {
     });
   }
 
+  async clearWeightOptionsSQLite(productId: string): Promise<void> {
+    const query = `DELETE FROM pesos WHERE producto_id = ?`;
+    try {
+      if (this.db) {
+        await this.db.run(query, [productId]);
+        console.log(`Opciones de peso eliminadas para el producto con ID ${productId} en SQLite`);
+      } else {
+        console.error("La conexión a la base de datos no está disponible.");
+      }
+    } catch (error) {
+      console.error(`Error al eliminar las opciones de peso en SQLite: ${error}`);
+    }
+  }
+  
+  
+
+  clearWeightOptionsAPI(productId: string): Observable<void> {
+    const url = `${this.apiUrl}/products/${productId}/weightOptions`;  // Ajusta el endpoint según tu API
+    return this.http.delete<void>(url).pipe(
+      tap(() => {
+        console.log(`Opciones de peso eliminadas para el producto con ID ${productId} en la API`);
+      }),
+      catchError((error) => {
+        console.error(`Error al eliminar opciones de peso en la API: ${error}`);
+        return throwError(error);
+      })
+    );
+  }
+  
+  
+
 // Funciones convinadas SQLite  
 
   // Añadir producto y peso a SQLite
@@ -179,6 +212,8 @@ export class ProductService {
       console.error('Error al sincronizar producto y opciones de peso en la API:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     }
   }
+
+  
 
     // Actualizar el producto y las opciones de peso en SQLite
     async updateProductWithWeightsSQLite(product: Product, weightOptions: WeightOption[]): Promise<void> {
@@ -253,19 +288,21 @@ async getProductByIdSQLite(productId: string): Promise<Product | null> {
 }
 
 // Actualizar producto en SQLite
-async updateProductSQLite(product: Product): Promise<void> {
+async updateProductSQLite(product: Product) {
+  if (!this.db) return;
+
+  const query = `UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, stock = ?, categoria = ?, imagen = ? WHERE id = ?`;
+  const values = [product.nombre, product.descripcion, product.precio, product.stock, product.categoria, product.imagen, product.id];
+
   try {
-    if (!await this.ensureDBIsOpen()) return;
-
-    const query = `UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, stock = ?, categoria = ? WHERE id = ?`;
-    const values = [product.nombre, product.descripcion, product.precio, product.stock, product.categoria, product.id];
-    await this.db!.run(query, values);
-
-    console.log('Producto con ID', product.id, 'actualizado en SQLite');
-  } catch (err) {
-    console.error('Error al actualizar producto en SQLite:', err);
+    await this.db.run(query, values);
+    console.log('Producto actualizado en SQLite:', product);
+  } catch (error) {
+    console.error('Error al actualizar producto en SQLite:', error);
   }
 }
+
+
 
 // Eliminar producto en SQLite
 async deleteProductSQLite(productId: string): Promise<void> {
@@ -309,18 +346,19 @@ async addWeightOptionSQLite(weightOption: WeightOption): Promise<void> {
     if (!await this.ensureDBIsOpen()) return;
 
     if (!weightOption.id) {
-      weightOption.id = this.generateUUID();  // Generar UUID si no tiene ID
+      weightOption.id = this.generateUUID(); // Generar un UUID si no tiene ID
     }
 
     const query = `INSERT INTO pesos (id, producto_id, size, price, stock) VALUES (?, ?, ?, ?, ?)`;
     const values = [weightOption.id, weightOption.producto_id, weightOption.size, weightOption.price, weightOption.stock];
     await this.db!.run(query, values);
 
-    console.log('Opción de peso añadida en SQLite con ID:', weightOption.id);
+    console.log('Opción de peso añadida en SQLite:', weightOption.id);
   } catch (err) {
-    console.error('Error al añadir opción de peso a SQLite:', err);
+    console.error('Error al añadir opción de peso en SQLite:', err);
   }
 }
+
 
 // Obtener todas las opciones de peso por producto desde SQLite
 async getWeightOptionsByProductIdSQLite(productId: string): Promise<WeightOption[]> {
@@ -346,11 +384,12 @@ async updateWeightOptionSQLite(weightOption: WeightOption): Promise<void> {
     const values = [weightOption.size, weightOption.price, weightOption.stock, weightOption.id];
     await this.db!.run(query, values);
 
-    console.log('Opción de peso con ID', weightOption.id, 'actualizada en SQLite');
+    console.log('Opción de peso actualizada en SQLite:', weightOption.id);
   } catch (err) {
     console.error('Error al actualizar opción de peso en SQLite:', err);
   }
 }
+
 
 
 // Eliminar una opción de peso en SQLite
@@ -495,6 +534,8 @@ deleteWeightOptionsByProductIdAPI(productId: string): Observable<any> {
       catchError(this.handleError<any>('deleteWeightOptionsByProductIdAPI'))
     );
 }
+
+
 
 // Sincronizar productos y sus opciones de peso con la API
 async syncProductsWithAPI() {
