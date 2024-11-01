@@ -48,9 +48,8 @@ export class ProductListPage implements OnInit {
             this.filteredProducts = localProducts;
         });
 
-        // Verificar si la API está disponible antes de intentar obtener productos de la API
-        const apiAvailable = await this.productService.isApiAvailable();
-        if (apiAvailable) {
+        // Si hay conexión a la red, obtenemos productos de la API
+        if (navigator.onLine) {
             try {
                 const apiProducts = await firstValueFrom(this.productService.getProductsAPI());
                 console.log('Productos obtenidos de la API:', apiProducts);
@@ -88,16 +87,15 @@ export class ProductListPage implements OnInit {
                 });
             }
         } else {
-            console.log('API no disponible, mostrando solo productos locales.');
+            console.log('Sin conexión a la red, mostrando solo productos locales.');
         }
     } catch (error) {
         console.error('Error al cargar productos:', error);
     }
 }
 
-
   
-
+  
   // Función para filtrar los productos
   filterProducts(event: any) {
     const searchTerm = event.target.value?.toLowerCase();

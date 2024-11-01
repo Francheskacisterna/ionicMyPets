@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, firstValueFrom, of, throwError } from 'rxjs';
+import { Observable, firstValueFrom, of, throwError, BehaviorSubject  } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { CapacitorSQLite, SQLiteDBConnection, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Storage } from '@ionic/storage-angular';
 import { Network } from '@capacitor/network';
+
 
 export interface Product {
   id?: string;
@@ -16,6 +17,7 @@ export interface Product {
   categoria: string;
   synced?: number;
   weightOptions?: WeightOption[];
+  selectedWeight?: WeightOption;
 }
 
 export interface WeightOption {
@@ -32,6 +34,8 @@ export interface WeightOption {
 export class ProductService {
   private apiUrl = 'http://10.0.2.2:3000/productos';
   private weightOptionsUrl = 'http://10.0.2.2:3000/pesos';
+  private productsSubject: BehaviorSubject<Product[]> = new BehaviorSubject<Product[]>([]);
+  public products$ = this.productsSubject.asObservable();  // Observable público
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
@@ -390,8 +394,6 @@ async updateWeightOptionSQLite(weightOption: WeightOption): Promise<void> {
   }
 }
 
-
-
 // Eliminar una opción de peso en SQLite
 async deleteWeightOptionSQLite(weightOptionId: string): Promise<void> {
   try {
@@ -415,6 +417,52 @@ async deleteWeightOptionsByProductIdSQLite(productId: string): Promise<void> {
     console.error('Error al eliminar opciones de peso desde SQLite:', err);
   }
 }
+
+  // Método para cargar productos por categoría desde la API o SQLite
+  async loadProductsByCategory(category: string) {
+    const apiAvailable = await this.isApiAvailable();
+  
+    let products: Product[] = [];
+    if (apiAvailable) {
+      try {
+        const apiProducts = await this.getProductsByCategoryAPI(category).toPromise();
+        products = apiProducts || []; // Asigna un array vacío si `apiProducts` es `undefined`
+        console.log(`Productos obtenidos de la API (categoría: ${category}):`, products);
+      } catch (error) {
+        console.error('Error al obtener productos desde la API:', error);
+      }
+    }
+  
+    if (!products.length) {
+      products = await this.getProductsByCategorySQLite(category);
+      console.log(`Productos obtenidos de SQLite (categoría: ${category}):`, products);
+    }
+  
+    // Emite los productos obtenidos
+    this.productsSubject.next(products);
+  }
+  
+
+  getProductsByCategoryAPI(category: string): Observable<Product[]> {
+    // Asegúrate de que la URL esté configurada correctamente para tu API
+    const apiUrl = `http://10.0.2.2:3000/productos?category=${category}`;
+    return this.http.get<Product[]>(apiUrl);
+  }
+
+
+    // Método auxiliar para obtener productos por categoría desde SQLite
+    async getProductsByCategorySQLite(category: string): Promise<Product[]> {
+      // Asegúrate de implementar y verificar la apertura de la conexión SQLite en ensureDBIsOpen()
+      try {
+        if (!await this.ensureDBIsOpen()) return [];
+        const res = await this.db!.query("SELECT * FROM productos WHERE categoria = ?", [category]);
+        return res.values as Product[];
+      } catch (err) {
+        console.error('Error al obtener productos por categoría desde SQLite:', err);
+        return [];
+      }
+    }
+  
 
 // Funciones para productos
 

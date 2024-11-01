@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ProductService, Product, WeightOption } from '../product-service.service';  // Importar Product y WeightOption desde el servicio
+import { ProductService, Product, WeightOption } from '../product-service.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -9,15 +9,14 @@ import { ProductService, Product, WeightOption } from '../product-service.servic
 })
 export class ProductDetailPage implements OnInit {
   product: Product | undefined;
-  weightOptions: WeightOption[] = [];  // Almacena las opciones de peso
+  weightOptions: WeightOption[] = [];  // Aseguramos que tenga un valor predeterminado
 
   constructor(
     private router: Router,
-    private productService: ProductService  // Inyectar el ProductService para obtener las opciones de peso
+    private productService: ProductService
   ) {}
 
   ngOnInit() {
-    // Obtener el producto desde el estado de navegación
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state?.['product']) {
       this.product = navigation.extras.state['product'];
@@ -27,12 +26,35 @@ export class ProductDetailPage implements OnInit {
     }
   }
 
-  // Cargar las opciones de peso del producto desde SQLite o la API
+  // Cargar las opciones de peso del producto desde la API o SQLite
   async loadWeightOptions() {
     if (this.product?.id) {
-      // Obtener las opciones de peso desde SQLite
-      this.weightOptions = await this.productService.getWeightOptionsByProductIdSQLite(this.product.id);
-      console.log('Opciones de peso obtenidas:', this.weightOptions);
+      const apiAvailable = await this.productService.isApiAvailable();
+      if (apiAvailable) {
+        try {
+          const weightOptions = await this.productService.getWeightOptionsByProductIdAPI(this.product.id).toPromise();
+          this.weightOptions = weightOptions || [];  // Asignar un array vacío si weightOptions es undefined
+          console.log('Opciones de peso obtenidas de la API:', this.weightOptions);
+        } catch (error) {
+          console.error('Error al obtener opciones de peso desde la API:', error);
+          await this.loadWeightOptionsFromSQLite();
+        }
+      } else {
+        await this.loadWeightOptionsFromSQLite();
+      }
+    }
+  }
+
+  // Cargar las opciones de peso desde SQLite
+  async loadWeightOptionsFromSQLite() {
+    if (this.product?.id) {  // Aseguramos que id esté definido
+      try {
+        const weightOptions = await this.productService.getWeightOptionsByProductIdSQLite(this.product.id);
+        this.weightOptions = weightOptions || [];  // Asegurar que weightOptions no sea undefined
+        console.log('Opciones de peso obtenidas de SQLite:', this.weightOptions);
+      } catch (error) {
+        console.error('Error al obtener opciones de peso desde SQLite:', error);
+      }
     }
   }
 
