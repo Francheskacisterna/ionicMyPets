@@ -10,7 +10,6 @@ export class AvePage implements OnInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   weightOptionsMap: { [productId: string]: WeightOption[] } = {};
-  categories: string[] = ['Snacks', 'Ninfas', 'Cría', 'Loros', 'Alto Rendimiento', 'Aves Grandes'];
   selectedCategory: string = '';
 
   constructor(private productService: ProductService) {}
@@ -55,12 +54,6 @@ export class AvePage implements OnInit {
 
       this.weightOptionsMap[product.id] = weightOptions || [];
     }
-  }
-
-  filterByCategory() {
-    this.filteredProducts = this.selectedCategory
-      ? this.products.filter(product => product.categoria === this.selectedCategory)
-      : [...this.products];
   }
 
   sortProducts(event: any) {

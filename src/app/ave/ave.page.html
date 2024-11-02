@@ -8,12 +8,6 @@
   <!-- Filtros y Orden -->
   <ion-row>
     <ion-col size="6">
-      <ion-select placeholder="Filtrar por Categoría" [(ngModel)]="selectedCategory" (ionChange)="filterByCategory()">
-        <ion-select-option *ngFor="let category of categories" [value]="category">{{ category }}</ion-select-option>
-      </ion-select>
-    </ion-col>
-
-    <ion-col size="6">
       <ion-select placeholder="Ordenar por" (ionChange)="sortProducts($event)">
         <ion-select-option value="price-asc">Precio: Menor a Mayor</ion-select-option>
         <ion-select-option value="price-desc">Precio: Mayor a Menor</ion-select-option>

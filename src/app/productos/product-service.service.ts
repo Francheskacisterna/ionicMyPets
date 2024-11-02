@@ -419,35 +419,39 @@ async deleteWeightOptionsByProductIdSQLite(productId: string): Promise<void> {
 }
 
   // Método para cargar productos por categoría desde la API o SQLite
-  async loadProductsByCategory(category: string) {
-    const apiAvailable = await this.isApiAvailable();
+// Método para cargar productos por categoría desde la API o SQLite
+// Método para cargar productos por categoría desde la API o SQLite
+async loadProductsByCategory(category: string) {
+  const apiAvailable = await this.isApiAvailable();
   
-    let products: Product[] = [];
-    if (apiAvailable) {
-      try {
-        const apiProducts = await this.getProductsByCategoryAPI(category).toPromise();
-        products = apiProducts || []; // Asigna un array vacío si `apiProducts` es `undefined`
-        console.log(`Productos obtenidos de la API (categoría: ${category}):`, products);
-      } catch (error) {
-        console.error('Error al obtener productos desde la API:', error);
-      }
+  let products: Product[] = [];
+  if (apiAvailable) {
+    try {
+      const apiProducts = await this.getProductsByCategoryAPI(category).toPromise();
+      // Filtrar productos localmente en caso de que el filtro de la API no funcione
+      products = (apiProducts || []).filter(product => product.categoria === category);
+      console.log(`Productos obtenidos de la API (categoría: ${category}):`, products);
+    } catch (error) {
+      console.error('Error al obtener productos desde la API:', error);
     }
-  
-    if (!products.length) {
-      products = await this.getProductsByCategorySQLite(category);
-      console.log(`Productos obtenidos de SQLite (categoría: ${category}):`, products);
-    }
-  
-    // Emite los productos obtenidos
-    this.productsSubject.next(products);
   }
-  
 
-  getProductsByCategoryAPI(category: string): Observable<Product[]> {
-    // Asegúrate de que la URL esté configurada correctamente para tu API
-    const apiUrl = `http://10.0.2.2:3000/productos?category=${category}`;
-    return this.http.get<Product[]>(apiUrl);
+  if (!products.length) {
+    products = await this.getProductsByCategorySQLite(category);
+    console.log(`Productos obtenidos de SQLite (categoría: ${category}):`, products);
   }
+
+  // Emite los productos obtenidos
+  this.productsSubject.next(products);
+}
+
+
+  
+getProductsByCategoryAPI(category: string): Observable<Product[]> {
+  const apiUrl = `http://10.0.2.2:3000/productos?categoria=${category}`;
+  return this.http.get<Product[]>(apiUrl);
+}
+
 
 
     // Método auxiliar para obtener productos por categoría desde SQLite
