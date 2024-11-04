@@ -7,10 +7,13 @@ import { Storage } from '@ionic/storage-angular';
 import { Network } from '@capacitor/network';
 
 export interface Usuario {
-  id?: string;  // Aseguramos que el ID sea numérico para SQLite y API
+  id?: string;
   nombre: string;
   contrasena: string;
   rol: string;
+  correo: string;
+  fechaNacimiento: string; 
+  sexo: string; 
   synced?: number;
 }
 
@@ -57,18 +60,19 @@ export class UserService {
           await this.db.open();
           console.log('SQLite abierto. Creando tablas...');
 
-          // No eliminar la tabla cada vez que se carga el programa
           await this.db.execute(`
-CREATE TABLE IF NOT EXISTS usuarios (
-  id TEXT PRIMARY KEY,
-  nombre TEXT NOT NULL,
-  contrasena TEXT NOT NULL,
-  rol TEXT NOT NULL,
-  synced INTEGER DEFAULT 0
-);
-
+            CREATE TABLE IF NOT EXISTS usuarios (
+              id TEXT PRIMARY KEY,
+              nombre TEXT NOT NULL,
+              contrasena TEXT NOT NULL,
+              rol TEXT NOT NULL,
+              correo TEXT NOT NULL,
+              fechaNacimiento TEXT NOT NULL,
+              sexo TEXT NOT NULL,
+              synced INTEGER DEFAULT 0
+            );
           `);
-
+          
           console.log('SQLite está disponible y las tablas fueron creadas.');
         }
 
@@ -114,60 +118,108 @@ CREATE TABLE IF NOT EXISTS usuarios (
   // CRUD SQLite
 
   generateUUID(): string {
-    return 'xxxx'.replace(/[xy]/g, function (c) {
+    return 'xxxx-xxxx-xxxx-xxxx'.replace(/[xy]/g, function (c) {
       const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
   }
 
 
-// Añadir usuario a SQLite
-async addUsuarioSQLite(usuario: Usuario): Promise<void> {
-  try {
-    if (!await this.ensureDBIsOpen()) return;
+  // Añadir usuario a SQLite
+  async addUsuarioSQLite(usuario: Usuario): Promise<void> {
+    try {
+      if (!await this.ensureDBIsOpen()) return;
 
-    // Verificar si el ID es un string antes de insertar en SQLite
-    if (usuario.id) {
-      usuario.id = usuario.id.toString();  // Convertir a string si es necesario
-    } else {
-      usuario.id = this.generateUUID();  // Generar un UUID si no hay ID
+      // Verificar si el ID es un string antes de insertar en SQLite
+      if (usuario.id) {
+        usuario.id = usuario.id.toString();  // Convertir a string si es necesario
+      } else {
+        usuario.id = this.generateUUID();  // Generar un UUID si no hay ID
+      }
+      const query = `INSERT INTO usuarios (id, nombre, contrasena, rol, correo, fechaNacimiento, sexo, synced) VALUES (?, ?, ?, ?, ?, ?, ?, 0)`;
+      const values = [usuario.id, usuario.nombre, usuario.contrasena, usuario.rol, usuario.correo, usuario.fechaNacimiento, usuario.sexo];
+
+      const result = await this.db!.run(query, values);
+      if (result.changes && result.changes.lastId) {
+        console.log('Usuario añadido en SQLite con ID:', usuario.id);
+      } else {
+        console.error('Error al insertar el usuario en SQLite.');
+      }
+    } catch (err) {
+      console.error('Error al añadir usuario a SQLite:', err);
     }
-
-    const query = `INSERT INTO usuarios (id, nombre, contrasena, rol, synced) VALUES (?, ?, ?, ?, 0)`;
-    const values = [usuario.id, usuario.nombre, usuario.contrasena, usuario.rol];
-
-    const result = await this.db!.run(query, values);
-    if (result.changes && result.changes.lastId) {
-      console.log('Usuario añadido en SQLite con ID:', usuario.id);
-    } else {
-      console.error('Error al insertar el usuario en SQLite.');
-    }
-  } catch (err) {
-    console.error('Error al añadir usuario a SQLite:', err);
   }
-}
 
 
   // Obtener todos los usuarios desde SQLite
   async getUsuariosSQLite(): Promise<Usuario[]> {
     try {
       if (!await this.ensureDBIsOpen()) return [];
-  
+
       const res = await this.db!.query("SELECT * FROM usuarios");
-  
+
       // Verificar si res.values está definido antes de mapear
       const usuarios = res.values ? res.values.map(usuario => ({
         ...usuario,
         id: usuario.id.toString()
       })) : [];
-  
+
       return usuarios as Usuario[];
     } catch (err) {
       console.error('Error al obtener usuarios de SQLite:', err);
       return [];
     }
   }
+
+  async getUserByCredentials(correo: string, contrasena: string): Promise<any | null> {
+    if (!this.db) {
+      console.error('La base de datos no está inicializada');
+      return null;
+    }
   
+    try {
+      const query = `SELECT * FROM usuarios WHERE correo = '${correo}' AND contrasena = '${contrasena}'`;
+      const result = await this.db.query(query);
+  
+      if (result && result.values && result.values.length > 0) {
+        return result.values[0];
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Error al consultar usuario en SQLite:', error);
+      return null;
+    }
+  }
+  
+  async getCurrentUser(): Promise<Usuario | null> {
+    const usuario = await this.storage.get('currentUser'); // Suponiendo que guardaste el usuario en Storage
+    return usuario ? usuario : null;
+  }
+
+  async getUserByEmailSQLite(email: string): Promise<Usuario | null> {
+    if (!this.db) {
+      console.error('La base de datos no está inicializada');
+      return null;
+    }
+  
+    try {
+      const query = `SELECT * FROM usuarios WHERE correo = ?`;
+      const result = await this.db.query(query, [email]);
+  
+      if (result.values && result.values.length > 0) {
+        return result.values[0] as Usuario;  // Retorna el usuario si se encuentra
+      } else {
+        console.warn(`Usuario con correo ${email} no encontrado en SQLite.`);
+        return null;  // Retorna null si no encuentra el usuario
+      }
+    } catch (error) {
+      console.error('Error al consultar usuario en SQLite:', error);
+      return null;  // Manejo de error y retorno de null en caso de fallo
+    }
+  }
+  
+
   // Método para agregar un usuario con verificación de conexión
   async addUsuario(usuario: Usuario): Promise<void> {
     try {
@@ -203,8 +255,8 @@ async addUsuarioSQLite(usuario: Usuario): Promise<void> {
     try {
       if (!await this.ensureDBIsOpen()) return;
 
-      const query = `UPDATE usuarios SET nombre = ?, contrasena = ?, rol = ? WHERE id = ?`;
-      const values = [usuario.nombre, usuario.contrasena, usuario.rol, usuario.id!.toString()];
+      const query = `UPDATE usuarios SET nombre = ?, contrasena = ?, rol = ?, correo = ?, fechaNacimiento = ?, sexo = ? WHERE id = ?`;
+      const values = [usuario.nombre, usuario.contrasena, usuario.rol, usuario.correo, usuario.fechaNacimiento, usuario.sexo, usuario.id!.toString()];
       await this.db!.run(query, values);
       console.log(`Usuario con ID ${usuario.id} actualizado en SQLite.`);
     } catch (err) {
@@ -226,22 +278,22 @@ async addUsuarioSQLite(usuario: Usuario): Promise<void> {
   async getUsuariosSQLiteNotSynced(): Promise<Usuario[]> {
     try {
       if (!await this.ensureDBIsOpen()) return [];
-  
+
       const res = await this.db!.query("SELECT * FROM usuarios WHERE synced = 0");
-  
+
       // Verificar si res.values está definido antes de mapear
       const usuarios = res.values ? res.values.map(usuario => ({
         ...usuario,
         id: usuario.id.toString()
       })) : [];
-  
+
       return usuarios as Usuario[];
     } catch (err) {
       console.error('Error al obtener usuarios no sincronizados de SQLite:', err);
       return [];
     }
   }
-  
+
 
 
   // Marcar usuario como sincronizado en SQLite

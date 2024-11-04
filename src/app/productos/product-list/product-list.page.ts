@@ -1,10 +1,10 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { ProductService, Product } from '../product-service.service';
-import { Router, NavigationExtras } from '@angular/router';
+import { Router} from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
-
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-product-list',
@@ -21,7 +21,8 @@ export class ProductListPage implements OnInit {
     private router: Router,
     private alertController: AlertController,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef,
+    private navCtrl: NavController
     
   ) { }
 
@@ -185,4 +186,8 @@ async deleteProduct(id: string | undefined) {
   addProduct() {
     this.router.navigate(['/productos/product-add']);
   }
+    // Método para navegar de regreso a Product All
+    goBack() {
+      this.navCtrl.navigateBack('/productos/product-all');
+    }
 }

@@ -1,9 +1,9 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { NavController, AlertController, AnimationController } from '@ionic/angular';
-import { UserService, Usuario } from '../usuarios/user.service';  // Importar UserService
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'; // Importar FormBuilder para formularios
-import { firstValueFrom } from 'rxjs';  
-import { Network } from '@capacitor/network';  // Importar Network
+import { UserService, Usuario } from '../usuarios/user.service';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-registro',
@@ -21,10 +21,12 @@ export class RegistroPage implements AfterViewInit {
     private formBuilder: FormBuilder
   ) {
     this.registerForm = this.formBuilder.group({
-      fullName: ['', Validators.required],
+      fullName: ['', [Validators.required, Validators.minLength(6)]],  // Validación de mínimo 6 caracteres
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      fechaNacimiento: ['', [Validators.required, this.ageValidator]],  // Validador de edad
+      sexo: ['', Validators.required]
     });
   }
 
@@ -32,10 +34,27 @@ export class RegistroPage implements AfterViewInit {
     this.animateFormEntrance();
   }
 
+  // Validador personalizado para verificar si el usuario tiene al menos 18 años
+  ageValidator(control: AbstractControl) {
+    const birthDate = new Date(control.value);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const month = today.getMonth() - birthDate.getMonth();
+
+    if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+      return { ageInvalid: true };
+    }
+
+    return age >= 18 ? null : { ageInvalid: true };
+  }
+
   async registerUser() {
     if (this.registerForm.valid) {
       const fullName = this.registerForm.value.fullName;
       const password = this.registerForm.value.password;
+      const email = this.registerForm.value.email;
+      const fechaNacimiento = this.registerForm.value.fechaNacimiento;
+      const sexo = this.registerForm.value.sexo;
   
       // Lógica de validación adicional para contraseñas
       if (password !== this.registerForm.value.confirmPassword) {
@@ -46,10 +65,13 @@ export class RegistroPage implements AfterViewInit {
       const userData: Usuario = {
         nombre: fullName,
         contrasena: password,
-        rol: 'usuario',  // Asignamos el rol por defecto
-        synced: 0  // Marcamos el usuario como no sincronizado inicialmente
+        correo: email,
+        fechaNacimiento: fechaNacimiento,
+        sexo: sexo,
+        rol: 'usuario', 
+        synced: 0
       };
-  
+
       try {
         // Guardar en SQLite primero
         await this.userService.addUsuarioSQLite(userData);
@@ -101,7 +123,9 @@ export class RegistroPage implements AfterViewInit {
       fullName: '',
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      fechaNacimiento: '',
+      sexo: ''
     });
   }
 

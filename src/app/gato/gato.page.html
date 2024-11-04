@@ -1,11 +1,11 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title class="custom-title">Pawsy - Gatos</ion-title>
+    <ion-title class="custom-title">Pawsy - Aves</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding custom-content">
-  <!-- Filtros de Orden -->
+  <!-- Filtros y Orden -->
   <ion-row>
     <ion-col size="6">
       <ion-select placeholder="Ordenar por" (ionChange)="sortProducts($event)">
@@ -29,14 +29,18 @@
 
             <!-- Opciones de peso en formato horizontal -->
             <div class="weight-options" *ngIf="product.id && weightOptionsMap[product.id]">
-              <div *ngFor="let weight of weightOptionsMap[product.id]" class="weight-item" (click)="selectWeight(product, weight)" [class.selected]="isSelected(product, weight)">
+              <div *ngFor="let weight of weightOptionsMap[product.id]" 
+                   class="weight-item" 
+                   (click)="selectWeight(product, weight)" 
+                   [class.selected]="isSelected(product, weight)">
                 {{ weight.size }} kg
               </div>
             </div>
 
-            <!-- Mostrar precio del peso seleccionado -->
+            <!-- Mostrar precio y stock de la opción de peso seleccionada -->
             <div *ngIf="product.selectedWeight">
               <p class="selected-price"><strong>Precio:</strong> ${{ product.selectedWeight.price }}</p>
+              <p class="stock-info"><strong>Stock:</strong> {{ product.selectedWeight.stock }}</p>
             </div>
 
             <ion-button expand="block" fill="outline" color="secondary" class="add-to-cart-button" (click)="addToCart(product)">

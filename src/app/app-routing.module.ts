@@ -1,22 +1,104 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { RoleGuard } from './guards/role.guard';
+import { Error405Component } from './error405/error405.component';
+
 
 const routes: Routes = [
   {
     path: 'welcome',
-    loadChildren: () => import('./welcome/welcome.module').then(m => m.WelcomePageModule)
+    loadChildren: () => import('./welcome/welcome.module').then(m => m.WelcomePageModule),
   },
   {
     path: 'home',
-    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
+    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule),
   },
   {
     path: 'login',
-    loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule)
+    loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule),
   },
   {
     path: 'registro',
-    loadChildren: () => import('./registro/registro.module').then( m => m.RegistroPageModule)
+    loadChildren: () => import('./registro/registro.module').then(m => m.RegistroPageModule),
+  },
+  {
+    path: 'gato',
+    loadChildren: () => import('./gato/gato.module').then(m => m.GatoPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'usuario' } // Permite acceso a usuario, empleado, administrador e invitado (verificado en el guard)
+  },
+  {
+    path: 'perro',
+    loadChildren: () => import('./perro/perro.module').then(m => m.PerroPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'usuario' }
+  },
+  {
+    path: 'ave',
+    loadChildren: () => import('./ave/ave.module').then(m => m.AvePageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'usuario' }
+  },
+  {
+    path: 'productos/product-add',
+    loadChildren: () => import('./productos/product-add/product-add.module').then(m => m.ProductAddPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: ['administrador', 'usuario'] } // Permite ambos roles
+  },
+  {
+    path: 'productos/product-list',
+    loadChildren: () => import('./productos/product-list/product-list.module').then(m => m.ProductListPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: ['administrador', 'usuario'] } // Permite ambos roles
+  },
+  {
+    path: 'productos/product-detail',
+    loadChildren: () => import('./productos/product-detail/product-detail.module').then(m => m.ProductDetailPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: ['administrador', 'usuario'] } // Permite ambos roles
+  },
+  {
+    path: 'productos/product-edit',
+    loadChildren: () => import('./productos/product-edit/product-edit.module').then(m => m.ProductEditPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: ['administrador', 'usuario'] } // Permite ambos roles
+  },
+    {
+      path: 'productos/product-all',
+      loadChildren: () => import('./productos/product-all/product-all.module').then(m => m.ProductAllPageModule),
+      canActivate: [RoleGuard],
+      data: { expectedRole: ['administrador', 'usuario'] }
+    },
+  
+  {
+    path: 'usuarios/user-add',
+    loadChildren: () => import('./usuarios/user-add/user-add.module').then(m => m.UserAddPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'administrador' } // Solo para administrador
+  },
+  {
+    path: 'usuarios/user-list',
+    loadChildren: () => import('./usuarios/user-list/user-list.module').then(m => m.UserListPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'administrador' }
+  },
+  {
+    path: 'usuarios/user-edit',
+    loadChildren: () => import('./usuarios/user-edit/user-edit.module').then(m => m.UserEditPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'administrador' }
+  },
+  {
+    path: 'usuarios/user-detail',
+    loadChildren: () => import('./usuarios/user-detail/user-detail.module').then(m => m.UserDetailPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'administrador' }
+  },
+  {
+    path: 'usuarios/user-all',
+    loadChildren: () => import('./usuarios/user-all/user-all.module').then(m => m.UserAllPageModule),
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'administrador' }
   },
   {
     path: '',
@@ -24,55 +106,22 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'gato',
-    loadChildren: () => import('./gato/gato.module').then( m => m.GatoPageModule)
+    path: 'carrito/carrito-detail',
+    loadChildren: () => import('./carrito/carrito-detail/carrito-detail.module').then( m => m.CarritoDetailPageModule)
   },
   {
-    path: 'perro',
-    loadChildren: () => import('./perro/perro.module').then( m => m.PerroPageModule)
+    path: 'carrito/carrito-list',
+    loadChildren: () => import('./carrito/carrito-list/carrito-list.module').then( m => m.CarritoListPageModule)
   },
-  {
-    path: 'ave',
-    loadChildren: () => import('./ave/ave.module').then(m => m.AvePageModule)
+
+  { path: 'error-405', component: Error405Component },
+  { path: '**', redirectTo: '/error-405' },   {
+    path: 'error-test',
+    
+    loadChildren: () => import('./error-test/error-test.module').then( m => m.ErrorTestPageModule)
   },
-  {
-    path: 'productos/product-add',
-    loadChildren: () => import('./productos/product-add/product-add.module').then( m => m.ProductAddPageModule)
-  },
-  {
-    path: 'productos/product-list',
-    loadChildren: () => import('./productos/product-list/product-list.module').then( m => m.ProductListPageModule)
-  },
-  {
-    path: 'productos/product-detail',
-    loadChildren: () => import('./productos/product-detail/product-detail.module').then( m => m.ProductDetailPageModule)
-  },
-  {
-    path: 'productos/product-edit',
-    loadChildren: () => import('./productos/product-edit/product-edit.module').then(m => m.ProductEditPageModule)
-  },
-  {
-    path: 'usuarios/user-add',
-    loadChildren: () => import('./usuarios/user-add/user-add.module').then( m => m.UserAddPageModule)
-  },
-  {
-    path: 'usuarios/user-list',
-    loadChildren: () => import('./usuarios/user-list/user-list.module').then( m => m.UserListPageModule)
-  },
-  {
-    path: 'usuarios/user-edit',
-    loadChildren: () => import('./usuarios/user-edit/user-edit.module').then( m => m.UserEditPageModule)
-  },
-  {
-    path: 'usuarios/user-detail',
-    loadChildren: () => import('./usuarios/user-detail/user-detail.module').then( m => m.UserDetailPageModule)
-  },
-  {
-    path: 'usuarios/user-all',
-    loadChildren: () => import('./usuarios/user-all/user-all.module').then( m => m.UserAllPageModule)
-  }
-  
 ];
+
 
 @NgModule({
   imports: [

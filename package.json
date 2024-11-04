@@ -40,9 +40,11 @@
     "@ionic-native/sqlite": "^5.36.0",
     "@ionic/angular": "^8.0.0",
     "@ionic/storage-angular": "^4.0.0",
+    "cors": "^2.8.5",
     "ionicons": "^7.0.0",
     "jeep-sqlite": "^2.8.0",
     "jquery": "^3.7.1",
+    "nodemailer": "^6.9.16",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"

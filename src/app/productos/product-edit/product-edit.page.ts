@@ -151,16 +151,17 @@ export class ProductEditPage implements OnInit {
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt,
+        resultType: CameraResultType.Uri,  // Obtenemos la URI de la imagen
+        source: CameraSource.Prompt
       });
-
-      this.productImage = image.dataUrl;
-      this.productForm.patchValue({ imagen: this.productImage });
+  
+      this.productImage = image.webPath;  // Guarda la URL completa para mostrar la imagen en la interfaz
+      console.log('URL de la imagen seleccionada:', this.productImage);
+      
     } catch (error) {
       console.error('Error al capturar imagen:', error);
     }
-  }
+  }  
 
 
 // Función para eliminar imagen

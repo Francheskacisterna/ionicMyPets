@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService, Product, WeightOption } from '../productos/product-service.service';
+import { CartService, CartItem } from '../carrito/cart.service';
 
 @Component({
-  selector: 'app-ave',
+  selector: 'app-gato',
   templateUrl: './gato.page.html',
   styleUrls: ['./gato.page.scss'],
 })
@@ -12,7 +13,10 @@ export class GatoPage implements OnInit {
   weightOptionsMap: { [productId: string]: WeightOption[] } = {};
   selectedCategory: string = '';
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService // Importamos el servicio del carrito
+  ) {}
 
   ngOnInit() {
     this.productService.products$.subscribe((products) => {
@@ -73,8 +77,29 @@ export class GatoPage implements OnInit {
     return product.selectedWeight === weight;
   }
 
-  addToCart(product: Product) {
-    console.log('Producto agregado al carrito:', product);
-    // Aquí puedes añadir la lógica para agregar al carrito
+  // Agregar producto al carrito y disminuir el stock
+  async addToCart(product: Product) {
+    if (product.selectedWeight) {
+      try {
+        // Llama a la función del servicio de carrito para agregar el producto
+        await this.cartService.addToCart(product, 1, product.selectedWeight);
+
+        // Actualizar el stock de forma local
+        const apiAvailable = await this.productService.isApiAvailable();
+        if (apiAvailable) {
+          // Actualizar en la API si está disponible
+          await this.productService.updateWeightOptionAPI(product.selectedWeight).toPromise();
+        } else {
+          // Actualizar en SQLite si la API no está disponible
+          await this.productService.updateWeightOptionSQLite(product.selectedWeight);
+        }
+        
+        console.log('Producto agregado al carrito y stock actualizado:', product);
+      } catch (error) {
+        console.error('Error al agregar producto al carrito:', error);
+      }
+    } else {
+      console.log('Selecciona un peso antes de agregar al carrito.');
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService, Product, WeightOption } from '../productos/product-service.service';
+import { CartService, CartItem } from '../carrito/cart.service';
 
 @Component({
   selector: 'app-perro',
@@ -12,8 +13,11 @@ export class PerroPage implements OnInit {
   weightOptionsMap: { [productId: string]: WeightOption[] } = {};
   selectedCategory: string = '';
 
-  constructor(private productService: ProductService) {}
-
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService // Importamos el servicio del carrito
+  ) {}
+  
   ngOnInit() {
     this.productService.products$.subscribe((products) => {
       this.products = products;
@@ -73,7 +77,17 @@ export class PerroPage implements OnInit {
     return product.selectedWeight === weight;
   }
 
-  addToCart(product: Product) {
-    console.log('Producto agregado al carrito:', product);
+  async addToCart(product: Product) {
+    if (product.selectedWeight) {
+      try {
+        // Solo llama a la función del servicio para agregar al carrito
+        await this.cartService.addToCart(product, 1, product.selectedWeight);
+        console.log('Producto agregado al carrito:', product);
+      } catch (error) {
+        console.error('Error al agregar producto al carrito:', error);
+      }
+    } else {
+      console.log('Selecciona un peso antes de agregar al carrito.');
+    }
   }
-}
+}  

@@ -1,9 +1,9 @@
 import { Component, NgZone } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService, Usuario } from '../user.service';
-import { AlertController } from '@ionic/angular';  // Para mostrar mensajes de alerta
-import { Network } from '@capacitor/network';  // Importar Network
+import { AlertController } from '@ionic/angular';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-user-add',
@@ -17,15 +17,31 @@ export class UserAddPage {
     private formBuilder: FormBuilder,
     private userService: UserService,
     private router: Router,
-    private alertController: AlertController,  // Para mostrar alertas
-    private ngZone: NgZone  // Inyectar NgZone para actualizar la UI de inmediato
+    private alertController: AlertController,
   ) {
     // Inicializamos el formulario con validadores
     this.userForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
+      nombre: ['', [Validators.required, Validators.minLength(6)]],
       contrasena: ['', [Validators.required, Validators.minLength(6)]],
-      rol: ['', Validators.required],  // Selector de rol
+      rol: ['', Validators.required],
+      correo: ['', [Validators.required, Validators.email]],
+      fechaNacimiento: ['', [Validators.required, this.ageValidator]],  // Nuevo campo con validador de edad
+      sexo: ['', Validators.required]
     });
+  }
+
+  // Validación personalizada para verificar si el usuario es mayor de 18 años
+  ageValidator(control: AbstractControl): ValidationErrors | null {
+    const birthDate = new Date(control.value);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+
+    // Ajustar edad si la fecha actual es antes del cumpleaños de este año
+    const adjustedAge = monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0) ? age : age - 1;
+
+    return adjustedAge >= 18 ? null : { ageInvalid: true };
   }
 
   // Guardar el usuario en la base de datos local (SQLite) o la API si está conectado
@@ -81,7 +97,10 @@ export class UserAddPage {
     this.userForm.reset({
       nombre: '',
       contrasena: '',
-      rol: ''  // Aseguramos que el rol también se restablezca
+      rol: '',  // Aseguramos que el rol también se restablezca
+      correo: '',
+      fechaNacimiento: '',
+      sexo: ''
     });
   }
 

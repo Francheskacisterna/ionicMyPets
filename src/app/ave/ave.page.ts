@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService, Product, WeightOption } from '../productos/product-service.service';
+import { CartService } from '../carrito/cart.service';
 
 @Component({
   selector: 'app-ave',
@@ -10,9 +11,11 @@ export class AvePage implements OnInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   weightOptionsMap: { [productId: string]: WeightOption[] } = {};
-  selectedCategory: string = '';
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService
+  ) {}
 
   ngOnInit() {
     this.productService.products$.subscribe((products) => {
@@ -23,12 +26,11 @@ export class AvePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.productService.loadProductsByCategory('aves'); // Actualiza los productos cada vez que se entra a la vista
+    this.productService.loadProductsByCategory('aves');
   }
 
   private async loadWeightOptionsForProducts() {
     for (const product of this.products) {
-      this.weightOptionsMap[product.id || ''] = [];
       await this.loadWeightOptions(product);
     }
   }
@@ -41,7 +43,6 @@ export class AvePage implements OnInit {
       if (apiAvailable) {
         try {
           weightOptions = await this.productService.getWeightOptionsByProductIdAPI(product.id).toPromise() || [];
-          console.log(`Opciones de peso obtenidas de la API para el producto ${product.id}:`, weightOptions);
         } catch (error) {
           console.error('Error al obtener opciones de peso desde la API:', error);
         }
@@ -49,10 +50,9 @@ export class AvePage implements OnInit {
 
       if (!weightOptions.length) {
         weightOptions = await this.productService.getWeightOptionsByProductIdSQLite(product.id) || [];
-        console.log(`Opciones de peso obtenidas de SQLite para el producto ${product.id}:`, weightOptions);
       }
 
-      this.weightOptionsMap[product.id] = weightOptions || [];
+      this.weightOptionsMap[product.id] = weightOptions;
     }
   }
 
@@ -73,8 +73,15 @@ export class AvePage implements OnInit {
     return product.selectedWeight === weight;
   }
 
-  addToCart(product: Product) {
-    console.log('Producto agregado al carrito:', product);
-    // Aquí puedes añadir la lógica para agregar al carrito
+  async addToCart(product: Product) {
+    if (product.selectedWeight) {
+      try {
+        await this.cartService.addToCart(product, 1, product.selectedWeight);
+      } catch (error) {
+        console.error('Error al agregar producto al carrito:', error);
+      }
+    } else {
+      console.log('Selecciona un peso antes de agregar al carrito.');
+    }
   }
 }

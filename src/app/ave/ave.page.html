@@ -34,9 +34,10 @@
               </div>
             </div>
 
-            <!-- Mostrar precio del peso seleccionado -->
+            <!-- Mostrar precio del peso seleccionado y el stock -->
             <div *ngIf="product.selectedWeight">
               <p class="selected-price"><strong>Precio:</strong> ${{ product.selectedWeight.price }}</p>
+              <p class="stock-info"><strong>Stock:</strong> {{ product.selectedWeight.stock }}</p>
             </div>
 
             <ion-button expand="block" fill="outline" color="secondary" class="add-to-cart-button" (click)="addToCart(product)">

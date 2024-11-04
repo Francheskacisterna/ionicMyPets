@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Detalles del Producto en el Carrito</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Tarjeta de detalles del producto si existe en el carrito -->
+  <ion-card *ngIf="cartItem">
+    <ion-card-header>
+      <ion-card-title>{{ cartItem.productName }}</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p><strong>ID del Producto:</strong> {{ cartItem.id }}</p>
+      <p><strong>Nombre del Producto:</strong> {{ cartItem.productName }}</p>
+      <p><strong>Cantidad:</strong> {{ cartItem.quantity }}</p>
+      <p><strong>Precio Unitario:</strong> {{ cartItem.price | currency }}</p>
+      <p><strong>Peso Seleccionado:</strong> {{ cartItem.weightSize }} kg</p>
+      <p><strong>Precio por Peso:</strong> {{ cartItem.weightPrice | currency }}</p>
+      <p><strong>Total:</strong> {{ cartItem.total | currency }}</p>
+      <p><strong>Sincronizado:</strong> {{ cartItem.synced ? 'Sí' : 'No' }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Mensaje si no se encuentra el producto en el carrito -->
+  <ion-card *ngIf="!cartItem">
+    <ion-card-content>
+      <p>No se encontró el producto en el carrito.</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Botón para regresar a la lista del carrito -->
+  <ion-button expand="full" (click)="goBackToList()">Regresar a la lista del carrito</ion-button>
+</ion-content>

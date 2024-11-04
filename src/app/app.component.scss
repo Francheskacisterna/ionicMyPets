@@ -99,3 +99,33 @@ button.mat-icon-button {
     display: inline-block;
     margin-left: 5px; /* Ajusta según sea necesario */
 }
+
+.cart-icon {
+    position: relative;
+    font-size: 22px; /* Tamaño del icono del carrito */
+  }
+  
+  .cart-badge {
+    position: absolute;
+    top: -1px;
+    right: -4px;
+    background-color: #d9534f;
+    color: white;
+    border-radius: 50%;
+    font-size: 6px; /* Intenta hacer el número pequeño */
+    font-weight: bold;
+    width: 28px; /* Tamaño fijo del círculo */
+    height: 28px; /* Tamaño fijo del círculo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Sin relleno adicional */
+    line-height: 1; /* Asegura que el número esté centrado */
+    transform: scale(0.6); /* Reduce visualmente el tamaño del número */
+  }
+  
+  
+  
+  
+  
+  

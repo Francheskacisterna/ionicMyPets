@@ -1,8 +1,10 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavController, ModalController, AnimationController } from '@ionic/angular';
-import { ResetPasswordComponent } from '../reset-password/reset-password.component'; // Llamado al componente de reset de contraseña
+import { ResetPasswordComponent } from '../reset-password/reset-password.component';
 import { AutenticacionService } from '../autenticacion.service';
+
+
 
 @Component({
   selector: 'app-login',
@@ -13,7 +15,7 @@ export class LoginPage implements AfterViewInit {
   loginForm: FormGroup;
 
   constructor(
-    private navCtrl: NavController,
+    private navCtrl: NavController, 
     private formBuilder: FormBuilder,
     private modalController: ModalController, 
     private autenticacionService: AutenticacionService,
@@ -29,7 +31,6 @@ export class LoginPage implements AfterViewInit {
     });
   }
 
-  // Implementación de animaciones en AfterViewInit
   ngAfterViewInit() {
     this.applyAnimations();
   }
@@ -58,46 +59,46 @@ export class LoginPage implements AfterViewInit {
     }
   }
 
-  // Método para iniciar sesión
-  login() {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
+// Método para iniciar sesión con la API o SQLite
+login() {
+  if (this.loginForm.valid) {
+    const { email, password } = this.loginForm.value;
 
-      console.log('Email:', email);
-      console.log('Password:', password);
-
-      if (email === 'fr.cisternap@duocuc.cl' && password === 'Domi.3007') {
-        this.autenticacionService.login();
-        const nombreUsuario = 'Francheska Cisterna'; 
+    this.autenticacionService.login(email, password).then(isAuthenticated => {
+      if (isAuthenticated) {
+        const nombreUsuario = email.split('@')[0]; // Usa el nombre del correo como nombre de usuario
         this.navCtrl.navigateForward('/home', {
-          queryParams: { nombreUsuario } // Pasando el nombre del usuario como parámetro
+          state: { nombreUsuario }
         });
         this.loginForm.reset();
       } else {
         alert('Credenciales incorrectas. Inténtalo de nuevo.');
       }
-    } else {
-      alert('Por favor, revisa los datos ingresados.');
-    }
+    }).catch(error => {
+      console.error('Error al iniciar sesión:', error);
+      alert('Error al iniciar sesión. Por favor, inténtalo más tarde.');
+    });
+  } else {
+    alert('Por favor, revisa los datos ingresados.');
   }
+}
 
-  // Método para abrir el modal de reset de contraseña
+
   async presentResetPasswordModal(event: Event) {
-    event.preventDefault(); // Evita el comportamiento por defecto del enlace
+    event.preventDefault();
     const modal = await this.modalController.create({
-      component: ResetPasswordComponent // Llamamos al componente que se usará en el modal
+      component: ResetPasswordComponent
     });
     return await modal.present();
   }
 
-  // Método para ir a la página de registro
-  navigateToRegister(event: Event) {
-    event.preventDefault(); // Evita el comportamiento por defecto del enlace
-    this.navCtrl.navigateForward('/registro'); // Navegación a la página de registro
-  }
-
-  // Método para navegar a la página de inicio (home)
   navigateToHome() {
-    this.navCtrl.navigateForward('/home'); // Navegación a la página de inicio
+    this.navCtrl.navigateForward('/home');
+  }
+  
+
+  navigateToRegister(event: Event) {
+    event.preventDefault();
+    this.navCtrl.navigateForward('/registro');
   }
 }

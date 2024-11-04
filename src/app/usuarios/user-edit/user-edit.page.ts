@@ -22,7 +22,10 @@ export class UserEditPage implements OnInit {
     this.userForm = this.formBuilder.group({
       nombre: ['', Validators.required],
       contrasena: ['', [Validators.required, Validators.minLength(6)]],
-      rol: ['', Validators.required]
+      rol: ['', Validators.required],
+      correo: ['', [Validators.required, Validators.email]],  // Nuevo campo correo
+      fechaNacimiento: ['', Validators.required],  // Nuevo campo fecha de nacimiento
+      sexo: ['', Validators.required],  // Nuevo campo sexo
     });
 
     // Obtener el estado de la navegación con los datos del usuario
@@ -38,7 +41,10 @@ export class UserEditPage implements OnInit {
       this.userForm.patchValue({
         nombre: this.usuario.nombre,
         contrasena: this.usuario.contrasena,
-        rol: this.usuario.rol
+        rol: this.usuario.rol,
+        correo: this.usuario.correo,  // Nuevo campo correo
+        fechaNacimiento: this.usuario.fechaNacimiento,  // Nuevo campo fecha de nacimiento
+        sexo: this.usuario.sexo,  // Nuevo campo sexo
       });
     } else {
       console.error('No se encontraron datos de usuario en el estado de navegación');

@@ -55,7 +55,6 @@ export class ProductService {
       this.db = null;
     }
   }
-
   
 
   async initDB() {
@@ -163,6 +162,7 @@ export class ProductService {
   }
   
   
+  
 
   clearWeightOptionsAPI(productId: string): Observable<void> {
     const url = `${this.apiUrl}/products/${productId}/weightOptions`;  // Ajusta el endpoint según tu API
@@ -200,22 +200,25 @@ export class ProductService {
     }
   }
 
-  // Método para sincronizar el producto y las opciones de peso con la API
-  private async syncProductWithAPI(product: Product, weightOptions: WeightOption[]): Promise<void> {
-    try {
-      const response = await firstValueFrom(this.addProductAPI(product));
-      console.log('Producto sincronizado en la API con éxito:', response);
+  async addImageNameToSQLite(imageName: string): Promise<void> {
+    // Verificar que `this.db` esté inicializado antes de proceder
+    if (!this.db) {
+      console.error('La conexión a la base de datos no está inicializada');
+      return;
+    }
   
-      // Sincroniza cada opción de peso con la API
-      for (const option of weightOptions) {
-        console.log(`Intentando sincronizar opción de peso con ID: ${option.id} y producto_id: ${option.producto_id}`);
-        await firstValueFrom(this.addWeightOptionAPI(option));
-        console.log(`Opción de peso "${option.size}" sincronizada en la API para el producto con ID ${product.id}`);
-      }
+    const query = `INSERT INTO productos (imageName) VALUES (?)`;
+    const values = [imageName];
+  
+    try {
+      await this.db.run(query, values);
+      console.log(`Imagen ${imageName} guardada en SQLite`);
     } catch (error) {
-      console.error('Error al sincronizar producto y opciones de peso en la API:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      console.error('Error al guardar el nombre de la imagen en SQLite:', error);
     }
   }
+  
+  
 
   
 
@@ -419,8 +422,6 @@ async deleteWeightOptionsByProductIdSQLite(productId: string): Promise<void> {
 }
 
   // Método para cargar productos por categoría desde la API o SQLite
-// Método para cargar productos por categoría desde la API o SQLite
-// Método para cargar productos por categoría desde la API o SQLite
 async loadProductsByCategory(category: string) {
   const apiAvailable = await this.isApiAvailable();
   
@@ -454,7 +455,7 @@ getProductsByCategoryAPI(category: string): Observable<Product[]> {
 
 
 
-    // Método auxiliar para obtener productos por categoría desde SQLite
+// Método auxiliar para obtener productos por categoría desde SQLite
     async getProductsByCategorySQLite(category: string): Promise<Product[]> {
       // Asegúrate de implementar y verificar la apertura de la conexión SQLite en ensureDBIsOpen()
       try {
@@ -664,8 +665,6 @@ async deleteProductWithWeightsAPI(productId: string): Promise<void> {
     console.error(`Error al eliminar el producto con ID ${productId} y sus opciones de peso:`, error);
   }
 }
-
-
 
 
   // Manejo de errores genérico
