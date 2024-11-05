@@ -116,6 +116,7 @@ export class RegistroPage implements AfterViewInit {
     }
   }
   
+  
 
   // Función para limpiar el formulario después de agregar un usuario
   resetForm() {

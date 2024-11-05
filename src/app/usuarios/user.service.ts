@@ -151,6 +151,7 @@ export class UserService {
   }
 
 
+  
   // Obtener todos los usuarios desde SQLite
   async getUsuariosSQLite(): Promise<Usuario[]> {
     try {
@@ -293,7 +294,6 @@ export class UserService {
       return [];
     }
   }
-
 
 
   // Marcar usuario como sincronizado en SQLite

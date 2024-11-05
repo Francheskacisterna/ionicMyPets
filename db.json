@@ -7,25 +7,25 @@
       "precio": 16990,
       "stock": 900,
       "categoria": "gato",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000032.1730731627987.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000032.1730763388918.jpeg"
     },
     {
       "id": "4d244355-e564-4f5f-8dc4-736bb0930231",
-      "nombre": "Acana Adult Cat",
-      "descripcion": "Comida para gatos adultos con ingredientes naturales.",
+      "nombre": "Britcare Haircare Cat",
+      "descripcion": "Alimento especializado para el cuidado del pelo.",
       "precio": 24990,
       "stock": 600,
       "categoria": "gato",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000031.1730731466867.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000031.1730763581620.jpeg"
     },
     {
       "id": "cb6b56a5-da0b-401e-9255-88191cbc2f76",
-      "nombre": "Royal Canin Sensible'",
+      "nombre": "Royal Canin Sensible",
       "descripcion": "Alimento para gatos con digestión sensible.",
       "precio": 16990,
       "stock": 300,
       "categoria": "gato",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000033.1730732309179.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000033.1730763529502.jpeg"
     },
     {
       "id": "db5e8ff3-4251-487c-9c44-d57848f8e507",
@@ -34,7 +34,7 @@
       "precio": 19990,
       "stock": 600,
       "categoria": "gato",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000029.1730732465376.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000029.1730763543281.jpeg"
     },
     {
       "id": "83a91c8a-65d8-4ad4-87ef-56fcd973a253",
@@ -43,7 +43,7 @@
       "precio": 10990,
       "stock": 200,
       "categoria": "aves",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000025.1730742706499.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000026.1730763680848.jpeg"
     },
     {
       "id": "642dc900-2a2f-4b5f-a303-642c28a559d9",
@@ -52,7 +52,7 @@
       "precio": 12990,
       "stock": 200,
       "categoria": "aves",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000027.1730742849632.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000027.1730763711031.jpeg"
     },
     {
       "id": "053146e6-fc1b-42a3-bd47-af4945774d41",
@@ -61,7 +61,7 @@
       "precio": 29990,
       "stock": 300,
       "categoria": "aves",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000024.1730743046730.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000024.1730763734000.jpeg"
     },
     {
       "id": "827f5968-0eff-4baa-a032-f858bfc02a49",
@@ -70,7 +70,7 @@
       "precio": 12990,
       "stock": 200,
       "categoria": "aves",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000026.1730743410673.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000025.1730763757248.jpeg"
     },
     {
       "id": "08223a0f-19c5-4223-906b-a15a4ecf58e7",
@@ -79,7 +79,7 @@
       "precio": 15990,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000019.1730743438059.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000019.1730763792861.jpeg"
     },
     {
       "id": "1f10290a-b27a-4171-b1d1-69fcd5a6d9d0",
@@ -88,7 +88,7 @@
       "precio": 13490,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000023.1730743626247.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000023.1730763811215.jpeg"
     },
     {
       "id": "fef10d6e-1281-45ff-ae14-be8e6bba043a",
@@ -97,7 +97,7 @@
       "precio": 19990,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000021.1730743970165.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000021.1730763829720.jpeg"
     },
     {
       "id": "ae50eb60-0041-448c-9645-0d121181c01d",
@@ -106,7 +106,7 @@
       "precio": 12990,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000020.1730744097487.jpeg"
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000020.1730763851356.jpeg"
     }
   ],
   "pesos": [
@@ -326,6 +326,13 @@
       "price": 69990,
       "stock": 200,
       "producto_id": "ae50eb60-0041-448c-9645-0d121181c01d"
+    },
+    {
+      "id": "6d305b54-11b5-4dd1-ad42-3984ceee32ba",
+      "producto_id": "6e8b76aa-73ea-4823-a465-4b7307757ff6",
+      "size": "222",
+      "price": 333,
+      "stock": 33
     }
   ],
   "usuarios": [
@@ -370,12 +377,32 @@
       "synced": 0
     },
     {
-      "id": "7f3d-2965-9ae8-cbdb",
-      "nombre": "Pepime",
+      "id": "3242-13d5-1155-5eaa",
+      "nombre": "francheska ",
       "contrasena": "Domi.3007",
       "rol": "usuario",
       "correo": "p@h.cl",
-      "fechaNacimiento": "1969-02-13T03:00:00.000Z",
+      "fechaNacimiento": "1990-03-02T03:00:00.000Z",
+      "sexo": "Mujer",
+      "synced": 0
+    },
+    {
+      "id": "7866-d9e4-f7a6-d037",
+      "nombre": "MAriaa",
+      "contrasena": "Domi.3007",
+      "rol": "usuario",
+      "correo": "m@g.cl",
+      "fechaNacimiento": "2000-02-02T03:00:00.000Z",
+      "sexo": "Mujer",
+      "synced": 0
+    },
+    {
+      "id": "0918-9871-21e5-1923",
+      "nombre": "pedro p",
+      "contrasena": "Domi.3007",
+      "rol": "usuario",
+      "correo": "lore@g.cl",
+      "fechaNacimiento": "2006-01-05T03:00:00.000Z",
       "sexo": "Mujer",
       "synced": 0
     }

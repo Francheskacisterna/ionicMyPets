@@ -14,10 +14,13 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     const navigation = this.router.getCurrentNavigation();
+
+    // Intenta obtener `nombreUsuario` desde `state`
     if (navigation?.extras?.state?.['nombreUsuario']) {
       this.nombreUsuario = navigation.extras.state['nombreUsuario'];
     } else {
-      this.nombreUsuario = 'Usuario';
+      // Si `nombreUsuario` no está en `state`, lo obtenemos de `localStorage`
+      this.nombreUsuario = localStorage.getItem('userName') || 'Usuario';
     }
   }
 }

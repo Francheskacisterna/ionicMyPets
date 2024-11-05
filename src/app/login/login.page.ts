@@ -66,9 +66,11 @@ login() {
 
     this.autenticacionService.login(email, password).then(isAuthenticated => {
       if (isAuthenticated) {
-        const nombreUsuario = email.split('@')[0]; // Usa el nombre del correo como nombre de usuario
+        // Recupera el nombre del usuario de `localStorage`
+        const nombreUsuario = localStorage.getItem('userName') || 'Usuario';
+        // Navega a la página de inicio pasando el nombre
         this.navCtrl.navigateForward('/home', {
-          state: { nombreUsuario }
+          state: { nombreUsuario }  // Pasar nombreUsuario mediante Navigation Extras
         });
         this.loginForm.reset();
       } else {
@@ -82,6 +84,7 @@ login() {
     alert('Por favor, revisa los datos ingresados.');
   }
 }
+
 
 
   async presentResetPasswordModal(event: Event) {
