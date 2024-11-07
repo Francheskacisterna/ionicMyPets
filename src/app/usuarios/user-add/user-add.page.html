@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Agregar Usuario</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToUserAll()">
+        <ion-icon slot="icon-only" name="list"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding user-add-content">
+  <form [formGroup]="userForm" (ngSubmit)="addUser()">
+    <ion-item class="styled-input">
+      <ion-label position="floating">Nombre Completo</ion-label>
+      <ion-input formControlName="nombre" type="text" required></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('nombre')?.invalid && userForm.get('nombre')?.touched">
+      El nombre debe tener al menos 6 caracteres.
+    </ion-text>
+
+    <ion-item class="styled-input">
+      <ion-label position="floating">Correo Electrónico</ion-label>
+      <ion-input formControlName="correo" type="email" required></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('correo')?.invalid && userForm.get('correo')?.touched">
+      Correo electrónico inválido.
+    </ion-text>
+
+    <ion-item class="styled-input">
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input formControlName="contrasena" type="password" required></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('contrasena')?.invalid && userForm.get('contrasena')?.touched">
+      La contraseña es requerida y debe tener al menos 6 caracteres.
+    </ion-text>
+
+    <ion-item class="styled-input">
+      <ion-label>Fecha de Nacimiento</ion-label>
+      <ion-datetime 
+        formControlName="fechaNacimiento" 
+        display-format="DD/MM/YYYY" 
+        presentation="date" 
+        [value]="today">
+      </ion-datetime>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('fechaNacimiento')?.hasError('ageInvalid') && userForm.get('fechaNacimiento')?.touched">
+      Debes tener al menos 18 años para registrarte.
+    </ion-text>
+    
+    <ion-item class="styled-input">
+      <ion-label>Sexo</ion-label>
+      <ion-select formControlName="sexo" placeholder="Selecciona Sexo" required>
+        <ion-select-option value="Hombre">Hombre</ion-select-option>
+        <ion-select-option value="Mujer">Mujer</ion-select-option>
+        <ion-select-option value="No Binario">No Binario</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('sexo')?.invalid && userForm.get('sexo')?.touched">
+      El sexo es requerido.
+    </ion-text>
+
+    <ion-item class="styled-input">
+      <ion-label>Rol</ion-label>
+      <ion-select formControlName="rol" placeholder="Selecciona Rol" required>
+        <ion-select-option value="administrador">Administrador</ion-select-option>
+        <ion-select-option value="empleado">Empleado</ion-select-option>
+        <ion-select-option value="usuario">Usuario</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.get('rol')?.invalid && userForm.get('rol')?.touched">
+      El rol es requerido.
+    </ion-text>
+
+    <ion-button expand="full" type="submit" color="success" [disabled]="!userForm.valid" class="login-button">
+      <ion-icon slot="start" name="person-add"></ion-icon>
+      Agregar Usuario
+    </ion-button>
+  </form>
+
+  <ion-button expand="full" color="tertiary" (click)="goToUserAll()">
+    <ion-icon slot="start" name="arrow-back"></ion-icon>
+    Volver
+  </ion-button>
+</ion-content>

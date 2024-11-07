@@ -33,7 +33,11 @@
             ],
             "styles": ["src/global.scss", "src/theme/variables.scss"],
             "scripts": [],
-            "allowedCommonJsDependencies": ["jquery"]
+            "allowedCommonJsDependencies": [
+              "jquery"
+            ],
+            "serviceWorker": true,
+            "ngswConfigPath": "ngsw-config.json"
           },
           "configurations": {
             "production": {

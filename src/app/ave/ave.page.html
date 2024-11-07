@@ -1,43 +1,14 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
     <ion-title class="custom-title">Pawsy - Aves</ion-title>
-    <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="search-outline"></ion-icon>
-      </ion-button>
-      <ion-button>
-        <ion-icon name="location-outline"></ion-icon>
-      </ion-button>
-      <ion-button>
-        <ion-icon name="cart-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding custom-content">
-  <!-- Breadcrumbs -->
-  <ion-breadcrumbs>
-    <ion-breadcrumb href="/home">Inicio</ion-breadcrumb>
-    <ion-breadcrumb>Aves</ion-breadcrumb>
-  </ion-breadcrumbs>
-
   <!-- Filtros y Orden -->
   <ion-row>
-    <!-- Filtro por Categoría -->
     <ion-col size="6">
-      <ion-select placeholder="Filtrar por Categoría" interface="popover" [(ngModel)]="selectedCategory" (ionChange)="filterByCategory()">
-        <ion-select-option *ngFor="let category of categories" [value]="category">{{ category }}</ion-select-option>
-      </ion-select>
-    </ion-col>
-
-    <!-- Ordenar por Precio -->
-    <ion-col size="6">
-      <ion-select placeholder="Ordenar por" interface="popover" (ionChange)="sortProducts($event)">
-        <ion-select-option value="most-sold">Lo Más Vendido</ion-select-option>
+      <ion-select placeholder="Ordenar por" (ionChange)="sortProducts($event)">
         <ion-select-option value="price-asc">Precio: Menor a Mayor</ion-select-option>
         <ion-select-option value="price-desc">Precio: Mayor a Menor</ion-select-option>
       </ion-select>
@@ -49,24 +20,27 @@
     <ion-row>
       <ion-col size="12" size-md="6" size-lg="4" *ngFor="let product of filteredProducts">
         <ion-card>
-          <ion-img [src]="product.img" class="fade-in"></ion-img>
+          <ion-img [src]="product.imagen || 'assets/default-image.jpg'" class="product-image"></ion-img>
           <ion-card-header>
-            <ion-card-title>{{ product.title }}</ion-card-title>
+            <ion-card-title class="product-title">{{ product.nombre }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <p>{{ product.description }}</p>
-            <ion-list class="custom-list">
-              <!-- Lista de pesos y precios del producto -->
-              <ion-item *ngFor="let weight of product.weights" (click)="selectWeight(product, weight)" [class.selected]="isSelected(product, weight)">
-                <p>{{ weight.size }}</p>
-              </ion-item>
-            </ion-list>
-            <!-- Mostrar precio del peso seleccionado -->
-            <div *ngIf="product.selectedWeight">
-              <p><strong>Precio:</strong> {{ product.selectedWeight.price }}</p>
+            <p class="product-description">{{ product.descripcion }}</p>
+
+            <!-- Opciones de peso en formato horizontal -->
+            <div class="weight-options" *ngIf="product.id && weightOptionsMap[product.id]">
+              <div *ngFor="let weight of weightOptionsMap[product.id]" class="weight-item" (click)="selectWeight(product, weight)" [class.selected]="isSelected(product, weight)">
+                {{ weight.size }} kg
+              </div>
             </div>
-            <!-- Botón para agregar al carrito -->
-            <ion-button expand="block" fill="outline" color="secondary" class="add-to-cart">
+
+            <!-- Mostrar precio del peso seleccionado y el stock -->
+            <div *ngIf="product.selectedWeight">
+              <p class="selected-price"><strong>Precio:</strong> ${{ product.selectedWeight.price }}</p>
+              <p class="stock-info"><strong>Stock:</strong> {{ product.selectedWeight.stock }}</p>
+            </div>
+
+            <ion-button expand="block" fill="outline" color="secondary" class="add-to-cart-button" (click)="addToCart(product)">
               Agregar al carrito
             </ion-button>
           </ion-card-content>

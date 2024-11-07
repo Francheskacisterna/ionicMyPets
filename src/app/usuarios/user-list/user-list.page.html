@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Lista de Usuarios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-searchbar
+    [(ngModel)]="filterTerm"
+    (ionInput)="filterUsers($event)"
+    placeholder="Buscar usuario">
+  </ion-searchbar>
+
+  <!-- Nueva lista con navegación a los detalles del usuario -->
+  <ion-list *ngIf="filteredUsuarios.length > 0">
+    <ion-item *ngFor="let usuario of filteredUsuarios" (click)="goToUserDetail(usuario)">
+      <ion-label>
+        <h2>{{ usuario.nombre }}</h2>
+        <p>{{ usuario.rol }}</p>
+      </ion-label>
+      <ion-buttons slot="end">
+        <!-- Solo permitir la edición si usuario.id está definido -->
+        <ion-button *ngIf="usuario.id" fill="clear" color="primary" (click)="editUser(usuario)" (click)="$event.stopPropagation()">
+          <ion-icon name="create"></ion-icon>
+        </ion-button>
+        <ion-button *ngIf="usuario.id" fill="clear" color="danger" (click)="deleteUser(usuario.id)" (click)="$event.stopPropagation()">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>    
+  </ion-list>
+  <!-- Botón para agregar un nuevo usuario -->
+  <ion-button expand="block" color="secondary" (click)="goToAddUser()">
+    Agregar Nuevo Usuario
+  </ion-button>
+
+  <!-- Botón para ver todos los usuarios -->
+  <ion-button expand="block" color="primary" (click)="goToUserAll()" class="beautiful-button">
+    Volver
+  </ion-button>
+</ion-content>
+

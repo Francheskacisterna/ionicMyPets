@@ -1,0 +1,378 @@
+{
+  "productos": [
+    {
+      "id": "dfb48c46-eebf-4095-9810-0873e09e2d90",
+      "nombre": "Bravery Salmon Adult Cat",
+      "descripcion": "Alimento para gatos adultos con salmón.",
+      "precio": 16990,
+      "stock": 900,
+      "categoria": "gato",
+      "imagen": "http://192.168.1.23:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000032.1730968403428.jpeg"
+    },
+    {
+      "id": "4d244355-e564-4f5f-8dc4-736bb0930231",
+      "nombre": "Britcare Haircare Cat",
+      "descripcion": "Alimento especializado para el cuidado del pelo.",
+      "precio": 24990,
+      "stock": 600,
+      "categoria": "gato",
+      "imagen": "http://192.168.1.23:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000031.1730784559474.jpeg"
+    },
+    {
+      "id": "cb6b56a5-da0b-401e-9255-88191cbc2f76",
+      "nombre": "Royal Canin Sensible",
+      "descripcion": "Alimento para gatos con digestión sensible.",
+      "precio": 16990,
+      "stock": 300,
+      "categoria": "gato",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000033.1730763529502.jpeg"
+    },
+    {
+      "id": "db5e8ff3-4251-487c-9c44-d57848f8e507",
+      "nombre": "Acana Kitten",
+      "descripcion": "Alimento para gatitos, rico en nutrientes.",
+      "precio": 19990,
+      "stock": 600,
+      "categoria": "gato",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000029.1730763543281.jpeg"
+    },
+    {
+      "id": "83a91c8a-65d8-4ad4-87ef-56fcd973a253",
+      "nombre": "Tropican High Performance Biscuits Loros",
+      "descripcion": "Barras ricas en proteínas para loros en crecimiento o altamente activos. Ayuda a mantener el rendimiento físico.",
+      "precio": 10990,
+      "stock": 200,
+      "categoria": "aves",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000026.1730763680848.jpeg"
+    },
+    {
+      "id": "642dc900-2a2f-4b5f-a303-642c28a559d9",
+      "nombre": "Tropican Mantención Loros",
+      "descripcion": "Alimento completo para loros, formulado para el mantenimiento diario y balance adecuado de nutrientes.",
+      "precio": 12990,
+      "stock": 200,
+      "categoria": "aves",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000027.1730763711031.jpeg"
+    },
+    {
+      "id": "053146e6-fc1b-42a3-bd47-af4945774d41",
+      "nombre": "Mazuri Large Bird",
+      "descripcion": "Alimento especializado para aves grandes, proporciona todos los nutrientes esenciales para una dieta completa.",
+      "precio": 29990,
+      "stock": 300,
+      "categoria": "aves",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000024.1730763734000.jpeg"
+    },
+    {
+      "id": "827f5968-0eff-4baa-a032-f858bfc02a49",
+      "nombre": "Tropican High Performance",
+      "descripcion": "Alimento alto en energía para aves reproductoras o en crecimiento. Favorece el desarrollo y la vitalidad.",
+      "precio": 12990,
+      "stock": 200,
+      "categoria": "aves",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000025.1730763757248.jpeg"
+    },
+    {
+      "id": "08223a0f-19c5-4223-906b-a15a4ecf58e7",
+      "nombre": "Bravery Iberian Pork Adult Large Breeds",
+      "descripcion": "'Alimento sin cereales para perros con carne de cerdo ibérico. Proporciona proteínas de alta calidad y es hipoalergénico.",
+      "precio": 15990,
+      "stock": 600,
+      "categoria": "perro",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000019.1730763792861.jpeg"
+    },
+    {
+      "id": "1f10290a-b27a-4171-b1d1-69fcd5a6d9d0",
+      "nombre": "Royal Canin Adult Poodle",
+      "descripcion": "Alimento formulado especialmente para perros de raza Poodle, mejorando la salud del pelaje y la digestión.",
+      "precio": 13490,
+      "stock": 600,
+      "categoria": "perro",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000023.1730763811215.jpeg"
+    },
+    {
+      "id": "fef10d6e-1281-45ff-ae14-be8e6bba043a",
+      "nombre": "Acana Puppy Recipe",
+      "descripcion": "Alimento natural para cachorros, rico en nutrientes esenciales para un crecimiento saludable.",
+      "precio": 19990,
+      "stock": 600,
+      "categoria": "perro",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000021.1730763829720.jpeg"
+    },
+    {
+      "id": "ae50eb60-0041-448c-9645-0d121181c01d",
+      "nombre": "Brit Care Grain Free Puppy Salmon & Potato",
+      "descripcion": "Alimento sin granos para cachorros con salmón y papa, ideal para cachorros con sensibilidades digestivas.",
+      "precio": 12990,
+      "stock": 600,
+      "categoria": "perro",
+      "imagen": "http://10.16.54.247:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000020.1730763851356.jpeg"
+    }
+  ],
+  "pesos": [
+    {
+      "id": "acc04387-bc9c-445d-a4f9-4197fcba566e",
+      "size": 2,
+      "price": 16990,
+      "stock": 3000,
+      "producto_id": "dfb48c46-eebf-4095-9810-0873e09e2d90"
+    },
+    {
+      "id": "9e0222c3-9f9d-481f-a7b4-af3bb099a4b7",
+      "size": 2,
+      "price": 24990,
+      "stock": 200,
+      "producto_id": "4d244355-e564-4f5f-8dc4-736bb0930231"
+    },
+    {
+      "id": "676d2a60-cf16-430c-9d55-a7c073edfe3c",
+      "size": 6,
+      "price": 69909,
+      "stock": 200,
+      "producto_id": "4d244355-e564-4f5f-8dc4-736bb0930231"
+    },
+    {
+      "id": "8f878883-45e9-4f6a-8d5d-7277ad5196f3",
+      "size": 11.4,
+      "price": 119990,
+      "stock": 200,
+      "producto_id": "4d244355-e564-4f5f-8dc4-736bb0930231"
+    },
+    {
+      "id": "bb7723fc-da28-4fff-b569-b75a564751c9",
+      "size": 7,
+      "price": 54990,
+      "stock": 300,
+      "producto_id": "dfb48c46-eebf-4095-9810-0873e09e2d90"
+    },
+    {
+      "id": "ddd9c67f-b808-434c-9c92-7b9e305f9fba",
+      "size": 12,
+      "price": 84990,
+      "stock": 300,
+      "producto_id": "dfb48c46-eebf-4095-9810-0873e09e2d90"
+    },
+    {
+      "id": "198b90f4-dda7-4395-ae43-e5be0c20ffcc",
+      "size": 2,
+      "price": 16990,
+      "stock": 100,
+      "producto_id": "cb6b56a5-da0b-401e-9255-88191cbc2f76"
+    },
+    {
+      "id": "a5fa30f5-3fe2-4a78-a60f-9d9672d126d0",
+      "size": 10,
+      "price": 74990,
+      "stock": 100,
+      "producto_id": "cb6b56a5-da0b-401e-9255-88191cbc2f76"
+    },
+    {
+      "id": "73c9162b-d006-4d42-b87c-303e88903ecd",
+      "size": 1.8,
+      "price": 19.99,
+      "stock": 200,
+      "producto_id": "db5e8ff3-4251-487c-9c44-d57848f8e507"
+    },
+    {
+      "id": "f407b162-7487-486f-be15-5dd2949c1c9e",
+      "size": 4.5,
+      "price": 49990,
+      "stock": 200,
+      "producto_id": "db5e8ff3-4251-487c-9c44-d57848f8e507"
+    },
+    {
+      "id": "b58eb205-cd5f-4e9a-a534-d97704b76d0f",
+      "size": 9,
+      "price": 99990,
+      "stock": 300,
+      "producto_id": "db5e8ff3-4251-487c-9c44-d57848f8e507"
+    },
+    {
+      "id": "1bd4aa6a-9145-4128-8503-8aaca5f1b4f5",
+      "size": 1,
+      "price": 10990,
+      "stock": 100,
+      "producto_id": "83a91c8a-65d8-4ad4-87ef-56fcd973a253"
+    },
+    {
+      "id": "e4b03d92-076d-447e-918c-89f8d263b028",
+      "size": 2,
+      "price": 18990,
+      "stock": 100,
+      "producto_id": "83a91c8a-65d8-4ad4-87ef-56fcd973a253"
+    },
+    {
+      "id": "a5d55004-085e-4eef-8ede-07f5f977b2d6",
+      "size": 1,
+      "price": 12990,
+      "stock": 100,
+      "producto_id": "642dc900-2a2f-4b5f-a303-642c28a559d9"
+    },
+    {
+      "id": "d9ee6ac2-2920-487e-b632-b301f4645ec4",
+      "size": 3,
+      "price": 34990,
+      "stock": 100,
+      "producto_id": "642dc900-2a2f-4b5f-a303-642c28a559d9"
+    },
+    {
+      "id": "407f60bc-7ba6-4cdc-ae01-0acf95d7eeaf",
+      "size": 2,
+      "price": 29990,
+      "stock": 150,
+      "producto_id": "053146e6-fc1b-42a3-bd47-af4945774d41"
+    },
+    {
+      "id": "b6301cb1-9f6f-46a4-b624-e3418d0fd8e9",
+      "size": 5,
+      "price": 59990,
+      "stock": 150,
+      "producto_id": "053146e6-fc1b-42a3-bd47-af4945774d41"
+    },
+    {
+      "id": "ddd91d8d-0d74-4161-a090-55e02f5c6ca0",
+      "size": 1,
+      "price": 12990,
+      "stock": 100,
+      "producto_id": "827f5968-0eff-4baa-a032-f858bfc02a49"
+    },
+    {
+      "id": "31dde529-7dc9-4ff5-8fbf-c2ba84eb574f",
+      "size": 2,
+      "price": 26990,
+      "stock": 100,
+      "producto_id": "827f5968-0eff-4baa-a032-f858bfc02a49"
+    },
+    {
+      "id": "516e6659-fc43-4844-b07c-0786d96ce2d7",
+      "size": 2,
+      "price": 15990,
+      "stock": 200,
+      "producto_id": "08223a0f-19c5-4223-906b-a15a4ecf58e7"
+    },
+    {
+      "id": "c1d314ab-693c-44b3-afd7-ec275c9963f2",
+      "size": 7,
+      "price": 49990,
+      "stock": 200,
+      "producto_id": "08223a0f-19c5-4223-906b-a15a4ecf58e7"
+    },
+    {
+      "id": "f88261a2-4f21-40fa-a7d4-285a23e08ac4",
+      "size": 12,
+      "price": 79990,
+      "stock": 200,
+      "producto_id": "08223a0f-19c5-4223-906b-a15a4ecf58e7"
+    },
+    {
+      "id": "bc0b960c-0a1a-4749-a21b-f9c09e2bef4b",
+      "size": 1.5,
+      "price": 13500,
+      "stock": 200,
+      "producto_id": "1f10290a-b27a-4171-b1d1-69fcd5a6d9d0"
+    },
+    {
+      "id": "58bf0f8f-aa46-4635-8d69-da3411090b6e",
+      "size": 7,
+      "price": 55990,
+      "stock": 200,
+      "producto_id": "1f10290a-b27a-4171-b1d1-69fcd5a6d9d0"
+    },
+    {
+      "id": "48242dc0-f110-485f-8ad5-3b48bd7dc639",
+      "size": 10,
+      "price": 79990,
+      "stock": 200,
+      "producto_id": "1f10290a-b27a-4171-b1d1-69fcd5a6d9d0"
+    },
+    {
+      "id": "4545f1da-b7ca-4529-9205-39a1b38a8d03",
+      "size": 2,
+      "price": 19990,
+      "stock": 200,
+      "producto_id": "fef10d6e-1281-45ff-ae14-be8e6bba043a"
+    },
+    {
+      "id": "4ee9d6e8-2817-4e75-9f2c-8287eb07ed7c",
+      "size": 5,
+      "price": 49990,
+      "stock": 200,
+      "producto_id": "fef10d6e-1281-45ff-ae14-be8e6bba043a"
+    },
+    {
+      "id": "90a1b409-c93a-40b5-9823-3d37e0d986ff",
+      "size": 12,
+      "price": 99990,
+      "stock": 200,
+      "producto_id": "fef10d6e-1281-45ff-ae14-be8e6bba043a"
+    },
+    {
+      "id": "44ceadcf-dfd1-4ebe-ad8f-8d186cc811da",
+      "size": 1.5,
+      "price": 12990,
+      "stock": 200,
+      "producto_id": "ae50eb60-0041-448c-9645-0d121181c01d"
+    },
+    {
+      "id": "ec80fd56-b223-43a1-9f62-1ee948183b3c",
+      "size": 5,
+      "price": 34990,
+      "stock": 200,
+      "producto_id": "ae50eb60-0041-448c-9645-0d121181c01d"
+    },
+    {
+      "id": "5a1ae721-ca4f-464b-aefb-d80669b65b60",
+      "size": 10,
+      "price": 69990,
+      "stock": 200,
+      "producto_id": "ae50eb60-0041-448c-9645-0d121181c01d"
+    },
+    {
+      "id": "6d305b54-11b5-4dd1-ad42-3984ceee32ba",
+      "producto_id": "6e8b76aa-73ea-4823-a465-4b7307757ff6",
+      "size": "222",
+      "price": 333,
+      "stock": 33
+    }
+  ],
+  "usuarios": [
+    {
+      "id": "7833-9759-780c-fc99",
+      "nombre": "Francheska Cisterna P",
+      "contrasena": "Domi.3007",
+      "rol": "administrador",
+      "correo": "fran@f.cl",
+      "fechaNacimiento": "1994-09-14T16:02:00",
+      "sexo": "Mujer"
+    },
+    {
+      "id": "455b-98ea-d4ed-381f",
+      "nombre": "Julio Cisterna",
+      "contrasena": "Domi.3007",
+      "rol": "empleado",
+      "correo": "j@f.cl",
+      "fechaNacimiento": "1992-11-04T16:03:00",
+      "sexo": "Hombre",
+      "synced": 0
+    },
+    {
+      "id": "a229-9358-982f-3487",
+      "nombre": "Dominique Nudelman",
+      "contrasena": "Domi.3007",
+      "rol": "usuario",
+      "correo": "domi@f.cl",
+      "fechaNacimiento": "1993-06-16T04:00:00.000Z",
+      "sexo": "Mujer"
+    },
+    {
+      "id": "1c9a-f41a-bc07-8ca9",
+      "nombre": "Prueba1",
+      "contrasena": "Domi.3007",
+      "rol": "administrador",
+      "correo": "k@d.cl",
+      "fechaNacimiento": "1989-01-17T05:22:00",
+      "sexo": "No Binario",
+      "synced": 0
+    }
+  ]
+}

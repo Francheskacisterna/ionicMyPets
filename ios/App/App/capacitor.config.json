@@ -1,0 +1,12 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "Pawsy",
+	"webDir": "www",
+	"packageClassList": [
+		"AppPlugin",
+		"HapticsPlugin",
+		"KeyboardPlugin",
+		"CAPNetworkPlugin",
+		"StatusBarPlugin"
+	]
+}

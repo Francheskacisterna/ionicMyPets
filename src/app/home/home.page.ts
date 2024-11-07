@@ -1,5 +1,6 @@
+// home.page.ts
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -7,28 +8,19 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-  data: any = {}; // Inicializar como un objeto vacío
+  nombreUsuario: string = '';
 
-  constructor(
-    private router: Router,
-    private activeroute: ActivatedRoute
-  ) {
-    this.activeroute.queryParams.subscribe(params => {
-      const navigation = this.router.getCurrentNavigation();
-      if (navigation && navigation.extras.state && navigation.extras.state) {
-        this.data = navigation.extras.state;
+  constructor(private router: Router) {}
 
-        // Validar que el usuario y la contraseña existan
-        if (this.data.user && this.data.user.usuario && this.data.user.password) {
-          console.log(this.data.user); // Usuario completo
-          console.log(this.data.user.usuario); // Nombre de usuario
-          console.log(this.data.user.password); // Contraseña
-        } else {
-          console.log('Datos de usuario no válidos o incompletos');
-        }
-      }
-    });
+  ngOnInit() {
+    const navigation = this.router.getCurrentNavigation();
+
+    // Intenta obtener `nombreUsuario` desde `state`
+    if (navigation?.extras?.state?.['nombreUsuario']) {
+      this.nombreUsuario = navigation.extras.state['nombreUsuario'];
+    } else {
+      // Si `nombreUsuario` no está en `state`, lo obtenemos de `localStorage`
+      this.nombreUsuario = localStorage.getItem('userName') || 'Usuario';
+    }
   }
-
-  ngOnInit() {}
 }

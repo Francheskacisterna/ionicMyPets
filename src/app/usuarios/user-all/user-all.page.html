@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Pawsy</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Imagen de bienvenida -->
+  <div class="welcome-section">
+    <img src="assets/images/imghome4.webp" alt="Bienvenido a Pawsy" class="welcome-image"/>
+    <h1 class="welcome-text">Bienvenido a Gestión de Usuarios</h1>
+    <p class="welcome-description">
+      Aquí puedes gestionar todos tus usuarios. Usa las opciones a continuación para agregar nuevos usuarios o ver la lista completa.
+    </p>
+  </div>
+
+  <!-- Botón para ver todos los usuarios -->
+  <ion-button expand="block" color="primary" (click)="goToUserList()" class="main-button">
+    Lista de Usuarios
+  </ion-button>
+
+  <!-- Botón para agregar un nuevo usuario -->
+  <ion-button expand="block" color="secondary" (click)="addUser()" class="main-button">
+    Agregar Nuevo Usuario
+  </ion-button>
+</ion-content>

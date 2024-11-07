@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title class="ion-text-center">Lista de Productos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/productos/product-add" color="secondary">
+        Agregar Producto
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-searchbar
+    [(ngModel)]="filterTerm"
+    (ionInput)="filterProducts($event)"
+    placeholder="Buscar producto">
+  </ion-searchbar>
+
+  <ion-list *ngIf="filteredProducts.length > 0">
+    <ion-item *ngFor="let product of filteredProducts" (click)="viewProductDetails(product)">
+      <ion-thumbnail slot="start" class="thumbnail-image">
+        <ion-img [src]="product.imagen ? product.imagen : 'assets/logo_pawsy.png'" class="product-image"></ion-img>
+      </ion-thumbnail>
+  
+      <ion-label>
+        <h2>{{ product.nombre }}</h2>
+        <p>{{ product.descripcion }}</p>
+  
+        <!-- Mostrar opciones de peso, si existen -->
+        <div *ngIf="product.weightOptions && product.weightOptions.length > 0">
+          <h3>Opciones de Peso:</h3>
+          <ul>
+            <li *ngFor="let weight of product.weightOptions">
+              {{ weight.size }} kg - ${{ weight.price }} - Stock: {{ weight.stock }}
+            </li>
+          </ul>
+        </div>
+      </ion-label>
+  
+      <ion-buttons slot="end">
+        <ion-button *ngIf="product.id" fill="clear" color="primary" (click)="editProduct(product)" (click)="$event.stopPropagation()">
+          <ion-icon name="create"></ion-icon>
+        </ion-button>
+        <ion-button *ngIf="product.id" fill="clear" color="danger" (click)="deleteProduct(product.id)" (click)="$event.stopPropagation()">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+  
+  <div *ngIf="filteredProducts.length === 0" class="no-products">
+    <p>No hay productos disponibles.</p>
+  </div>
+
+  <ion-button expand="full" color="secondary" routerLink="/productos/product-add">
+    Agregar Nuevo Producto
+  </ion-button>
+  <ion-button expand="full" color="light" routerLink="/productos/product-all">
+    <ion-icon name="arrow-back"></ion-icon>
+    Volver
+  </ion-button>
+</ion-content>

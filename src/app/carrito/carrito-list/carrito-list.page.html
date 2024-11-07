@@ -1,0 +1,57 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Carrito de Compras</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Mensaje de carrito vacío -->
+  <ion-card *ngIf="cartItems.length === 0">
+    <ion-card-content>
+      <ion-text color="medium">El carrito está vacío</ion-text>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de productos en el carrito -->
+  <ion-list *ngIf="cartItems.length > 0">
+    <ion-item *ngFor="let item of cartItems" class="cart-item">
+      <!-- Mostrar la imagen del producto -->
+      <ion-thumbnail slot="start" class="product-thumbnail">
+        <img [src]="item.imagen || 'assets/default-image.png'" alt="{{ item.productName }}" />
+      </ion-thumbnail>
+
+      <ion-label>
+        <h2>{{ item.productName }}</h2>
+        <div class="product-info">
+          <p>Cantidad: <span>{{ item.quantity }}</span></p>
+          <p>Precio: <span>{{ item.price | currency }}</span></p>
+          <p *ngIf="item.selectedWeight">Peso: <span>{{ item.selectedWeight.size }} kg</span></p>
+          <p>Total: <span>{{ item.total | currency }}</span></p>
+        </div>
+      </ion-label>
+
+      <div class="button-group">
+        <!-- Botón para editar la cantidad -->
+        <ion-button color="tertiary" (click)="editCartItemQuantity(item)" expand="full">Editar</ion-button>
+
+        <!-- Botón para eliminar el producto del carrito -->
+        <ion-button color="danger" (click)="removeFromCart(item)" expand="full">Eliminar</ion-button>
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <!-- Mostrar el total del carrito -->
+  <ion-card *ngIf="cartItems.length > 0">
+    <ion-card-content>
+      <ion-text color="primary">
+        <h2>Total del Carrito: {{ cartTotal | currency }}</h2>
+      </ion-text>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Botón para vaciar el carrito -->
+  <ion-button *ngIf="cartItems.length > 0" expand="full" color="danger" (click)="clearCart()">Vaciar Carrito</ion-button>
+  <!-- Botón para crear un pedido -->
+  <ion-button *ngIf="cartItems.length > 0" expand="full" color="success" (click)="goToPedidoAdd()">Crear Pedido</ion-button>
+</ion-content>
+

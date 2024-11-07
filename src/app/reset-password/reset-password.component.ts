@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { ModalController, AlertController, AnimationController } from '@ionic/angular';
+import { ModalController, AlertController, AnimationController, LoadingController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AutenticacionService } from '../autenticacion.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -14,26 +15,26 @@ export class ResetPasswordComponent {
     private modalCtrl: ModalController,
     private formBuilder: FormBuilder,
     private alertController: AlertController,
-    private animationCtrl: AnimationController // Inyectamos el AnimationController
+    private animationCtrl: AnimationController,
+    private authService: AutenticacionService,
+    private loadingController: LoadingController
   ) {
     this.resetPasswordForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]]
     });
   }
 
-  // Aplicar animación al abrir el modal directamente en el ciclo de vida
   ionViewWillEnter() {
     this.animateModalEntrance();
   }
 
-  // Animación para la entrada del modal
   private animateModalEntrance() {
     const modalElement = document.querySelector('.modal-content');
     if (modalElement) {
       const enterAnimation = this.animationCtrl
         .create()
         .addElement(modalElement)
-        .duration(400) // Cambiamos la duración a 400ms para que sea más rápida
+        .duration(400)
         .easing('ease-out')
         .fromTo('transform', 'translateY(100%)', 'translateY(0%)')
         .fromTo('opacity', 0, 1);
@@ -43,43 +44,54 @@ export class ResetPasswordComponent {
   }
 
   dismissModal() {
-    const modalElement = document.querySelector('.modal-content');
-    if (modalElement) {
-      const exitAnimation = this.animationCtrl
-        .create()
-        .addElement(modalElement)
-        .duration(400) // La animación de salida tiene la misma duración que la de entrada
-        .easing('ease-in')
-        .fromTo('transform', 'translateY(0%)', 'translateY(100%)')
-        .fromTo('opacity', 1, 0);
-
-      // Espera a que la animación termine antes de cerrar el modal
-      exitAnimation.play().then(() => {
-        this.modalCtrl.dismiss();
-      });
-    }
+    this.modalCtrl.dismiss();
   }
 
   async recoverPassword() {
-    const email = this.resetPasswordForm.get('email')?.value ?? '';
+    const email = this.resetPasswordForm.get('email')?.value;
     if (email) {
-      console.log('Correo para recuperación:', email);
-      // Aquí va la lógica para enviar el correo
+      // Mostrar un mensaje de carga mientras se procesa la solicitud
+      const loading = await this.loadingController.create({
+        message: 'Enviando solicitud...',
+        spinner: 'crescent'
+      });
+      await loading.present();
 
-      this.dismissModal();
-      await this.presentSuccessAlert();
+      this.authService.recoverPassword(email).subscribe(async (success) => {
+        await loading.dismiss(); // Quitar el mensaje de carga
+
+        if (success) {
+          await this.presentSuccessAlert();
+          this.dismissModal();
+        } else {
+          await this.presentErrorAlert('No se encontró ninguna cuenta con el correo ingresado.');
+        }
+      }, async (error) => {
+        // Manejar errores adicionales
+        await loading.dismiss();
+        await this.presentErrorAlert('Error al enviar solicitud de recuperación. Inténtelo nuevamente.');
+        console.error('Error en recoverPassword:', error);
+      });
     } else {
-      alert('Por favor, revisa los datos ingresados.');
+      await this.presentErrorAlert('Por favor, ingresa un correo electrónico válido.');
     }
   }
 
   async presentSuccessAlert() {
     const alert = await this.alertController.create({
       header: 'Éxito',
-      message: 'La recuperación de contraseña ha sido enviada a su correo.',
+      message: 'Se ha enviado un correo para restablecer la contraseña.',
       buttons: ['OK']
     });
+    await alert.present();
+  }
 
+  async presentErrorAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message,
+      buttons: ['OK']
+    });
     await alert.present();
   }
 }

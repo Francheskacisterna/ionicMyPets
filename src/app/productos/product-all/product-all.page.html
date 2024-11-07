@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Pawsy - Gestión de Productos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Sección de bienvenida -->
+  <div class="welcome-section">
+    <img src="assets/images/imghome1.jpg" alt="Bienvenido a Pawsy" class="welcome-image"/>
+    <h1 class="welcome-text">Bienvenido a Gestión de Productos</h1>
+    <p class="welcome-description">
+      Aquí puedes gestionar todos tus productos. Usa las opciones a continuación para agregar nuevos productos o ver la lista completa.
+    </p>
+  </div>
+
+  <!-- Botón para ver todos los productos -->
+  <ion-button expand="block" color="primary" (click)="goToProductList()" class="main-button">
+    Lista de Productos
+  </ion-button>
+
+  <!-- Botón para agregar un nuevo producto -->
+  <ion-button expand="block" color="secondary" (click)="addProduct()" class="main-button">
+    Agregar Nuevo Producto
+  </ion-button>
+</ion-content>

@@ -11,16 +11,21 @@
       <ion-list>
         <ion-item (click)="navigateToHome()">Inicio</ion-item>
 
-        <!-- Mostrar solo si el usuario NO está autenticado -->
+        <!-- Mostrar solo si el usuario NO está autenticado (invitado) -->
         <ion-item (click)="navigateToLogin()" *ngIf="!isAuthenticated">Iniciar Sesión</ion-item>
         <ion-item (click)="navigateToRegister()" *ngIf="!isAuthenticated">Registro</ion-item>
+
+        <!-- Acceso a todos los roles, incluido invitado -->
         <ion-item (click)="navigateToGato()">Gatos</ion-item>
         <ion-item (click)="navigateToPerro()">Perros</ion-item>
         <ion-item (click)="navigateToAve()">Aves</ion-item>
-
+        <!-- Opciones en el menú basadas en el rol del usuario -->
+        <ion-item (click)="navigateToProductAll()" *ngIf="userRole === 'empleado' || userRole === 'administrador'">
+          Gestión de productos
+        </ion-item>        
+        <ion-item (click)="navigateToUserAll()" *ngIf="userRole === 'administrador'">Gestión de Usuarios</ion-item>
         <!-- Mostrar solo si el usuario está autenticado -->
         <ion-item (click)="logout()" *ngIf="isAuthenticated">Cerrar Sesión</ion-item>
-
       </ion-list>
     </ion-content>
   </ion-menu>
@@ -33,25 +38,26 @@
           <mat-icon>menu</mat-icon>
         </button>
       </ion-menu-toggle>
-      <span class="brand-title">Pawsy</span>
-      <span class="spacer"></span>
-      <button mat-icon-button (click)="toggleSearch()"> <!-- Añadimos el evento para mostrar la barra de búsqueda -->
+      <button mat-icon-button (click)="toggleSearch()">
         <mat-icon>search</mat-icon>
       </button>
-      <button mat-icon-button>
-        <mat-icon>place</mat-icon>
+      <span class="brand-title">Pawsy</span>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="getCurrentPosition()">
+        <mat-icon class="icon-location">place</mat-icon>
       </button>
-      <button mat-icon-button>
+      <button mat-icon-button (click)="navigateToCartList()" class="cart-icon">
         <mat-icon>shopping_cart</mat-icon>
-      </button>
+        <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
+      </button>             
     </mat-toolbar>
 
-    <!-- Barra de búsqueda, que se muestra u oculta según la acción de la lupa -->
+    <!-- Barra de búsqueda -->
     <ion-searchbar *ngIf="isSearchBarVisible" placeholder="Buscar" (ionInput)="filterItems($event)"></ion-searchbar>
   </ion-header>
 
   <ion-content>
-    <!-- Aquí mostrará los resultados filtrados de la búsqueda -->
+    <!-- Resultados de la búsqueda -->
     <ion-list>
       <ion-item *ngFor="let item of filteredItems">
         {{ item }}

@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Agregar Producto</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToProductAll()">
+        <ion-icon slot="icon-only" name="list"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding product-add-content">
+  <form [formGroup]="productForm" (ngSubmit)="addProduct()">
+    <ion-item class="styled-input">
+      <ion-label position="floating">Nombre del Producto</ion-label>
+      <ion-input formControlName="nombre" type="text" required></ion-input>
+    </ion-item>
+
+    <ion-item class="styled-input">
+      <ion-label position="floating">Descripción</ion-label>
+      <ion-input formControlName="descripcion" type="text" required></ion-input>
+    </ion-item>
+
+    <ion-item class="styled-input">
+      <ion-label position="floating">Precio Base</ion-label>
+      <ion-input formControlName="precio" type="number" required></ion-input>
+    </ion-item>
+
+    <ion-item class="styled-input">
+      <ion-label position="floating">Stock Inicial</ion-label>
+      <ion-input formControlName="stock" type="number" required></ion-input>
+    </ion-item>
+
+    <ion-item class="styled-input">
+      <ion-label>Categoría</ion-label>
+      <ion-select formControlName="categoria" placeholder="Selecciona Categoría" required>
+        <ion-select-option value="perro">Perro</ion-select-option>
+        <ion-select-option value="gato">Gato</ion-select-option>  
+        <ion-select-option value="aves">Aves</ion-select-option> 
+      </ion-select>
+    </ion-item>
+
+    <!-- Sección para agregar y mostrar imagen -->
+    <ion-item lines="none">
+      <ion-label>Imagen del Producto</ion-label>
+      <ion-button color="primary" expand="full" (click)="selectImage()">
+        <ion-icon slot="start" name="camera"></ion-icon>
+        Seleccionar Imagen
+      </ion-button>
+    </ion-item>
+
+    <div *ngIf="productImage" class="image-preview">
+      <img [src]="productImage" alt="Imagen del producto" />
+      <ion-button color="danger" expand="full" (click)="deleteImage()">
+        <ion-icon slot="start" name="trash"></ion-icon>
+        Eliminar Imagen
+      </ion-button>
+    </div>
+
+    <!-- Lista dinámica de opciones de peso -->
+    <ion-item *ngFor="let weight of weightOptions.controls; let i = index" [formGroup]="getWeightFormGroup(i)">
+      <ion-label position="floating">Peso</ion-label>
+      <ion-input formControlName="size" type="number" placeholder="Kg" required></ion-input>
+      <ion-label position="floating">Precio</ion-label>
+      <ion-input formControlName="price" type="number" placeholder="Precio" required></ion-input>
+      <ion-label position="floating">Stock</ion-label>
+      <ion-input formControlName="stock" type="number" placeholder="Stock" required></ion-input>
+      <ion-button color="danger" (click)="removeWeightOption(i)">Eliminar</ion-button>
+    </ion-item>    
+    
+    <ion-button expand="full" color="secondary" (click)="addWeightOption()">
+      Agregar Opción de Peso
+    </ion-button>
+
+    <ion-button expand="full" type="submit" color="success" [disabled]="!productForm.valid">
+      <ion-icon slot="start" name="add-circle"></ion-icon>
+      Agregar Producto
+    </ion-button>
+  </form>
+
+  <!-- Botón para volver a la lista de productos -->
+  <ion-button expand="full" color="tertiary" (click)="goToProductAll()">
+    <ion-icon slot="start" name="arrow-back"></ion-icon>
+    Volver
+  </ion-button>
+</ion-content>
