@@ -28,6 +28,6 @@ export class UserDetailPage implements OnInit {
 
   // Función para regresar a la lista de usuarios
   goBackToList() {
-    this.router.navigate(['/usuarios/user-all']);  // Regresar a la lista de usuarios
+    this.router.navigate(['/usuarios/user-list']);  // Regresar a la lista de usuarios
   }
 }

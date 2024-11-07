@@ -20,7 +20,7 @@ export class CarritoListPage implements OnInit {
     private productService: ProductService,
     private alertController: AlertController,
     private router: Router  // Inyecta el Router
-  ) {}
+  ) { }
 
   async ngOnInit() {
     const apiAvailable = await this.productService.isApiAvailable();
@@ -100,7 +100,7 @@ export class CarritoListPage implements OnInit {
             const newQuantity = parseInt(data.quantity, 10);
             if (newQuantity > 0 && newQuantity !== item.quantity) {
               const difference = newQuantity - item.quantity;
-              
+
               // Actualiza la cantidad en el carrito y recalcula el total
               item.quantity = newQuantity;
               item.total = newQuantity * item.price;
@@ -121,6 +121,9 @@ export class CarritoListPage implements OnInit {
 
               // Actualizar el carrito en el servicio
               this.cartService.updateCartItem(item);
+              // Llama a updateCartItemCount para actualizar el contador en la cabecera
+              this.cartService['updateCartItemCount']();
+
             }
           },
         },

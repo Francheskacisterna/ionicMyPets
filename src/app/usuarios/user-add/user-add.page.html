@@ -34,7 +34,14 @@
     <ion-text color="danger" *ngIf="userForm.get('contrasena')?.invalid && userForm.get('contrasena')?.touched">
       La contraseña es requerida y debe tener al menos 6 caracteres.
     </ion-text>
-
+    <ion-item class="styled-input">
+      <ion-label position="floating">Confirmar Contraseña</ion-label>
+      <ion-input formControlName="confirmarContrasena" type="password" required></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="userForm.hasError('passwordMismatch') && userForm.get('confirmarContrasena')?.touched">
+      Las contraseñas no coinciden.
+    </ion-text>
+    
     <ion-item class="styled-input">
       <ion-label>Fecha de Nacimiento</ion-label>
       <ion-datetime 

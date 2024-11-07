@@ -24,18 +24,27 @@ export class UserAddPage {
     this.userForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.minLength(6)]],
       contrasena: ['', [Validators.required, Validators.minLength(6)]],
+      confirmarContrasena: ['', Validators.required],
       rol: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
       fechaNacimiento: ['', [Validators.required, this.ageValidator]],  // Nuevo campo con validador de edad
       sexo: ['', Validators.required]
-    });
-      // Configura la fecha de hoy en formato YYYY-MM-DD
-      const todayDate = new Date();
-      this.today = todayDate.getFullYear() + '-' +
-                   String(todayDate.getMonth() + 1).padStart(2, '0') + '-' +
-                   String(todayDate.getDate()).padStart(2, '0');
-    }
+    }, { validators: this.passwordMatchValidator }); // Agregamos el validador personalizado
 
+    // Configura la fecha de hoy en formato YYYY-MM-DD
+    const todayDate = new Date();
+    this.today = todayDate.getFullYear() + '-' +
+                 String(todayDate.getMonth() + 1).padStart(2, '0') + '-' +
+                 String(todayDate.getDate()).padStart(2, '0');
+  }
+
+    // Validador personalizado para verificar que las contraseñas coincidan
+    passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+      const password = group.get('contrasena')?.value;
+      const confirmPassword = group.get('confirmarContrasena')?.value;
+      return password === confirmPassword ? null : { passwordMismatch: true };
+    }
+  
   // Validación personalizada para verificar si el usuario es mayor de 18 años
   ageValidator(control: AbstractControl): ValidationErrors | null {
     const birthDate = new Date(control.value);

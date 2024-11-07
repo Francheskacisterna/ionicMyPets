@@ -37,7 +37,7 @@ export class CartService {
     if (savedCart.length > 0) {
       for (const item of savedCart) {
         const product = await this.productService.getProductByIdSQLite(item.productId) ||
-                        await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
+          await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
 
         if (product) {
           // Restaurar el stock en caso de productos en el carrito guardado
@@ -56,8 +56,10 @@ export class CartService {
   // Actualiza el contador de cantidad total de productos en el carrito
   private updateCartItemCount() {
     const totalItems = this.cartItemsSubject.value.reduce((sum, item) => sum + item.quantity, 0);
+    console.log('Total de artículos en el carrito:', totalItems); // Agrega este console.log para verificar
     this.cartItemCountSubject.next(totalItems);
   }
+
 
   // Función para restaurar el stock de un producto o una opción de peso
   private async restoreStock(product: Product, quantity: number, selectedWeight?: WeightOption) {
@@ -136,7 +138,7 @@ export class CartService {
     if (itemIndex > -1) {
       const item = currentCart[itemIndex];
       const product = await this.productService.getProductByIdSQLite(item.productId) ||
-                      await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
+        await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
 
       if (product) {
         await this.restoreStock(product, item.quantity, item.selectedWeight);
@@ -154,7 +156,7 @@ export class CartService {
 
     for (const item of currentCart) {
       const product = await this.productService.getProductByIdSQLite(item.productId) ||
-                      await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
+        await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
 
       if (product) {
         await this.restoreStock(product, item.quantity, item.selectedWeight);
@@ -169,10 +171,10 @@ export class CartService {
 
   async updateCartItemQuantity(item: CartItem, newQuantity: number) {
     const difference = newQuantity - item.quantity;
-  
+
     const product = await this.productService.getProductByIdSQLite(item.productId) ||
-                    await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
-  
+      await firstValueFrom(this.productService.getProductByIdAPI(item.productId));
+
     if (product) {
       if (item.selectedWeight) {
         const weightOption = product.weightOptions?.find(w => w.id === item.selectedWeight?.id);
