@@ -98,25 +98,30 @@ export class ProductAddPage {
         categoria: this.productForm.value.categoria
       };
   
+      // Asigna el `producto_id` a cada opción de peso
+      const weightOptionsWithProductId = weightOptions.map((option: WeightOption) => ({
+        ...option,
+        id: this.generateId(),  // Generamos id para cada opción de peso
+        producto_id: productData.id  // Asignamos el producto_id como string
+      }));
+  
       try {
-        // Verifica si la API está disponible
+        // Guarda en SQLite siempre primero
+        await this.productService.addProductWithWeightsSQLite(productData, weightOptionsWithProductId);
+        console.log('Producto y opciones de peso añadidas en SQLite.');
+  
+        // Verifica si la API está disponible después de guardar en SQLite
         const isAPiAvailable = await this.productService.isApiAvailable();
-  
-        // Asigna el `producto_id` a cada opción de peso
-        const weightOptionsWithProductId = weightOptions.map((option: WeightOption) => ({
-          ...option,
-          id: this.generateId(),  // Generamos id para cada opción de peso
-          producto_id: productData.id  // Asignamos el producto_id como string
-        }));
-  
+        
         if (isAPiAvailable) {
-          // Guarda en la API directamente
+          // Si la API está disponible, sincroniza con la API
           await this.productService.addProductWithWeightsAPI(productData, weightOptionsWithProductId);
-          console.log('Producto y opciones de peso añadidas con éxito en la API.');
+          console.log('Producto y opciones de peso sincronizadas con éxito en la API.');
+          
+          // Elimina el producto y sus opciones de peso de SQLite después de sincronizar
+          await this.productService.deleteProductWithWeightsSQLite(productData.id!);
         } else {
-          // Si la API no está disponible, guarda en SQLite
-          await this.productService.addProductWithWeightsSQLite(productData, weightOptionsWithProductId);
-          console.log('Producto y opciones de peso añadidas en SQLite para sincronizar más tarde.');
+          console.log('La API no está disponible, el producto permanece en SQLite para sincronizar más tarde.');
         }
   
         // Redirecciona después de guardar el producto
@@ -130,6 +135,7 @@ export class ProductAddPage {
       console.log('Formulario inválido');
     }
   }
+  
   
 
   // Función para limpiar el formulario y restablecer las variables

@@ -5,7 +5,6 @@ import { ResetPasswordComponent } from '../reset-password/reset-password.compone
 import { AutenticacionService } from '../autenticacion.service';
 
 
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
@@ -59,6 +58,7 @@ export class LoginPage implements AfterViewInit {
     }
   }
 
+
 // Método para iniciar sesión con la API o SQLite
 login() {
   if (this.loginForm.valid) {
@@ -84,7 +84,6 @@ login() {
     alert('Por favor, revisa los datos ingresados.');
   }
 }
-
 
 
   async presentResetPasswordModal(event: Event) {

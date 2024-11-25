@@ -242,34 +242,41 @@ export class UserService {
   }
 
 
-  // Método para agregar un usuario con verificación de conexión
-  async addUsuario(usuario: Usuario): Promise<void> {
-    try {
-      // Asegurarse de que el ID es string
-      if (!usuario.id) {
-        usuario.id = this.generateUUID();  // Generar un ID si no está presente
-      } else {
-        usuario.id = usuario.id.toString();  // Asegurarse de que el ID existente sea string
-      }
-
-      const status = await Network.getStatus();
-      if (status.connected) {
-        const addedUsuario = await firstValueFrom(this.addUsuarioAPI(usuario));
-        if (addedUsuario && addedUsuario.id) {
-          console.log('Usuario añadido a la API:', JSON.stringify(addedUsuario));
-        } else {
-          throw new Error('No se pudo añadir el usuario a la API.');
-        }
-      } else {
-        throw new Error('Sin conexión a la red');
-      }
-    } catch (error) {
-      console.error('Error al añadir usuario:', error);
-      if (this.useSQLite) {
-        await this.addUsuarioSQLite(usuario);  // Guardar en SQLite en caso de falta de conexión
-      }
+// Método para agregar un usuario con verificación de conexión
+async addUsuario(usuario: Usuario): Promise<void> {
+  try {
+    // Asegurarse de que el ID es string
+    if (!usuario.id) {
+      usuario.id = this.generateUUID();  // Generar un ID si no está presente
+    } else {
+      usuario.id = usuario.id.toString();  // Asegurarse de que el ID existente sea string
     }
+
+    // Guardar el usuario en SQLite primero
+    await this.addUsuarioSQLite(usuario);
+
+    // Verificar el estado de la conexión de red
+    const status = await Network.getStatus();
+    if (status.connected) {
+      // Intentar sincronizar con la API
+      const addedUsuario = await firstValueFrom(this.addUsuarioAPI(usuario));
+      if (addedUsuario && addedUsuario.id) {
+        console.log('Usuario añadido a la API:', JSON.stringify(addedUsuario));
+        
+        // Si se sincroniza correctamente, marcar como sincronizado y eliminar de SQLite
+        await this.markUsuarioAsSyncedSQLite(usuario.id!);
+        await this.deleteUsuarioSQLite(usuario.id!);  // Eliminar después de sincronizar
+      } else {
+        console.warn('No se pudo añadir el usuario a la API. Se mantendrá en SQLite.');
+      }
+    } else {
+      console.log('Sin conexión a la red. El usuario permanece en SQLite.');
+    }
+  } catch (error) {
+    console.error('Error al añadir usuario:', error);
   }
+}
+
 
 
   // Actualizar usuario en SQLite
