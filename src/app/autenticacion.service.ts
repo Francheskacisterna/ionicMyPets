@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, of, firstValueFrom} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
 import { UserService, Usuario } from './usuarios/user.service'; 
+import { environment } from '../environments/environment';
 
 
 export interface User {
@@ -17,7 +18,7 @@ export interface User {
 })
 export class AutenticacionService {
   private _isAuthenticated = new BehaviorSubject<boolean>(this.checkStoredToken());
-  private apiUrl = 'http://10.0.2.2:3000/usuarios'; // URL de la API
+  private apiUrl = `${environment.apiUrl}/usuarios`;
 
   constructor(private http: HttpClient, private userService: UserService) {}
 

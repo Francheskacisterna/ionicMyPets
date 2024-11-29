@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { Geolocation } from '@capacitor/geolocation';
 import { HttpClient } from '@angular/common/http';
 import { ProductService } from './productos/product-service.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -218,7 +219,7 @@ mostrarUbicacion() {
       formData.append('image', new File([file], customFileName));
   
       // Guardar solo el nombre del archivo en la API
-      this.http.post('http://10.0.2.2:3000/productos', {
+      this.http.post(`${environment.apiUrl}/productos`, {
         imagen: customFileName,  // Solo el nombre, no el contenido base64
         nombre: "yyyy",
         descripcion: "yyyy",

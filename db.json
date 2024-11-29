@@ -7,7 +7,7 @@
       "precio": 16990,
       "stock": 900,
       "categoria": "gato",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000032.1731365716291.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000032.1732582438255.jpeg"
     },
     {
       "id": "4d244355-e564-4f5f-8dc4-736bb0930231",
@@ -16,7 +16,7 @@
       "precio": 24990,
       "stock": 600,
       "categoria": "gato",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000031.1731365727961.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000031.1732582459803.jpeg"
     },
     {
       "id": "cb6b56a5-da0b-401e-9255-88191cbc2f76",
@@ -25,7 +25,7 @@
       "precio": 16990,
       "stock": 300,
       "categoria": "gato",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000033.1731365751125.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000033.1732582479732.jpeg"
     },
     {
       "id": "db5e8ff3-4251-487c-9c44-d57848f8e507",
@@ -34,7 +34,7 @@
       "precio": 19990,
       "stock": 600,
       "categoria": "gato",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000029.1731365771453.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000029.1732582514168.jpeg"
     },
     {
       "id": "83a91c8a-65d8-4ad4-87ef-56fcd973a253",
@@ -43,7 +43,7 @@
       "precio": 10990,
       "stock": 200,
       "categoria": "aves",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000026.1731365796003.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000027.1732582535133.jpeg"
     },
     {
       "id": "642dc900-2a2f-4b5f-a303-642c28a559d9",
@@ -52,7 +52,7 @@
       "precio": 12990,
       "stock": 200,
       "categoria": "aves",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000027.1731365828315.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000026.1732582574681.jpeg"
     },
     {
       "id": "053146e6-fc1b-42a3-bd47-af4945774d41",
@@ -61,7 +61,7 @@
       "precio": 29990,
       "stock": 300,
       "categoria": "aves",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000024.1731365851089.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000024.1732582596314.jpeg"
     },
     {
       "id": "827f5968-0eff-4baa-a032-f858bfc02a49",
@@ -70,7 +70,7 @@
       "precio": 12990,
       "stock": 200,
       "categoria": "aves",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000025.1731365881021.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000025.1732582647562.jpeg"
     },
     {
       "id": "08223a0f-19c5-4223-906b-a15a4ecf58e7",
@@ -79,7 +79,7 @@
       "precio": 15990,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000019.1731365920156.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000019.1732582666603.jpeg"
     },
     {
       "id": "1f10290a-b27a-4171-b1d1-69fcd5a6d9d0",
@@ -88,7 +88,7 @@
       "precio": 13490,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000023.1731365939275.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000023.1732582690181.jpeg"
     },
     {
       "id": "fef10d6e-1281-45ff-ae14-be8e6bba043a",
@@ -97,7 +97,7 @@
       "precio": 19990,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000021.1731365955690.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000021.1732582752246.jpeg"
     },
     {
       "id": "ae50eb60-0041-448c-9645-0d121181c01d",
@@ -106,7 +106,7 @@
       "precio": 12990,
       "stock": 600,
       "categoria": "perro",
-      "imagen": "http://10.16.54.247:8100/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000020.1731365969745.jpeg"
+      "imagen": "http://10.16.58.156:8101/_capacitor_file_/data/user/0/io.ionic.starter/cache/1000000020.1732582733646.jpeg"
     }
   ],
   "pesos": [

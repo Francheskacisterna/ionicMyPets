@@ -5,6 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { CapacitorSQLite, SQLiteDBConnection, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Storage } from '@ionic/storage-angular';
 import { Network } from '@capacitor/network';
+import { environment } from '../../environments/environment';
 
 export interface Usuario {
   id?: string;
@@ -22,7 +23,7 @@ export interface Usuario {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://10.0.2.2:3000/usuarios';
+  private apiUrl = `${environment.apiUrl}/usuarios`;
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };

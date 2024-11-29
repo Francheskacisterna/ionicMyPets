@@ -5,6 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { CapacitorSQLite, SQLiteDBConnection, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Storage } from '@ionic/storage-angular';
 import { Network } from '@capacitor/network';
+import { environment } from '../../environments/environment';
 
 
 export interface Product {
@@ -32,8 +33,8 @@ export interface WeightOption {
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://10.0.2.2:3000/productos';
-  private weightOptionsUrl = 'http://10.0.2.2:3000/pesos';
+  private apiUrl = `${environment.apiUrl}/productos`;
+  private weightOptionsUrl = `${environment.apiUrl}/pesos`;  
   private productsSubject: BehaviorSubject<Product[]> = new BehaviorSubject<Product[]>([]);
   public products$ = this.productsSubject.asObservable();  // Observable público
   private httpOptions = {
@@ -449,7 +450,7 @@ export class ProductService {
 
 
   getProductsByCategoryAPI(category: string): Observable<Product[]> {
-    const apiUrl = `http://10.0.2.2:3000/productos?categoria=${category}`;
+    const apiUrl = `${environment.apiUrl}/productos?categoria=${category}`;
     return this.http.get<Product[]>(apiUrl);
   }
 

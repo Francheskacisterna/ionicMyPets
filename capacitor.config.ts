@@ -1,9 +1,15 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
   appName: 'Pawsy',
-  webDir: 'www'
+  webDir: 'www',
+  android: {
+    allowMixedContent: true, // Permite URLs HTTP
+  },
+  server: {
+    cleartext: true, // Permite tráfico HTTP claro
+  },
 };
 
 export default config;

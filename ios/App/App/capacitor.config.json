@@ -2,8 +2,17 @@
 	"appId": "io.ionic.starter",
 	"appName": "Pawsy",
 	"webDir": "www",
+	"android": {
+		"allowMixedContent": true
+	},
+	"server": {
+		"cleartext": true
+	},
 	"packageClassList": [
+		"CapacitorSQLitePlugin",
 		"AppPlugin",
+		"CAPCameraPlugin",
+		"GeolocationPlugin",
 		"HapticsPlugin",
 		"KeyboardPlugin",
 		"CAPNetworkPlugin",
