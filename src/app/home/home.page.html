@@ -8,7 +8,7 @@
       <ion-button>
         <ion-icon name="search-outline"></ion-icon>
       </ion-button>
-      <ion-button>
+      <ion-button (click)="getCurrentPositionAndSearchVeterinarias()">
         <ion-icon name="location-outline"></ion-icon>
       </ion-button>
       <ion-button>
@@ -18,34 +18,86 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <!-- Saludo personalizado al usuario -->
-  <ion-card>
+<ion-content class="ion-padding custom-content">
+  <!-- Bienvenida personalizada -->
+  <ion-card class="welcome-card">
     <ion-img src="assets/images/imghome3.webp"></ion-img>
     <ion-card-header>
       <ion-card-title>Bienvenido, {{ nombreUsuario }} a Pawsy</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      Aquí encuentras todo lo que tu mascota necesita, con el mismo amor y cuidado que tú le das. ¡Hagamos su vida más feliz juntos!
+      En Pawsy protegemos a tus bebés perrunos. Encuentra las veterinarias más cercanas si necesitas una urgencia.
+      ¡Estamos aquí para ayudarte!
     </ion-card-content>
   </ion-card>
 
-  <!-- Lista de Opciones -->
-  <ion-list>
-    <ion-list-header>
-      <ion-label>Opciones de Navegación</ion-label>
-    </ion-list-header>
-    <ion-item>
-      <ion-icon name="cart-outline" slot="start"></ion-icon>
-      <ion-label>Comprar Ahora</ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-icon name="heart-outline" slot="start"></ion-icon>
-      <ion-label>Favoritos</ion-label>
-    </ion-item>    
-    <ion-item>
-      <ion-icon name="settings-outline" slot="start"></ion-icon>
-      <ion-label>Configuración</ion-label>
-    </ion-item>
-  </ion-list>
+  <!-- Sección de Veterinarias -->
+  <ion-card class="veterinarias-card">
+    <ion-card-header>
+      <ion-card-title>Veterinarias Cercanas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <!-- Botón para buscar veterinarias cercanas -->
+      <ion-button expand="full" class="btn-cercanas" (click)="getCurrentPositionAndSearchVeterinarias()">
+        Buscar Veterinarias Cercanas
+      </ion-button>
+
+      <!-- Botón para mostrar/ocultar veterinarias -->
+      <ion-button *ngIf="veterinarias.length > 0" expand="full" class="btn-toggle" (click)="toggleVeterinarias()">
+        {{ showVeterinarias ? 'Ocultar Veterinarias' : 'Mostrar Veterinarias' }}
+      </ion-button>
+
+      <!-- Lista de veterinarias -->
+      <ion-list *ngIf="showVeterinarias && veterinarias.length > 0" class="veterinarias-list">
+        <ion-item *ngFor="let veterinaria of veterinarias" class="veterinaria-item">
+          <ion-icon name="location-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h2>{{ veterinaria.name }}</h2>
+            <p>{{ veterinaria.address }}</p>
+            <p>
+              Estado:
+              <span [ngClass]="{'open': veterinaria.isOpen, 'closed': veterinaria.isOpen === false}">
+                {{ veterinaria.isOpen === null ? 'No disponible' : (veterinaria.isOpen ? 'Abierto' : 'Cerrado') }}
+              </span>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <!-- Mensaje de error si no hay veterinarias -->
+      <p *ngIf="!veterinarias.length && hasSearched" class="no-veterinarias">
+        No se encontraron veterinarias cercanas.
+      </p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Sección de Clima -->
+  <ion-card class="weather-card">
+    <ion-card-header>
+      <ion-card-title>🌤 Clima Actual</ion-card-title>
+    </ion-card-header>
+    <ion-card-content *ngIf="weather" class="weather-content">
+      <div class="weather-header">
+        <div class="weather-icon-container">
+          <ion-icon [name]="weather.icon" class="weather-icon"></ion-icon>
+        </div>
+        <div class="weather-details">
+          <p><strong>Ciudad:</strong> {{ weather.city }}</p>
+          <p><strong>Temperatura:</strong> {{ weather.temperature }}°C</p>
+          <p><strong>Estado:</strong> {{ weather.description }}</p>
+        </div>
+      </div>
+      <div class="weather-message">
+        <p *ngIf="weather.temperature > 20 && weather.description.includes('claro')">
+          🌞 El día está perfecto para un paseo con tu mascota. ¡A disfrutar al aire libre!
+        </p>
+        <p *ngIf="weather.temperature <= 20 || !weather.description.includes('claro')">
+          🌧 Puede que el día no sea ideal para paseos, pero es perfecto para consentir a tu mascota en casa.
+        </p>
+      </div>
+    </ion-card-content>
+    <ion-card-content *ngIf="!weather">
+      <p>No se pudo obtener el clima actual. Verifica tu conexión.</p>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

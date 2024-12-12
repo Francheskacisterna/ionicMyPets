@@ -30,4 +30,96 @@ ion-icon {
   font-size: 24px;
   margin: 0 10px;
 }
+.veterinarias-card {
+  margin-top: 20px;
+}
+
+.veterinarias-card ion-card-title {
+  font-size: 18px;
+  color: #0056b3;
+  text-align: center;
+}
+
+.btn-cercanas {
+  background-color: #007bff;
+  color: white;
+}
+
+.veterinarias-list {
+  margin-top: 10px;
+}
+
+.veterinaria-item {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 5px;
+}
+
+.veterinaria-item h2 {
+  font-size: 16px;
+  color: #333;
+}
+
+.veterinaria-item p {
+  font-size: 14px;
+  color: #666;
+}
+
+.no-veterinarias {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+.open {
+  color: green;
+  font-weight: bold;
+}
+
+.closed {
+  color: red;
+  font-weight: bold;
+}
+
+.no-veterinarias {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+.weather-card {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.weather-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.weather-icon {
+  font-size: 64px;
+  color: #f39c12; /* Color brillante para el sol */
+  margin-right: 15px;
+}
+
+.weather-details .weather-text {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.weather-message {
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+  background: #fef3d7; /* Fondo suave para el mensaje */
+  padding: 10px;
+  border-radius: 8px;
+  color: #856404;
+  font-weight: bold;
+}
+
+
+
 

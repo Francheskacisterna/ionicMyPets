@@ -36,7 +36,7 @@
             "allowedCommonJsDependencies": [
               "jquery"
             ],
-            "serviceWorker": true,
+            "serviceWorker": false,
             "ngswConfigPath": "ngsw-config.json"
           },
           "configurations": {

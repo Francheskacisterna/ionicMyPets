@@ -1,5 +1,5 @@
 {
-  "name": "Pawsy",
+  "name": "pawsy",
   "version": "0.0.1",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
@@ -38,7 +38,9 @@
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.0.0",
     "@ionic/storage-angular": "^4.0.0",
+    "axios": "^1.7.9",
     "cors": "^2.8.5",
+    "express": "^4.21.2",
     "ionicons": "^7.0.0",
     "jquery": "^3.7.1",
     "json-server": "^1.0.0-beta.3",
@@ -76,5 +78,8 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.4.0"
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "main": "karma.conf.js",
+  "keywords": [],
+  "license": "ISC"
 }

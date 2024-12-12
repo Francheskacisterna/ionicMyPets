@@ -23,7 +23,7 @@ import { IonicStorageModule } from '@ionic/storage-angular';
 // Importa HttpClientModule y el interceptor HTTP
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ErrorInterceptor } from './interceptors/error.service';
-import { ServiceWorkerModule } from '@angular/service-worker';
+
 
 // Define el formato de fecha personalizado
 export const MY_DATE_FORMATS = {
@@ -56,12 +56,6 @@ export const MY_DATE_FORMATS = {
     MatNativeDateModule,  // Adaptador de fecha nativo de Angular Material
     IonicStorageModule.forRoot(),
     HttpClientModule,
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
-    })
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

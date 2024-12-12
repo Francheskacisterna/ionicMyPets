@@ -9,26 +9,54 @@
     <ion-content>
       <ion-searchbar></ion-searchbar>
       <ion-list>
-        <ion-item (click)="navigateToHome()">Inicio</ion-item>
+        <ion-item (click)="navigateToHome()">
+          <ion-icon name="home-outline" slot="start"></ion-icon>
+          <ion-label>Inicio</ion-label>
+        </ion-item>
 
         <!-- Mostrar solo si el usuario NO está autenticado (invitado) -->
-        <ion-item (click)="navigateToLogin()" *ngIf="!isAuthenticated">Iniciar Sesión</ion-item>
-        <ion-item (click)="navigateToRegister()" *ngIf="!isAuthenticated">Registro</ion-item>
+        <ion-item (click)="navigateToLogin()" *ngIf="!isAuthenticated">
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          <ion-label>Iniciar Sesión</ion-label>
+        </ion-item>
+        <ion-item (click)="navigateToRegister()" *ngIf="!isAuthenticated">
+          <ion-icon name="person-add-outline" slot="start"></ion-icon>
+          <ion-label>Registro</ion-label>
+        </ion-item>
 
         <!-- Acceso a todos los roles, incluido invitado -->
-        <ion-item (click)="navigateToGato()">Gatos</ion-item>
-        <ion-item (click)="navigateToPerro()">Perros</ion-item>
-        <ion-item (click)="navigateToAve()">Aves</ion-item>
+        <ion-item (click)="navigateToGato()">
+          <ion-icon name="paw-outline" slot="start"></ion-icon>
+          <ion-label>Gatos</ion-label>
+        </ion-item>
+        <ion-item (click)="navigateToPerro()">
+          <ion-icon name="paw-outline" slot="start"></ion-icon>
+          <ion-label>Perros</ion-label>
+        </ion-item>
+        <ion-item (click)="navigateToAve()">
+          <ion-icon name="paw-outline" slot="start"></ion-icon>
+          <ion-label>Aves</ion-label>
+        </ion-item>
+        
         <!-- Opciones en el menú basadas en el rol del usuario -->
         <ion-item (click)="navigateToProductAll()" *ngIf="userRole === 'empleado' || userRole === 'administrador'">
-          Gestión de productos
-        </ion-item>        
-        <ion-item (click)="navigateToUserAll()" *ngIf="userRole === 'administrador'">Gestión de Usuarios</ion-item>
+          <ion-icon name="clipboard-outline" slot="start"></ion-icon>
+          <ion-label>Gestión de productos</ion-label>
+        </ion-item>
+        <ion-item (click)="navigateToUserAll()" *ngIf="userRole === 'administrador'">
+          <ion-icon name="people-outline" slot="start"></ion-icon>
+          <ion-label>Gestión de Usuarios</ion-label>
+        </ion-item>
+
         <!-- Mostrar solo si el usuario está autenticado -->
-        <ion-item (click)="logout()" *ngIf="isAuthenticated">Cerrar Sesión</ion-item>
+        <ion-item (click)="logout()" *ngIf="isAuthenticated">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          <ion-label>Cerrar Sesión</ion-label>
+        </ion-item>
       </ion-list>
     </ion-content>
   </ion-menu>
+
 
   <!-- Contenedor principal -->
   <ion-header *ngIf="showMenu">

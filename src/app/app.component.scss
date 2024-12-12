@@ -124,6 +124,34 @@ button.mat-icon-button {
     transform: scale(0.6); /* Reduce visualmente el tamaño del número */
   }
   
+  /* Título del menú */
+  .menu-title {
+    font-size: 20px;
+    color: #5d4638;
+    font-weight: bold;
+  }
+  
+  /* Separador */
+  ion-item-divider {
+    --background: #d4c0a1; /* Color beige claro */
+    margin: 10px 0;
+  }
+  
+  /* Opciones del menú */
+  ion-item {
+    --background-hover: rgba(93, 70, 56, 0.1); /* Fondo suave al pasar el cursor */
+    --color: #d4c0a1; /* Color del texto */
+  }
+  
+  ion-item:hover {
+    --background: rgba(93, 70, 56, 0.2);
+  }
+  
+  ion-icon {
+    font-size: 22px;
+    color: #5d4638;
+  }
+  
   
   
   
